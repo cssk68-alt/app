@@ -1,11 +1,13 @@
 <!DOCTYPE html>
+<!-- Cache-Buster: 2026-05-15T17:15:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Mein Sparplan</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Mein Sparplan - v20260515t1715</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -200,132 +202,135 @@
   .detail-pct { font-size: 12px; font-weight: 700; }
   .mini-bar-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-bottom: 4px; }
   .mini-bar-fill { height: 100%; border-radius: 2px; opacity: 0.65; }
-  .detail-euros { display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-top: 2px; }
-
-  
+  .tr-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin: 10px 14px 12px;
+    font-size: 11px; color: #6b7280;
+    border: 1px solid #ffffff0f; border-radius: 8px;
+    padding: 5px 10px; background: rgba(255,255,255,0.03);
+    cursor: pointer; text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tr-link:active { background: rgba(255,255,255,0.08); }
+  .tr-logo { font-size: 13px; }
 </style>
 </head>
 <body>
-
 <div class="container">
   <div class="header">
-    <span class="header-label">MONATLICHER SPARPLAN</span>
-    <span class="header-total" id="hdrTotal">500 &#8364;</span>
-    <span class="header-sub" id="hdrSub">6000 &#8364; / Jahr &#183; 12 Positionen</span>
-    <span class="header-hint">&#8595; Segment oder Karte antippen f&#252;r Details</span>
+    <div class="header-label">Monatlicher Sparplan</div>
+    <div class="header-total" id="hdrTotal"></div>
+    <div class="header-sub" id="hdrSub"></div>
+    <div class="header-hint">↓ Segment oder Karte antippen für Details</div>
+    <button id="installBtn" style="display:block; margin-top:10px; padding:8px 14px; background:#a78bfa; color:#fff; border:none; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; width:100%; max-width:200px; margin-left:auto; margin-right:auto;">✅ 📲 App installieren</button>
   </div>
 
   <div class="pie-wrap">
-    <svg id="piesvg" viewBox="0 0 260 260"></svg>
+    <svg id="piesvg" viewBox="0 0 260 260" width="260" height="260"></svg>
     <div class="pie-center" id="pieCenter"></div>
   </div>
 
   <div class="pills" id="pills"></div>
-
   <div class="cards" id="cards"></div>
-
-  <div class="footer">Stand 09. Mai 2026 &#183; Kurse ca. &#183; Angaben ohne Gew&#228;hr</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr</div>
 </div>
 
+<!-- MODAL -->
 <div class="overlay" id="overlay">
-  <div class="modal">
+  <div class="modal" id="modal">
     <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
     <div class="modal-header" id="modalHeader">
       <div class="modal-header-top">
         <div class="modal-header-left">
-          <div class="modal-big-emoji" id="mEmoji"></div>
+          <span class="modal-big-emoji" id="mEmoji"></span>
           <div>
             <div class="modal-group-name" id="mName"></div>
             <div class="modal-group-sub" id="mSub"></div>
           </div>
         </div>
-        <button class="modal-close" onclick="closeModal()">&#10005;</button>
+        <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-share-bar" id="mShareBar">
         <div class="modal-share-row">
-          <span>Anteil am Sparplan</span>
-          <span id="mSharePct"></span>
+          <span>Anteil am Gesamtplan</span>
+          <span id="mSharePct" style="font-weight:700"></span>
         </div>
-        <div class="bar-track">
-          <div class="bar-fill" id="mShareFill"></div>
-        </div>
+        <div class="bar-track"><div class="bar-fill" id="mShareFill"></div></div>
         <div class="modal-share-note" id="mShareNote"></div>
       </div>
     </div>
-    <div id="mProducts"></div>
+    <div class="products" id="mProducts"></div>
   </div>
 </div>
 
-<button id="installBtn" style="display:block;position:fixed;top:20px;left:20px;padding:8px 16px;background:linear-gradient(90deg,#a78bfa,#60a5fa);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;z-index:999;font-size:12px" onclick="installPWA()">
-  📲 App installieren
-</button>
-
 <script>
+// ── DATEN ────────────────────────────────────────────────────
 const GROUPS = [
   { name:"USA", color:"#3B82F6", emoji:"🇺🇸", products:[
-    { name:"Vanguard S&#38;P 500 ETF (Acc)", amount:75, price:"450 &#36;", ticker:"VOO",
-      isin:"US9229087690", trType:"etf",
-      details:[{n:"Apple",p:7},{n:"Microsoft",p:6},{n:"Nvidia",p:4}] },
-    { name:"iShares MSCI USA Momentum Factor ETF", amount:50, price:"320 &#36;", ticker:"MTUM",
-      isin:"US46433D6693", trType:"etf",
-      details:[{n:"Growth-Focus",p:100}] }
+    { name:"iShares Core S&P 500 UCITS ETF (Acc)", amount:100, price:"675 €", ticker:"SXR8",
+      isin:"IE00B5BMR087", trType:"etf",
+      details:[{n:"Nvidia",p:8.2},{n:"Apple",p:6.7},{n:"Microsoft",p:5.0}] }
   ]},
   { name:"Asien", color:"#F59E0B", emoji:"🌏", products:[
-    { name:"iShares MSCI Taiwan ETF", amount:85, price:"620 &#8364;", ticker:"EWT",
-      isin:"US4642881528", trType:"etf",
-      details:[{n:"Taiwan",p:100},{n:"Semiconductor",p:45}] },
-    { name:"iShares MSCI Emerging Markets Min Vol", amount:60, price:"550 &#8364;", ticker:"EEMV",
-      isin:"US4642874293", trType:"etf",
-      details:[{n:"China",p:32},{n:"Indien",p:12}] },
-    { name:"iShares Core MSCI Asia Pacific IMI", amount:55, price:"75 &#8364;", ticker:"EPAU",
-      isin:"US4642884842", trType:"etf",
-      details:[{n:"Australien",p:61},{n:"Hongkong",p:22},{n:"Singapur",p:12}] }
+    { name:"iShares Core MSCI Pacific ex-Japan ETF", amount:75, price:"203 €", ticker:"CPXJ",
+      isin:"IE00B52MJY50", trType:"etf",
+      details:[{n:"Australien",p:61},{n:"Hongkong",p:22},{n:"Singapur",p:12}] },
+    { name:"iShares MSCI Korea UCITS ETF EUR (Acc)", amount:13, price:"485 €", ticker:"CSKR",
+      isin:"IE00B5W4TY14", trType:"etf",
+      warning:"~11% Überschneidung mit EIMI",
+      details:[{n:"Samsung Electronics",p:24},{n:"SK Hynix",p:9},{n:"LG Energy Solution",p:4}] },
+    { name:"iShares Core MSCI Japan IMI UCITS ETF", amount:12, price:"65 €", ticker:"IJPA",
+      isin:"IE00B4L5YX21", trType:"etf",
+      details:[{n:"Toyota",p:5},{n:"Sony",p:3},{n:"Keyence",p:3}] }
   ]},
   { name:"Gesundheit", color:"#8B5CF6", emoji:"🏥", products:[
-    { name:"iShares MSCI World Health Care", amount:70, price:"8 &#36;", ticker:"WHCS",
-      isin:"US4642880566", trType:"etf",
-      details:[{n:"Eli Lilly",p:9.8},{n:"J&#38;J",p:7.3}] },
-    { name:"iShares Ageing Population UCITS ETF", amount:25, price:"8 &#8364;", ticker:"AGED",
-      isin:"US4642881726", trType:"etf",
-      details:[{n:"Healthcare",p:47}] }
+    { name:"iShares MSCI World Health Care Sector ETF", amount:70, price:"8 $", ticker:"WHCS",
+      isin:"IE00BJ5JNZ06", trType:"etf",
+      details:[{n:"Eli Lilly",p:9.8},{n:"Johnson & Johnson",p:7.3},{n:"AbbVie",p:4.9}] },
+    { name:"iShares Ageing Population UCITS ETF (Acc)", amount:25, price:"8 €", ticker:"AGED",
+      isin:"IE00BYZK4669", trType:"etf",
+      details:[{n:"Healthcare-Anteil",p:47},{n:"Finanzdienstleistungen",p:43},{n:"↔ Overlap: Novo Nordisk, Roche, J&J",p:null}] }
   ]},
   { name:"Edelmetalle", color:"#F97316", emoji:"🥇", products:[
-    { name:"WisdomTree Physical Silver", amount:30, price:"62 &#8364;", ticker:"PHAG",
-      isin:"US4642885451", trType:"etc",
+    { name:"WisdomTree Physical Silver (USD)", amount:30, price:"62 €", ticker:"PHAG",
+      isin:"JE00B1VS3333", trType:"etc",
       details:[{n:"100% physisches Silber",p:100}] },
-    { name:"WisdomTree Physical Platinum", amount:23, price:"161 &#8364;", ticker:"PHPT",
-      isin:"US4642885634", trType:"etc",
+    { name:"WisdomTree Physical Platinum (USD)", amount:23, price:"161 €", ticker:"PHPT",
+      isin:"JE00B1VS2W53", trType:"etc",
       details:[{n:"100% physisches Platin",p:100}] },
-    { name:"WisdomTree Copper", amount:22, price:"46 &#8364;", ticker:"COPA",
-      isin:"US4642886138", trType:"etc",
+    { name:"WisdomTree Copper (USD)", amount:22, price:"46 €", ticker:"COPA",
+      isin:"GB00B15KXQ89", trType:"etc",
       details:[{n:"Kupfer-Futures",p:100}] }
   ]},
   { name:"Emerging Markets", color:"#10B981", emoji:"🌍", products:[
-    { name:"iShares Core MSCI EM IMI UCITS ETF", amount:70, price:"44 &#8364;", ticker:"EIMI",
-      isin:"US4642886435", trType:"etf",
-      details:[{n:"China",p:28},{n:"Indien",p:20}] }
+    { name:"iShares Core MSCI EM IMI UCITS ETF (Acc)", amount:70, price:"44 €", ticker:"EIMI",
+      isin:"IE00BKM4GZ66", trType:"etf",
+      details:[{n:"China",p:28},{n:"Indien",p:20},{n:"Taiwan",p:18},{n:"Südkorea",p:11},{n:"Brasilien",p:5}] }
   ]},
   { name:"Europa", color:"#EC4899", emoji:"🇪🇺", products:[
-    { name:"Allianz SE (Einzelaktie)", amount:35, price:"370 &#8364;", ticker:"ALV",
+    { name:"Allianz SE (Einzelaktie)", amount:35, price:"370 €", ticker:"ALV",
       isin:"DE0008404005", trType:"aktie",
-      details:[{n:"Versicherung &#38; Asset Management",p:100}] },
-    { name:"iShares Core FTSE 100 UCITS ETF", amount:25, price:"1007 GBp", ticker:"ISF",
+      details:[{n:"Versicherung & Asset Management",p:100}] },
+    { name:"iShares Core FTSE 100 UCITS ETF GBP (Dist)", amount:25, price:"1007 GBp", ticker:"ISF",
       isin:"IE0005042456", trType:"etf",
-      details:[{n:"AstraZeneca",p:9},{n:"HSBC",p:7}] }
+      details:[{n:"AstraZeneca",p:9},{n:"HSBC",p:7},{n:"Shell",p:7}] }
   ]}
 ];
 
+// ── localStorage ─────────────────────────────────────────────
 const STORAGE_KEY = 'sparplan_currentTotal';
-const DEFAULT_TOTAL = GROUPS.reduce((s,g)=>s+g.products.reduce((a,p)=>a+p.amount,0),0);
+const DEFAULT_TOTAL = GROUPS.reduce((s,g)=>s+g.products.reduce((a,p)=>a+p.amount,0),0); // 500
 
 const total = DEFAULT_TOTAL;
 const posCount = GROUPS.reduce((s,g)=>s+g.products.length,0);
 
+// Prozentanteile festschreiben (unveränderlich)
 GROUPS.forEach(g => {
   g.products.forEach(p => { p.pct = p.amount / total; });
   g.pct = g.products.reduce((a,p)=>a+p.pct,0);
 });
 
+// Gespeicherten Wert laden (pro Gerät individuell)
 let currentTotal = parseFloat(localStorage.getItem(STORAGE_KEY)) || DEFAULT_TOTAL;
 
 function saveTotal(val) {
@@ -337,10 +342,10 @@ function fmtAmt(pct){ const v=getAmt(pct); return Number.isInteger(v)?v:v.toFixe
 
 function updateHeader(){
   const hdrEl = document.getElementById('hdrTotal');
-  hdrEl.textContent = currentTotal + ' &#8364;';
+  hdrEl.textContent = currentTotal + ' €';
   hdrEl.onclick = editTotal;
   hdrEl.style.cursor = 'pointer';
-  document.getElementById('hdrSub').textContent = (currentTotal*12) + ' &#8364; / Jahr &#183; ' + posCount + ' Positionen';
+  document.getElementById('hdrSub').textContent = (currentTotal*12) + ' € / Jahr · ' + posCount + ' Positionen';
 }
 updateHeader();
 
@@ -402,16 +407,16 @@ function showPieCenter(i){
   pieCenter.innerHTML = `
     <div class="pie-center-emoji">${d.emoji}</div>
     <div class="pie-center-name" style="color:${d.color};white-space:nowrap">${d.name}</div>
-    <div class="pie-center-val" style="white-space:nowrap">${val} &#8364;/Mo</div>
+    <div class="pie-center-val" style="white-space:nowrap">${val} €/Mo</div>
     <div class="pie-center-pct" style="white-space:nowrap">${(d.pct*100).toFixed(1)}%</div>`;
 }
 function resetPieCenter(){
   pieCenter.onclick = editTotal;
   pieCenter.innerHTML = `
     <div style="font-size:11px;color:var(--muted);white-space:nowrap">Gesamt</div>
-    <div style="font-size:22px;font-weight:900;white-space:nowrap">${currentTotal} &#8364;</div>
-    <div style="font-size:10px;color:var(--dim);white-space:nowrax">/ Monat</div>
-    <div style="font-size:9px;color:#4b5563;white-space:nowrax;margin-top:2px">antippen zum &#196;ndern</div>`;
+    <div style="font-size:22px;font-weight:900;white-space:nowrap">${currentTotal} €</div>
+    <div style="font-size:10px;color:var(--dim);white-space:nowrap">/ Monat</div>
+    <div style="font-size:9px;color:#4b5563;white-space:nowrap;margin-top:2px">antippen zum Ändern</div>`;
 }
 
 function editTotal(){
@@ -420,9 +425,9 @@ function editTotal(){
     <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Betrag eingeben</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:3px">
       <input id="totalInput" class="pie-center-edit" type="number" value="${currentTotal}" min="1" inputmode="numeric"/>
-      <span style="font-size:16px;font-weight:700">&#8364;</span>
+      <span style="font-size:16px;font-weight:700">€</span>
     </div>
-    <div style="font-size:10px;color:var(--dim);margin-top:4px">Enter oder au&#223;en tippen</div>`;
+    <div style="font-size:10px;color:var(--dim);margin-top:4px">Enter oder außen tippen</div>`;
   const inp = document.getElementById('totalInput');
   inp.focus(); inp.select();
   inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); applyTotal(inp); }});
@@ -433,7 +438,7 @@ function applyTotal(inp){
   const val = parseFloat(inp.value);
   if(!isNaN(val) && val > 0){
     currentTotal = Math.round(val*100)/100;
-    saveTotal(currentTotal);
+    saveTotal(currentTotal); // ← im localStorage sichern
   }
   updateAll();
 }
@@ -464,13 +469,13 @@ function renderCards(){
           <span class="card-name" style="color:${g.color}">${g.name}</span>
           <span class="card-count">${g.products.length} Pos.</span>
         </div>
-        <div class="card-right">${gt} &#8364;<span>${pct}%</span></div>
+        <div class="card-right">${gt} €<span>${pct}%</span></div>
       </div>
       <div class="card-bar-wrap">
         <div class="card-bar" style="width:${pct}%;background:${g.color}"></div>
       </div>
       <div class="card-tickers">
-        ${g.products.map(p=>`<span class="card-ticker-item">${p.ticker} &#183; ${fmtAmt(p.pct)} &#8364;/Mo</span>`).join('')}
+        ${g.products.map(p=>`<span class="card-ticker-item">${p.ticker} · ${fmtAmt(p.pct)} €/Mo</span>`).join('')}
       </div>`;
     card.addEventListener('click',()=>openModal(i));
     cardsEl.appendChild(card);
@@ -496,10 +501,26 @@ renderCards();
 
 // ── TRADE REPUBLIC DEEPLINK ───────────────────────────────────
 function openTR(isin) {
+  const ua = navigator.userAgent;
+  const isAndroid = /Android/i.test(ua);
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  const playStore = 'https://play.google.com/store/apps/details?id=de.traderepublic.app';
+  const appStore  = 'https://apps.apple.com/de/app/trade-republic/id1410703839';
+
   copyToClipboard(isin);
-  showToast('ISIN ' + isin + ' kopiert &#8211; in TR-Suche einf&#252;gen');
+  showToast('ISIN ' + isin + ' kopiert – in TR-Suche einfügen');
+
   setTimeout(() => {
-    window.open('https://app.traderepublic.com/', '_blank');
+    if (isAndroid) {
+      const fallback = encodeURIComponent(playStore);
+      window.location.href =
+        `intent://#Intent;scheme=traderepublic;package=de.traderepublic.app;S.browser_fallback_url=${fallback};end`;
+    } else if (isIOS) {
+      window.location.href = `traderepublic://`;
+      setTimeout(() => { window.location.href = appStore; }, 800);
+    } else {
+      window.open('https://app.traderepublic.com/', '_blank');
+    }
   }, 600);
 }
 
@@ -551,14 +572,15 @@ function openModal(groupIndex){
   document.getElementById('mEmoji').textContent = g.emoji;
   document.getElementById('mName').style.color = g.color;
   document.getElementById('mName').textContent = g.name;
-  document.getElementById('mSub').innerHTML = `<b>${gt} &#8364;</b> / Mo &#183; <b>${Math.round(gt*12)} &#8364;</b> / Jahr`;
+  document.getElementById('mSub').innerHTML = `<b>${gt} €</b> / Mo · <b>${Math.round(gt*12)} €</b> / Jahr`;
+
   document.getElementById('modalHeader').style.borderBottomColor = g.color+'22';
   document.getElementById('mShareBar').style.background = g.color+'12';
   document.getElementById('mSharePct').style.color = g.color;
   document.getElementById('mSharePct').textContent = pct.toFixed(1)+'%';
   document.getElementById('mShareFill').style.width = pct+'%';
   document.getElementById('mShareFill').style.background = g.color;
-  document.getElementById('mShareNote').textContent = `von ${currentTotal} &#8364;/Monat gesamt`;
+  document.getElementById('mShareNote').textContent = `von ${currentTotal} €/Monat gesamt`;
 
   const prod = document.getElementById('mProducts');
   prod.innerHTML = '';
@@ -567,6 +589,7 @@ function openModal(groupIndex){
     const div = document.createElement('div');
     div.className='product-card';
     div.style.borderColor = g.color+'20';
+
     let detailsHTML = '';
     if(p.details && p.details.length){
       const rows = p.details.map(d=>{
@@ -589,8 +612,8 @@ function openModal(groupIndex){
             <div class="mini-bar-fill" style="width:${barW}%;background:${g.color}"></div>
           </div>
           <div class="detail-euros">
-            <span>&#8776; <b>${mo} &#8364;</b>/Mo</span>
-            <span>&#8776; <b>${yr} &#8364;</b>/Jahr</span>
+            <span>≈ <b>${mo} €</b>/Mo</span>
+            <span>≈ <b>${yr} €</b>/Jahr</span>
           </div>
         </div>`;
       }).join('');
@@ -599,6 +622,7 @@ function openModal(groupIndex){
         ${rows}
       </div>`;
     }
+
     div.innerHTML = `
       <div class="product-header" style="border-bottom-color:${g.color}15">
         <div class="product-title-row">
@@ -608,11 +632,11 @@ function openModal(groupIndex){
         <div class="stats-row">
           <div class="stat">
             <div class="stat-label">Monatlich</div>
-            <div class="stat-val" style="color:${g.color}">${fmtAmt(p.pct)} &#8364;</div>
+            <div class="stat-val" style="color:${g.color}">${fmtAmt(p.pct)} €</div>
           </div>
           <div class="stat">
-            <div class="stat-label">J&#228;hrlich</div>
-            <div class="stat-val" style="color:#d1d5db">${Math.round(pAmt*12)} &#8364;</div>
+            <div class="stat-label">Jährlich</div>
+            <div class="stat-val" style="color:#d1d5db">${Math.round(pAmt*12)} €</div>
           </div>
           <div class="stat">
             <div class="stat-label">Kurs (09.05)</div>
@@ -632,31 +656,3 @@ function openModal(groupIndex){
   });
 
   document.getElementById('overlay').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-
-function closeModal(){
-  document.getElementById('overlay').classList.remove('open');
-  document.body.style.overflow='';
-  window._openModalIndex = undefined;
-}
-
-// ── PWA Install ──────────────────────────────────────────────
-// Button ist IMMER sichtbar - funktioniert auf allen Geräten
-function installPWA() {
-  // Öffne einfach die Seite in neuem Tab/Fenster
-  // Der Browser zeigt dann die PWA-Installationsoptionen wenn verfügbar
-  window.location.href = 'https://cssk68-alt.github.io/sparplan/';
-}
-
-// ── SERVICE WORKER REGISTRIERUng ──────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => {
-      console.warn('Service Worker Fehler:', err);
-    });
-  });
-}
-</script>
-</body>
-</html>
