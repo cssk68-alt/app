@@ -201,7 +201,7 @@
   .mini-bar-fill { height: 100%; border-radius: 2px; opacity: 0.65; }
   .detail-euros { display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-top: 2px; }
 
-  #installBtn { display: none; }
+  
 </style>
 </head>
 <body>
@@ -622,7 +622,10 @@ function openModal(groupIndex){
       ${detailsHTML}
       ${p.warning ? `<div style="padding:4px 14px 6px;font-size:11px;color:#a78bfa;font-style:italic">${p.warning}</div>` : ''}
       <div style="display:flex;gap:8px;padding:8px 14px 12px;flex-wrap:wrap">
-        <button onclick="openTR('${p.isin}')" style="padding:8px 12px;background:#10b981;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;flex:1;margin:0">&#128994; TR</button>
+        <button class="tr-link" style="margin:0;flex:1;min-width:0" onclick="openTR('${p.isin}')">
+          <span>&#128994;</span> Trade Republic
+          <span style="font-size:10px;opacity:0.5;overflow:hidden;text-overflow:ellipsis">${p.isin}</span>
+        </button>
       </div>`;
     prod.appendChild(div);
   });
