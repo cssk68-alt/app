@@ -1,7 +1,7 @@
 // Service Worker – Mein Sparplan PWA
 // Cache-First-Strategie: alles wird beim ersten Aufruf gecacht und danach offline serviert.
 
-const CACHE_NAME = 'sparplan-v1';
+const CACHE_NAME = 'sparplan-v3-20260515t1715';
 
 const ASSETS = [
   './',
@@ -44,6 +44,4 @@ self.addEventListener('fetch', event => {
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         return response;
       }).catch(() => caches.match('./index.html'));
-    })
-  );
-});
+  
