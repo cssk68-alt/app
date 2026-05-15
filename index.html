@@ -222,8 +222,12 @@
     <div class="header-total" id="hdrTotal"></div>
     <div class="header-sub" id="hdrSub"></div>
     <div class="header-hint">↓ Segment oder Karte antippen für Details</div>
-    <button id="installBtn" style="display:block; margin-top:10px; padding:8px 14px; background:#a78bfa; color:#fff; border:none; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; width:100%; max-width:200px; margin-left:auto; margin-right:auto;">✅ 📲 App installieren</button>
   </div>
+<button id="installBtn" style="display:none; position:fixed; top:8px; left:8px; padding:6px 10px; background:#a78bfa; color:#fff; border:none; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; z-index:1000; box-shadow:0 2px 8px rgba(0,0,0,0.4);">📲 Installieren</button>
+<div id="iosHint" style="display:none; position:fixed; top:8px; left:8px; max-width:230px; padding:8px 10px; background:#1e293b; border:1px solid #a78bfa; color:#e2e8f0; border-radius:8px; font-size:11px; line-height:1.4; z-index:1000; box-shadow:0 2px 8px rgba(0,0,0,0.4);">
+  📲 <b>Zum Home:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>
+  <span style="display:block; margin-top:4px; font-size:10px; color:#94a3b8; cursor:pointer" onclick="document.getElementById('iosHint').style.display='none'">✕ schließen</span>
+</div>
 
   <div class="pie-wrap">
     <svg id="piesvg" viewBox="0 0 260 260" width="260" height="260"></svg>
@@ -668,11 +672,21 @@ function closeModal(){
 // ── PWA INSTALL PROMPT ──────────────────────────────────────
 let deferredPrompt = null;
 const installBtn = document.getElementById('installBtn');
+const iosHint = document.getElementById('iosHint');
 
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+// iOS Safari hat kein beforeinstallprompt → eigener Hinweis
+if (!isStandalone && isIOS) {
+  iosHint.style.display = 'block';
+}
+
+// Android/Desktop Chrome/Edge: beforeinstallprompt feuert wenn installierbar
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  installBtn.style.display = 'block';
+  if (!isStandalone) installBtn.style.display = 'block';
 });
 
 installBtn.addEventListener('click', async () => {
@@ -688,12 +702,25 @@ installBtn.addEventListener('click', async () => {
 window.addEventListener('appinstalled', () => {
   console.log('PWA wurde installiert');
   installBtn.style.display = 'none';
+  iosHint.style.display = 'none';
 });
 
 // ── SERVICE WORKER REGISTRIERUNG ─────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
+      reg.update();
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (newSW) {
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              window.location.reload();
+            }
+          });
+        }
+      });
+    }).catch(err => {
       console.warn('Service Worker Fehler:', err);
     });
   });
