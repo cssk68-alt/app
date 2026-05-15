@@ -198,6 +198,7 @@
   .detail-pct { font-size: 12px; font-weight: 700; }
   .mini-bar-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-bottom: 4px; }
   .mini-bar-fill { height: 100%; border-radius: 2px; opacity: 0.65; }
+  .detail-euros { display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-top: 2px; }
   .tr-link {
     display: inline-flex; align-items: center; gap: 5px;
     margin: 10px 14px 12px;
@@ -568,8 +569,8 @@ function openModal(groupIndex){
   document.getElementById('mName').style.color = g.color;
   document.getElementById('mName').textContent = g.name;
   document.getElementById('mSub').innerHTML = `<b>${gt} €</b> / Mo · <b>${Math.round(gt*12)} €</b> / Jahr`;
-  document.getElementById('modalHeader').style.borderBottomColor = g.color('22';
-  document.getElementById('mShareBar').style.background = g.color('12';
+  document.getElementById('modalHeader').style.borderBottomColor = g.color + '22';
+  document.getElementById('mShareBar').style.background = g.color + '12';
   document.getElementById('mSharePct').style.color = g.color;
   document.getElementById('mSharePct').textContent = pct.toFixed(1)+'%';
   document.getElementById('mShareFill').style.width = pct+'%';
@@ -582,14 +583,14 @@ function openModal(groupIndex){
     const pAmt = getAmt(p.pct);
     const div = document.createElement('div');
     div.className='product-card';
-    div.style.borderColor = g.color('20';
+    div.style.borderColor = g.color + '20';
     let detailsHTML = '';
     if(p.details && p.details.length){
       const rows = p.details.map(d=>{
         if(d.p===null){
           return `<div class="detail-row">
             <div class="detail-top">
-              <span class="detail-name overlap">${d.}</span>
+              <span class="detail-name overlap">${d.n}</span>
             </div>
           </div>`;
         }
