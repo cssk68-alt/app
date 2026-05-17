@@ -460,23 +460,16 @@
     },
     {
       "region": "Edelmetalle-Länder",
-      "pct_gesamt": 10.83,
+      "pct_gesamt": 6.91,
       "länder": [
         "Südafrika",
         "Mexiko",
-        "Chile",
-        "Peru",
-        "Russland",
-        "DRK",
-        "Zimbabwe",
-        "Bolivien",
-        "Argentinien",
-        "Sambia"
+        "Chile"
       ]
     },
     {
       "region": "ETF-Cash & Reserven",
-      "pct_gesamt": 0.31,
+      "pct_gesamt": 4.23,
       "länder": []
     }
   ]
