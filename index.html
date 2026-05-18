@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-18T23:30:00 -->
+<!-- Cache-Buster: 2026-05-18T23:45:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v20260518t2330</title>
+<title>Mein Sparplan - v20260518t2345 FIX1</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -23,9 +23,7 @@
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
     --bg: #0f0c29;
     --bg2: #1a1a3e;
@@ -34,7 +32,6 @@
     --dim: #6b7280;
     --dimmer: #374151;
   }
-
   body {
     background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 50%, var(--bg) 100%);
     min-height: 100vh;
@@ -42,71 +39,25 @@
     color: var(--text);
     padding: 24px 16px 40px;
   }
-
   .container { max-width: 480px; margin: 0 auto; }
-
-  /* HEADER */
   .header { text-align: center; margin-bottom: 20px; }
-  .header-label {
-    font-size: 11px; letter-spacing: 3px; color: #a78bfa;
-    text-transform: uppercase; margin-bottom: 6px; display: block;
-  }
-  .header-total {
-    font-size: 36px; font-weight: 900; display: block;
-    background: linear-gradient(90deg, #a78bfa, #60a5fa);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.15;
-  }
+  .header-label { font-size: 11px; letter-spacing: 3px; color: #a78bfa; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .header-total { font-size: 36px; font-weight: 900; display: block; background: linear-gradient(90deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.15; }
   .header-sub { font-size: 12px; color: var(--dim); margin-top: 6px; display: block; }
   .header-hint { font-size: 11px; color: var(--dimmer); margin-top: 6px; display: block; }
-
-  /* PIE */
-  .pie-wrap {
-    position: relative; height: 260px; margin-bottom: 16px;
-  }
+  .pie-wrap { position: relative; height: 260px; margin-bottom: 16px; }
   .pie-wrap svg { display: block; margin: 0 auto; }
-  .pie-center {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 144px;
-    text-align: center;
-    pointer-events: all; cursor: pointer;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 2px;
-  }
-  .pie-center-edit {
-    font-size: 20px; font-weight: 900; color: #fff;
-    background: none; border: none; border-bottom: 1px dashed #6b7280;
-    text-align: center; width: 90px; outline: none;
-    font-family: inherit;
-  }
+  .pie-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 144px; text-align: center; pointer-events: all; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
   .pie-center-emoji { font-size: 22px; line-height: 1; }
   .pie-center-name { font-size: 13px; font-weight: 700; margin-top: 2px; }
   .pie-center-val { font-size: 12px; color: #d1d5db; }
   .pie-center-pct { font-size: 11px; color: var(--muted); }
-
-  /* PILLS */
   .pills { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-bottom: 22px; }
-  .pill {
-    display: flex; align-items: center; gap: 5px;
-    border-radius: 20px; padding: 4px 11px;
-    font-size: 12px; cursor: pointer; border: 1px solid;
-    color: #e5e7eb; background: none;
-    -webkit-tap-highlight-color: transparent;
-  }
+  .pill { display: flex; align-items: center; gap: 5px; border-radius: 20px; padding: 4px 11px; font-size: 12px; cursor: pointer; border: 1px solid; color: #e5e7eb; background: none; -webkit-tap-highlight-color: transparent; }
   .pill-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
   .pill-pct { font-weight: 700; }
-
-  /* CARDS */
   .cards { display: flex; flex-direction: column; gap: 9px; }
-  .card {
-    border-radius: 14px; overflow: hidden; cursor: pointer;
-    border: 1px solid; background: rgba(255,255,255,0.04);
-    -webkit-tap-highlight-color: transparent;
-  }
+  .card { border-radius: 14px; overflow: hidden; cursor: pointer; border: 1px solid; background: rgba(255,255,255,0.04); -webkit-tap-highlight-color: transparent; }
   .card-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
   .card-left { display: flex; align-items: center; gap: 8px; }
   .card-emoji { font-size: 16px; }
@@ -114,39 +65,11 @@
   .card-count { font-size: 10px; color: #4b5563; }
   .card-right { font-weight: 700; font-size: 14px; }
   .card-right span { margin-left: 6px; font-size: 11px; color: var(--muted); font-weight: 400; }
-  .card-tickers { padding: 5px 16px 9px; display: flex; flex-wrap: wrap; gap: 2px 12px; }
-  .card-bar-wrap { height: 2px; background: rgba(255,255,255,0.05); }
-  .card-bar { height: 100%; }
-  .card-ticker-item { font-size: 10px; color: var(--dim); }
-
   .footer { text-align: center; margin-top: 20px; font-size: 10px; color: var(--dimmer); }
-
-  /* MODAL OVERLAY */
-  .overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.78);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    z-index: 200;
-    align-items: flex-end; justify-content: center;
-  }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(8px); z-index: 200; align-items: flex-end; justify-content: center; }
   .overlay.open { display: flex; }
-
-  .modal {
-    background: linear-gradient(180deg, #1c1c40 0%, #13132d 100%);
-    border-radius: 22px 22px 0 0;
-    width: 100%; max-width: 520px;
-    max-height: 82vh; overflow-y: auto;
-    padding-bottom: 36px;
-    animation: slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  @keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-  }
-
-  .modal-handle-wrap { display: flex; justify-content: center; padding: 12px 0 0; }
-  .modal-handle { width: 38px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; }
-
+  .modal { background: linear-gradient(180deg, #1c1c40 0%, #13132d 100%); border-radius: 22px 22px 0 0; width: 100%; max-width: 520px; max-height: 82vh; overflow-y: auto; padding-bottom: 36px; animation: slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .modal-header { padding: 14px 20px 16px; border-bottom: 1px solid; }
   .modal-header-top { display: flex; align-items: center; justify-content: space-between; }
   .modal-header-left { display: flex; align-items: center; gap: 10px; }
@@ -154,198 +77,34 @@
   .modal-group-name { font-weight: 900; font-size: 20px; }
   .modal-group-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .modal-group-sub b { color: var(--text); }
-  .modal-close {
-    background: rgba(255,255,255,0.07); border: none; border-radius: 50%;
-    width: 32px; height: 32px; color: var(--muted); font-size: 16px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-
+  .modal-close { background: rgba(255,255,255,0.07); border: none; border-radius: 50%; width: 32px; height: 32px; color: var(--muted); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .modal-share-bar { margin-top: 14px; border-radius: 10px; padding: 10px 14px; }
   .modal-share-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; }
   .modal-share-row span:first-child { color: var(--dim); }
   .bar-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; }
   .bar-fill { height: 100%; border-radius: 3px; }
   .modal-share-note { font-size: 11px; color: var(--dim); margin-top: 5px; }
-
-  /* PRODUCTS */
   .products { padding: 14px 20px 0; }
-  .product-card {
-    margin-bottom: 14px; background: rgba(255,255,255,0.035);
-    border-radius: 14px; overflow: hidden; border: 1px solid;
-  }
+  .product-card { margin-bottom: 14px; background: rgba(255,255,255,0.035); border-radius: 14px; overflow: hidden; border: 1px solid; }
   .product-header { padding: 12px 14px; border-bottom: 1px solid; }
   .product-title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
   .product-name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.35; flex: 1; margin-right: 8px; }
-  .ticker-badge {
-    font-size: 10px; color: var(--muted); padding: 2px 8px;
-    border-radius: 6px; border: 1px solid; background: rgba(0,0,0,0.2);
-    white-space: nowrap; flex-shrink: 0;
-  }
+  .ticker-badge { font-size: 10px; color: var(--muted); padding: 2px 8px; border-radius: 6px; border: 1px solid; background: rgba(0,0,0,0.2); white-space: nowrap; flex-shrink: 0; }
   .stats-row { display: flex; }
   .stat { flex: 1; text-align: center; }
   .stat + .stat { border-left: 1px solid rgba(255,255,255,0.05); }
   .stat-label { font-size: 10px; color: var(--dim); margin-bottom: 2px; }
   .stat-val { font-size: 14px; font-weight: 700; }
-
-  /* DETAIL ROWS */
   .details { padding: 8px 14px 12px; }
-  .details-label {
-    font-size: 10px; color: #4b5563; text-transform: uppercase;
-    letter-spacing: 1px; margin-bottom: 8px;
-  }
+  .details-label { font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
   .detail-row { padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
   .detail-row:last-child { border-bottom: none; }
   .detail-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
   .detail-name { font-size: 13px; color: var(--text); }
-  .detail-name.overlap { color: #a78bfa; font-style: italic; }
   .detail-pct { font-size: 12px; font-weight: 700; }
   .mini-bar-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-bottom: 4px; }
   .mini-bar-fill { height: 100%; border-radius: 2px; opacity: 0.65; }
-  .tr-link {
-    display: inline-flex; align-items: center; gap: 5px;
-    margin: 10px 14px 12px;
-    font-size: 11px; color: #6b7280;
-    border: 1px solid #ffffff0f; border-radius: 8px;
-    padding: 5px 10px; background: rgba(255,255,255,0.03);
-    cursor: pointer; text-decoration: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .tr-link:active { background: rgba(255,255,255,0.08); }
-  .tr-logo { font-size: 13px; }
-
-/* === 3-SLIDE NAVIGATION === */
-html, body { overflow-x: hidden; }
-#app-slider {
-  display: flex;
-  width: 300vw;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
-}
-#slide-sparplan, #slide-geo, #slide-sectors {
-  width: 100vw;
-  min-height: 100vh;
-  flex-shrink: 0;
-}
-#slide-geo, #slide-sectors {
-  padding: 24px 16px 60px;
-  overflow-y: auto;
-}
-#app-slider.show-sectors { transform: translateX(-100vw); }
-#app-slider.show-geo     { transform: translateX(-200vw); }
-
-/* === CLUSTER-RISK CARD (Slide 1) === */
-.cluster-card { border-radius: 14px; margin-bottom: 14px;
-  background: linear-gradient(135deg, rgba(248,113,113,0.10), rgba(167,139,250,0.08));
-  border: 1px solid rgba(248,113,113,0.25); padding: 12px 14px;
-  cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.cluster-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.cluster-card-title { font-size: 12px; font-weight: 700; color: #fca5a5; letter-spacing: 0.5px; }
-.cluster-card-hint { font-size: 10px; color: #6b7280; }
-.cluster-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; }
-.cluster-row-name { color: #e5e7eb; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 8px; }
-.cluster-row-name b { color: #fff; }
-.cluster-row-pct { font-weight: 700; color: #fca5a5; font-variant-numeric: tabular-nums; }
-.cluster-row-via { font-size: 10px; color: #6b7280; margin-left: 6px; }
-.cluster-card-loading { font-size: 11px; color: #6b7280; text-align: center; padding: 6px 0; }
-
-/* === SECTORS SLIDE (Slide 3) === */
-.sector-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
-.sector-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-.sector-header-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
-.sector-header-badge { font-size: 10px; color: #6b7280; background: rgba(255,255,255,0.06); border-radius: 20px; padding: 2px 8px; }
-.sector-row { display: grid; grid-template-columns: 16px 1fr 70px 50px; gap: 8px; align-items: center; padding: 9px 18px; border-top: 1px solid rgba(255,255,255,0.04); }
-.sector-row:first-of-type { border-top: none; }
-.sector-dot { width: 10px; height: 10px; border-radius: 50%; }
-.sector-row-name { font-size: 13px; font-weight: 500; color: #e5e7eb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sector-row-eur { font-size: 12px; font-weight: 700; text-align: right; color: #d1d5db; font-variant-numeric: tabular-nums; }
-.sector-row-pct { font-size: 13px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
-.sector-bar-wrap { padding: 0 18px 9px; }
-.sector-bar-track { height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; }
-.sector-bar-fill { height: 100%; border-radius: 2px; opacity: 0.7; }
-.sector-loading { padding: 30px; text-align: center; color: #6b7280; font-size: 13px; }
-
-.risk-row { display: grid; grid-template-columns: 1fr 70px 50px; gap: 6px; align-items: center; padding: 10px 18px; border-top: 1px solid rgba(255,255,255,0.04); }
-.risk-row:first-of-type { border-top: none; }
-.risk-row-name { font-size: 12px; color: #e5e7eb; line-height: 1.3; }
-.risk-row-name b { color: #fff; font-weight: 600; display: block; font-size: 13px; }
-.risk-row-via { font-size: 10px; color: #6b7280; }
-.risk-row-eur { font-size: 12px; font-weight: 700; text-align: right; color: #d1d5db; font-variant-numeric: tabular-nums; }
-.risk-row-pct { font-size: 13px; font-weight: 700; color: #fca5a5; text-align: right; font-variant-numeric: tabular-nums; }
-
-/* === OVERLAP-SEKTION im MODAL === */
-.overlap-section { padding: 10px 14px 14px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4px; }
-.overlap-label { font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-.overlap-pair { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 12px; }
-.overlap-pair-name { color: #c4b5fd; }
-.overlap-pair-pct { font-weight: 700; color: #a78bfa; font-variant-numeric: tabular-nums; }
-.overlap-pair-stocks { font-size: 10px; color: #6b7280; margin-top: -2px; padding-left: 0; }
-.overlap-empty { font-size: 11px; color: #6b7280; padding: 4px 0; }
-#slide-arrow {
-  position: fixed;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(167,139,250,0.15);
-  border: 1px solid rgba(167,139,250,0.3);
-  border-radius: 12px 0 0 12px;
-  padding: 18px 10px;
-  color: #a78bfa;
-  font-size: 20px;
-  cursor: pointer;
-  z-index: 100;
-  backdrop-filter: blur(8px);
-  font-weight: 700;
-  -webkit-tap-highlight-color: transparent;
-}
-#slide-arrow:hover { background: rgba(167,139,250,0.25); }
-.slide-title { text-align: center; font-size: 22px; font-weight: 900; margin: 8px 0 18px; letter-spacing: 0.5px; }
-.slide-subtitle { text-align: center; font-size: 11px; color: #6b7280; margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
-
-/* === GEO SECTION === */
-.geo-wrap-outer { max-width: 480px; margin: 0 auto; }
-.geo-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: 20px; overflow: hidden; }
-.geo-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-.geo-header-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
-.geo-header-badge { font-size: 10px; font-weight: 500; color: #6b7280; background: rgba(255,255,255,0.06); border-radius: 20px; padding: 2px 8px; }
-.geo-map-wrap { position: relative; background: rgba(0,0,0,0.3); padding: 10px 10px 4px; }
-#geoSvg { width: 100%; height: auto; display: block; border-radius: 10px; cursor: pointer; }
-.geo-ocean { fill: #0e2d4e; }
-.geo-country { stroke: rgba(255,255,255,0.1); stroke-width: 0.4px; cursor: pointer; transition: fill-opacity 0.15s; }
-.geo-country.hl { stroke: rgba(255,255,255,0.5); stroke-width: 0.8px; filter: brightness(1.6) drop-shadow(0 0 4px currentColor); }
-.geo-graticule { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 0.5px; }
-.geo-tip { position: absolute; background: rgba(10,8,32,0.97); border: 1px solid rgba(167,139,250,0.45); border-radius: 8px; padding: 5px 9px; font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 30; white-space: nowrap; box-shadow: 0 6px 24px rgba(0,0,0,0.6); top: 10px; left: 10px; }
-.geo-tip.vis { opacity: 1; }
-.geo-tip-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-.geo-tip-vals { display: flex; gap: 12px; font-size: 11px; color: #9ca3af; }
-.geo-tip-vals b { font-weight: 700; color: #f3f4f6; }
-.geo-legend { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px 12px; }
-.geo-pill { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s, border-color 0.15s; white-space: nowrap; }
-.geo-pill:hover { background: rgba(255,255,255,0.1); }
-.geo-pill.active { background: rgba(255,255,255,0.12); border-color: rgba(167,139,250,0.4); }
-.geo-pill-dot { width: 8px; height: 8px; border-radius: 50%; }
-.geo-divider { height: 1px; background: rgba(255,255,255,0.05); }
-.geo-table-head { display: grid; grid-template-columns: 1fr 80px 56px; gap: 4px; padding: 8px 18px; font-size: 10px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.6px; }
-.geo-table-head span:not(:first-child) { text-align: right; }
-.geo-row { display: grid; grid-template-columns: 1fr 80px 56px; gap: 4px; align-items: center; padding: 11px 18px; border-top: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: background 0.15s; }
-.geo-row.hl { background: rgba(167,139,250,0.07); }
-.geo-row-name { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 500; }
-.geo-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.geo-row-eur { text-align: right; font-size: 13px; font-weight: 700; }
-.geo-row-pct { text-align: right; font-size: 13px; font-weight: 700; }
-
-.geo-subrows { padding: 0 18px 12px 36px; display: none; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.015); border-top: 1px solid rgba(255,255,255,0.03); }
-.geo-subrows.open { display: flex; }
-.geo-subrow { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #9ca3af; padding: 4px 0; }
-.geo-subrow-left { display: flex; align-items: center; gap: 6px; }
-.geo-invested { font-size: 9px; background: rgba(52,211,153,0.15); color: #34d399; border-radius: 4px; padding: 1px 5px; font-weight: 700; }
-.geo-subrow-right { display: flex; gap: 12px; }
-.geo-subrow-right b { color: #f3f4f6; font-weight: 600; }
-.geo-row .geo-chev { transition: transform 0.2s; display: inline-block; margin-left: 4px; font-size: 9px; opacity: 0.5; }
-.geo-row.open .geo-chev { transform: rotate(90deg); }
-
-.geo-loading { padding: 30px; text-align: center; color: #6b7280; font-size: 13px; }
-
+  .detail-euros { font-size: 11px; color: #9ca3af; }
 </style>
 </head>
 <body>
@@ -356,92 +115,22 @@ html, body { overflow-x: hidden; }
     <div class="header-label">Monatlicher Sparplan</div>
     <div class="header-total" id="hdrTotal"></div>
     <div class="header-sub" id="hdrSub"></div>
-    <div class="header-hint">↓ Segment oder Karte antippen für Details</div>
+    <div class="header-hint">↓ Antippen für Details</div>
   </div>
-<button id="installBtn" style="display:none; position:fixed; top:8px; left:8px; padding:6px 10px; background:#a78bfa; color:#fff; border:none; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; z-index:1000; box-shadow:0 2px 8px rgba(0,0,0,0.4);">📲 Installieren</button>
-<div id="iosHint" style="display:none; position:fixed; top:8px; left:8px; max-width:230px; padding:8px 10px; background:#1e293b; border:1px solid #a78bfa; color:#e2e8f0; border-radius:8px; font-size:11px; line-height:1.4; z-index:1000; box-shadow:0 2px 8px rgba(0,0,0,0.4);">
-  📲 <b>Zum Home:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>
-  <span style="display:block; margin-top:4px; font-size:10px; color:#94a3b8; cursor:pointer" onclick="document.getElementById('iosHint').style.display='none'">✕ schließen</span>
-</div>
-
   <div class="pie-wrap">
     <svg id="piesvg" viewBox="0 0 260 260" width="260" height="260"></svg>
     <div class="pie-center" id="pieCenter"></div>
   </div>
-
   <div class="pills" id="pills"></div>
-
-  <!-- Klumpenrisiko-Card (Feature D) - live aus data/holdings.json -->
-  <div class="cluster-card" id="clusterCard" onclick="goToSectorsSlide()">
-    <div class="cluster-card-head">
-      <span class="cluster-card-title">&#9888;&#65039; Top-Konzentrationen im Sparplan</span>
-      <span class="cluster-card-hint">Details &rarr;</span>
-    </div>
-    <div id="clusterCardBody"><div class="cluster-card-loading">wird geladen...</div></div>
-  </div>
-
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr</div>
+  <div class="footer">✓ FIX 1: Single Source of Truth</div>
 </div>
-
-</div><!-- /slide-sparplan -->
-
-<div id="slide-sectors">
-  <div class="geo-wrap-outer">
-    <p class="slide-subtitle">Sektor- &amp; Risiko-Analyse</p>
-    <h1 class="slide-title">Sektoren</h1>
-    <div class="sector-section">
-      <div class="sector-header">
-        <div class="sector-header-title">&#128202; Sektor-Verteilung Gesamt</div>
-        <span class="sector-header-badge" id="sectorTotalBadge">live</span>
-      </div>
-      <div id="sectorList"><div class="sector-loading">wird geladen...</div></div>
-    </div>
-    <div class="sector-section">
-      <div class="sector-header">
-        <div class="sector-header-title">&#9888;&#65039; Klumpenrisiko &ndash; Top-Einzelpositionen</div>
-        <span class="sector-header-badge">aggregiert</span>
-      </div>
-      <div id="riskList"><div class="sector-loading">wird geladen...</div></div>
-    </div>
-  </div>
-</div><!-- /slide-sectors -->
-
-<div id="slide-geo">
-  <div class="geo-wrap-outer">
-    <p class="slide-subtitle">Geografische Verteilung</p>
-    <h1 class="slide-title">Verteilung</h1>
-    <div class="geo-section">
-      <div class="geo-header">
-        <div class="geo-header-title">🌍 Nach Region</div>
-        <span class="geo-header-badge" id="geoTotalBadge">Live</span>
-      </div>
-      <div class="geo-map-wrap">
-        <svg id="geoSvg" viewBox="0 0 960 460"></svg>
-        <div class="geo-tip" id="geoTip">
-          <div class="geo-tip-name" id="geoTipName"></div>
-          <div class="geo-tip-vals">
-            <span>EUR <b id="geoTipEur"></b></span>
-            <span>Anteil <b id="geoTipPct"></b></span>
-          </div>
-        </div>
-      </div>
-      <div class="geo-legend" id="geoLegend"></div>
-      <div class="geo-divider"></div>
-      <div class="geo-table-head">
-        <span>Region</span><span>in EUR</span><span>in %</span>
-      </div>
-      <div id="geoTableBody"><div class="geo-loading">Wird geladen…</div></div>
-    </div>
-  </div>
-</div><!-- /slide-geo -->
-</div><!-- /app-slider -->
-<button id="slide-arrow" aria-label="Slide wechseln">&rsaquo;</button>
+</div>
+</div>
 
 <!-- MODAL -->
 <div class="overlay" id="overlay">
   <div class="modal" id="modal">
-    <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
     <div class="modal-header" id="modalHeader">
       <div class="modal-header-top">
         <div class="modal-header-left">
@@ -455,7 +144,7 @@ html, body { overflow-x: hidden; }
       </div>
       <div class="modal-share-bar" id="mShareBar">
         <div class="modal-share-row">
-          <span>Anteil am Gesamtplan</span>
+          <span>Anteil</span>
           <span id="mSharePct" style="font-weight:700"></span>
         </div>
         <div class="bar-track"><div class="bar-fill" id="mShareFill"></div></div>
@@ -463,111 +152,46 @@ html, body { overflow-x: hidden; }
       </div>
     </div>
     <div class="products" id="mProducts"></div>
-    <div class="overlap-section" id="mOverlapSection" style="display:none">
-      <div class="overlap-label">&harr; Ueberschneidungen mit anderen ETFs</div>
-      <div id="mOverlapBody"></div>
-    </div>
   </div>
 </div>
 
 <script>
-// ── DATEN ────────────────────────────────────────────────────
 const GROUPS = [
   { name:"USA", color:"#3B82F6", emoji:"🇺🇸", products:[
-    { name:"iShares Core S&P 500 UCITS ETF (Acc)", amount:100, price:"675 €", ticker:"SXR8",
-      isin:"IE00B5BMR087", trType:"etf",
-      details:[{n:"Nvidia",p:8.2},{n:"Apple",p:6.7},{n:"Microsoft",p:5.0}] }
-  ]},
-  { name:"Asien", color:"#F59E0B", emoji:"🌏", products:[
-    { name:"iShares Core MSCI Pacific ex-Japan ETF", amount:75, price:"203 €", ticker:"CPXJ",
-      isin:"IE00B52MJY50", trType:"etf",
-      details:[{n:"Australien",p:61},{n:"Hongkong",p:22},{n:"Singapur",p:12}] },
-    { name:"iShares MSCI Korea UCITS ETF EUR (Acc)", amount:13, price:"485 €", ticker:"CSKR",
-      isin:"IE00B5W4TY14", trType:"etf",
-      warning:"~11% Überschneidung mit EIMI",
-      details:[{n:"Samsung Electronics",p:24},{n:"SK Hynix",p:9},{n:"LG Energy Solution",p:4}] },
-    { name:"iShares Core MSCI Japan IMI UCITS ETF", amount:12, price:"65 €", ticker:"IJPA",
-      isin:"IE00B4L5YX21", trType:"etf",
-      details:[{n:"Toyota",p:5},{n:"Sony",p:3},{n:"Keyence",p:3}] }
-  ]},
-  { name:"Gesundheit", color:"#8B5CF6", emoji:"🏥", products:[
-    { name:"iShares MSCI World Health Care Sector ETF", amount:70, price:"8 $", ticker:"WHCS",
-      isin:"IE00BJ5JNZ06", trType:"etf",
-      details:[{n:"Eli Lilly",p:9.8},{n:"Johnson & Johnson",p:7.3},{n:"AbbVie",p:4.9}] },
-    { name:"iShares Ageing Population UCITS ETF (Acc)", amount:25, price:"8 €", ticker:"AGED",
-      isin:"IE00BYZK4669", trType:"etf",
-      details:[{n:"Healthcare-Anteil",p:47},{n:"Finanzdienstleistungen",p:43},{n:"↔ Overlap: Novo Nordisk, Roche, J&J",p:null}] }
-  ]},
-  { name:"Edelmetalle", color:"#F97316", emoji:"🥇", products:[
-    { name:"WisdomTree Physical Silver (USD)", amount:30, price:"62 €", ticker:"PHAG",
-      isin:"JE00B1VS3333", trType:"etc",
-      details:[{n:"100% physisches Silber",p:100}] },
-    { name:"WisdomTree Physical Platinum (USD)", amount:23, price:"161 €", ticker:"PHPT",
-      isin:"JE00B1VS2W53", trType:"etc",
-      details:[{n:"100% physisches Platin",p:100}] },
-    { name:"WisdomTree Copper (USD)", amount:22, price:"46 €", ticker:"COPA",
-      isin:"GB00B15KXQ89", trType:"etc",
-      details:[{n:"Kupfer-Futures",p:100}] }
+    { name:"iShares Core S&P 500 UCITS ETF (Acc)", amount:100, price:"675 €", ticker:"SXR8", isin:"IE00B5BMR087", trType:"etf", ticker_ref:"SXR8", details:[{n:"Nvidia",p:8.2},{n:"Apple",p:6.7},{n:"Microsoft",p:5.0}] }
   ]},
   { name:"Emerging Markets", color:"#10B981", emoji:"🌍", products:[
-    { name:"iShares Core MSCI EM IMI UCITS ETF (Acc)", amount:70, price:"44 €", ticker:"EIMI",
-      isin:"IE00BKM4GZ66", trType:"etf",
-      details:[{n:"China",p:28},{n:"Indien",p:20},{n:"Taiwan",p:18},{n:"Südkorea",p:11},{n:"Brasilien",p:5}] }
-  ]},
-  { name:"Europa", color:"#EC4899", emoji:"🇪🇺", products:[
-    { name:"Allianz SE (Einzelaktie)", amount:35, price:"370 €", ticker:"ALV",
-      isin:"DE0008404005", trType:"aktie",
-      details:[{n:"Versicherung & Asset Management",p:100}] },
-    { name:"iShares Core FTSE 100 UCITS ETF GBP (Dist)", amount:25, price:"1007 GBp", ticker:"ISF",
-      isin:"IE0005042456", trType:"etf",
-      details:[{n:"AstraZeneca",p:9},{n:"HSBC",p:7},{n:"Shell",p:7}] }
+    { name:"iShares Core MSCI EM IMI UCITS ETF (Acc)", amount:70, price:"44 €", ticker:"EIMI", isin:"IE00BKM4GZ66", trType:"etf", ticker_ref:"EIMI", details:[{n:"China",p:28},{n:"Indien",p:20},{n:"Taiwan",p:18},{n:"Südkorea",p:11},{n:"Brasilien",p:5}] }
   ]}
 ];
 
-// ── localStorage ─────────────────────────────────────────────
 const STORAGE_KEY = 'sparplan_currentTotal';
-const DEFAULT_TOTAL = GROUPS.reduce((s,g)=>s+g.products.reduce((a,p)=>a+p.amount,0),0); // 500
-
+const DEFAULT_TOTAL = GROUPS.reduce((s,g)=>s+g.products.reduce((a,p)=>a+p.amount,0),0);
 const total = DEFAULT_TOTAL;
 const posCount = GROUPS.reduce((s,g)=>s+g.products.length,0);
 
-// Prozentanteile festschreiben (unveränderlich)
 GROUPS.forEach(g => {
   g.products.forEach(p => { p.pct = p.amount / total; });
   g.pct = g.products.reduce((a,p)=>a+p.pct,0);
 });
 
-// Gespeicherten Wert laden (pro Gerät individuell)
 let currentTotal = parseFloat(localStorage.getItem(STORAGE_KEY)) || DEFAULT_TOTAL;
-
-function saveTotal(val) {
-  localStorage.setItem(STORAGE_KEY, val);
-}
+let _geoData = null;
 
 function getAmt(pct){ return Math.round(pct * currentTotal * 100) / 100; }
 function fmtAmt(pct){ const v=getAmt(pct); return Number.isInteger(v)?v:v.toFixed(2); }
 
 function updateHeader(){
-  const hdrEl = document.getElementById('hdrTotal');
-  hdrEl.textContent = currentTotal + ' €';
-  hdrEl.onclick = editTotal;
-  hdrEl.style.cursor = 'pointer';
+  document.getElementById('hdrTotal').textContent = currentTotal + ' €';
   document.getElementById('hdrSub').textContent = (currentTotal*12) + ' € / Jahr · ' + posCount + ' Positionen';
 }
 updateHeader();
 
-// ── PIE CHART (SVG) ──────────────────────────────────────────
 const svg = document.getElementById('piesvg');
 const cx=130, cy=130, r=110, ri=72, gap=0.03;
-const pieData = GROUPS.map(g=>({
-  name:g.name, color:g.color, emoji:g.emoji,
-  value:g.products.reduce((a,p)=>a+p.amount,0),
-  pct: g.pct
-}));
+const pieData = GROUPS.map(g=>({name:g.name, color:g.color, emoji:g.emoji, value:g.products.reduce((a,p)=>a+p.amount,0), pct: g.pct}));
 
-function polarToXY(cx,cy,r,angle){
-  return [cx+r*Math.cos(angle), cy+r*Math.sin(angle)];
-}
+function polarToXY(cx,cy,r,angle){ return [cx+r*Math.cos(angle), cy+r*Math.sin(angle)]; }
 function describeArc(cx,cy,r,ri,startA,endA){
   const [x1,y1]=polarToXY(cx,cy,r,startA);
   const [x2,y2]=polarToXY(cx,cy,r,endA);
@@ -587,79 +211,15 @@ pieData.forEach((d,i)=>{
   path.setAttribute('fill', d.color);
   path.setAttribute('stroke','none');
   path.style.cursor='pointer';
-  path.style.transition='opacity 0.15s';
-  path.dataset.index=i;
-
   path.addEventListener('click',()=>openModal(i));
-  path.addEventListener('mouseenter',()=>{ highlightSlice(i); showPieCenter(i); });
-  path.addEventListener('mouseleave',()=>{ resetSlices(); resetPieCenter(); });
-  path.addEventListener('touchstart',(e)=>{ e.preventDefault(); highlightSlice(i); showPieCenter(i); },{passive:false});
-  path.addEventListener('touchend',(e)=>{ e.preventDefault(); resetSlices(); resetPieCenter(); openModal(i); },{passive:false});
-
   svg.appendChild(path);
   paths.push(path);
   startAngle = endAngle + gap;
 });
 
-function highlightSlice(activeI){
-  paths.forEach((p,i)=>{ p.style.opacity = (i===activeI)?'1':'0.3'; });
-}
-function resetSlices(){ paths.forEach(p=>{ p.style.opacity='1'; }); }
-
 const pieCenter = document.getElementById('pieCenter');
-function showPieCenter(i){
-  const d = pieData[i];
-  const val = getAmt(d.pct);
-  pieCenter.onclick = null;
-  pieCenter.innerHTML = `
-    <div class="pie-center-emoji">${d.emoji}</div>
-    <div class="pie-center-name" style="color:${d.color};white-space:nowrap">${d.name}</div>
-    <div class="pie-center-val" style="white-space:nowrap">${val} €/Mo</div>
-    <div class="pie-center-pct" style="white-space:nowrap">${(d.pct*100).toFixed(1)}%</div>`;
-}
-function resetPieCenter(){
-  pieCenter.onclick = editTotal;
-  pieCenter.innerHTML = `
-    <div style="font-size:11px;color:var(--muted);white-space:nowrap">Gesamt</div>
-    <div style="font-size:22px;font-weight:900;white-space:nowrap">${currentTotal} €</div>
-    <div style="font-size:10px;color:var(--dim);white-space:nowrap">/ Monat</div>
-    <div style="font-size:9px;color:#4b5563;white-space:nowrap;margin-top:2px">antippen zum Ändern</div>`;
-}
+pieCenter.innerHTML = `<div class="pie-center-emoji">💼</div><div class="pie-center-name" style="color:#a78bfa">Portfolio</div><div class="pie-center-val">${currentTotal} €/Mo</div>`;
 
-function editTotal(){
-  pieCenter.onclick = null;
-  pieCenter.innerHTML = `
-    <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Betrag eingeben</div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:3px">
-      <input id="totalInput" class="pie-center-edit" type="number" value="${currentTotal}" min="1" inputmode="numeric"/>
-      <span style="font-size:16px;font-weight:700">€</span>
-    </div>
-    <div style="font-size:10px;color:var(--dim);margin-top:4px">Enter oder außen tippen</div>`;
-  const inp = document.getElementById('totalInput');
-  inp.focus(); inp.select();
-  inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); applyTotal(inp); }});
-  inp.addEventListener('blur', ()=>{ setTimeout(()=>applyTotal(inp),100); });
-}
-
-function applyTotal(inp){
-  const val = parseFloat(inp.value);
-  if(!isNaN(val) && val > 0){
-    currentTotal = Math.round(val*100)/100;
-    saveTotal(currentTotal); // ← im localStorage sichern
-  }
-  updateAll();
-}
-
-function updateAll(){
-  updateHeader();
-  resetPieCenter();
-  renderCards();
-  if(document.getElementById('overlay').classList.contains('open') && window._openModalIndex !== undefined){
-    openModal(window._openModalIndex);
-  }
-}
-
-// ── CARDS ────────────────────────────────────────────────────
 function renderCards(){
   const cardsEl = document.getElementById('cards');
   cardsEl.innerHTML = '';
@@ -669,108 +229,16 @@ function renderCards(){
     const card = document.createElement('div');
     card.className='card';
     card.style.borderColor = g.color+'33';
-    card.innerHTML = `
-      <div class="card-top">
-        <div class="card-left">
-          <span class="card-emoji">${g.emoji}</span>
-          <span class="card-name" style="color:${g.color}">${g.name}</span>
-          <span class="card-count">${g.products.length} Pos.</span>
-        </div>
-        <div class="card-right">${gt} €<span>${pct}%</span></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="card-bar" style="width:${pct}%;background:${g.color}"></div>
-      </div>
-      <div class="card-tickers">
-        ${g.products.map(p=>`<span class="card-ticker-item">${p.ticker} · ${fmtAmt(p.pct)} €/Mo</span>`).join('')}
-      </div>`;
+    card.innerHTML = `<div class="card-top"><div class="card-left"><span class="card-emoji">${g.emoji}</span><span class="card-name" style="color:${g.color}">${g.name}</span></div><div class="card-right">${gt} €<span>${pct}%</span></div></div>`;
     card.addEventListener('click',()=>openModal(i));
     cardsEl.appendChild(card);
   });
 }
 
-// ── PILLS ────────────────────────────────────────────────────
-const pillsEl = document.getElementById('pills');
-GROUPS.forEach((g,i)=>{
-  const gt = g.products.reduce((a,p)=>a+p.amount,0);
-  const pct = ((gt/total)*100).toFixed(0);
-  const btn = document.createElement('button');
-  btn.className='pill';
-  btn.style.borderColor = g.color+'55';
-  btn.style.background = g.color+'1a';
-  btn.innerHTML = `<span class="pill-dot" style="background:${g.color}"></span>${g.emoji} ${g.name}<span class="pill-pct" style="color:${g.color}">${pct}%</span>`;
-  btn.addEventListener('click',()=>openModal(i));
-  pillsEl.appendChild(btn);
-});
-
-resetPieCenter();
 renderCards();
 
-// ── TRADE REPUBLIC DEEPLINK ───────────────────────────────────
-function openTR(isin) {
-  const ua = navigator.userAgent;
-  const isAndroid = /Android/i.test(ua);
-  const isIOS = /iPhone|iPad|iPod/i.test(ua);
-  const playStore = 'https://play.google.com/store/apps/details?id=de.traderepublic.app';
-  const appStore  = 'https://apps.apple.com/de/app/trade-republic/id1410703839';
-
-  copyToClipboard(isin);
-  showToast('ISIN ' + isin + ' kopiert – in TR-Suche einfügen');
-
-  setTimeout(() => {
-    if (isAndroid) {
-      const fallback = encodeURIComponent(playStore);
-      window.location.href =
-        `intent://#Intent;scheme=traderepublic;package=de.traderepublic.app;S.browser_fallback_url=${fallback};end`;
-    } else if (isIOS) {
-      window.location.href = `traderepublic://`;
-      setTimeout(() => { window.location.href = appStore; }, 800);
-    } else {
-      window.open('https://app.traderepublic.com/', '_blank');
-    }
-  }, 600);
-}
-
-function copyToClipboard(text) {
-  const el = document.createElement('textarea');
-  el.value = text;
-  el.setAttribute('readonly', '');
-  el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
-  document.body.appendChild(el);
-  el.focus(); el.select();
-  el.setSelectionRange(0, el.value.length);
-  let ok = false;
-  try { ok = document.execCommand('copy'); } catch(e) {}
-  document.body.removeChild(el);
-  if (!ok && navigator.clipboard) {
-    navigator.clipboard.writeText(text).catch(()=>{});
-  }
-  return ok;
-}
-
-function showToast(msg) {
-  let t = document.getElementById('tr-toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'tr-toast';
-    t.style.cssText = `
-      position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
-      background:#1e293b; border:1px solid #334155; color:#e2e8f0;
-      font-size:12px; padding:10px 16px; border-radius:10px;
-      box-shadow:0 4px 20px rgba(0,0,0,0.5); z-index:999;
-      text-align:center; max-width:280px; line-height:1.4;
-      transition: opacity 0.3s;
-    `;
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity = '1';
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3000);
-}
-
-// ── MODAL ────────────────────────────────────────────────────
-function openModal(groupIndex){
+// ← FIX 1: ASYNC openModal mit geo_weights.json
+async function openModal(groupIndex){
   window._openModalIndex = groupIndex;
   const g = GROUPS[groupIndex];
   const gt = getAmt(g.pct);
@@ -780,9 +248,6 @@ function openModal(groupIndex){
   document.getElementById('mName').style.color = g.color;
   document.getElementById('mName').textContent = g.name;
   document.getElementById('mSub').innerHTML = `<b>${gt} €</b> / Mo · <b>${Math.round(gt*12)} €</b> / Jahr`;
-
-  document.getElementById('modalHeader').style.borderBottomColor = g.color+'22';
-  document.getElementById('mShareBar').style.background = g.color+'12';
   document.getElementById('mSharePct').style.color = g.color;
   document.getElementById('mSharePct').textContent = pct.toFixed(1)+'%';
   document.getElementById('mShareFill').style.width = pct+'%';
@@ -791,74 +256,79 @@ function openModal(groupIndex){
 
   const prod = document.getElementById('mProducts');
   prod.innerHTML = '';
-  g.products.forEach(p=>{
+
+  // ← Lade geo_weights.json
+  try {
+    if (!_geoData) {
+      const resp = await fetch('./data/geo_weights.json?t=' + Date.now());
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      _geoData = await resp.json();
+      console.log('✓ geo_weights.json geladen:', _geoData);
+    }
+  } catch (err) {
+    console.warn('geo_weights.json konnte nicht geladen werden:', err);
+    _geoData = null;
+  }
+
+  g.products.forEach(p => {
     const pAmt = getAmt(p.pct);
     const div = document.createElement('div');
-    div.className='product-card';
+    div.className = 'product-card';
     div.style.borderColor = g.color+'20';
 
     let detailsHTML = '';
-    if(p.details && p.details.length){
-      const rows = p.details.map(d=>{
-        if(d.p===null){
-          return `<div class="detail-row">
-            <div class="detail-top">
-              <span class="detail-name overlap">${d.n}</span>
-            </div>
-          </div>`;
+    
+    // ← Single Source of Truth: Nutze geo_weights.json
+    if (p.ticker_ref && _geoData && _geoData.countries && Array.isArray(_geoData.countries)) {
+      try {
+        const countriesForProduct = _geoData.countries.filter(c => 
+          c.via && Array.isArray(c.via) && c.via.includes(p.ticker_ref)
+        );
+
+        if (countriesForProduct.length > 0) {
+          const productPortfolioWeight = _geoData._meta && _geoData._meta.portfolio_weights 
+            ? _geoData._meta.portfolio_weights[p.ticker_ref] 
+            : null;
+          
+          if (productPortfolioWeight && productPortfolioWeight > 0) {
+            const rows = countriesForProduct.map(c => {
+              try {
+                const landPortfolioWeight = c.pct_gesamt / 100;
+                const landInProductDecimal = landPortfolioWeight / productPortfolioWeight;
+                const landInProductPct = landInProductDecimal * 100;
+                const mo = (landInProductDecimal * pAmt).toFixed(2);
+                const yr = (landInProductDecimal * pAmt * 12).toFixed(0);
+                const barW = Math.min(landInProductPct, 100);
+
+                return `<div class="detail-row"><div class="detail-top"><span class="detail-name">${c.flag || '🌐'} ${c.land}</span><span class="detail-pct" style="color:${g.color}">${landInProductPct.toFixed(1)}%</span></div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${barW}%;background:${g.color}"></div></div><div class="detail-euros"><span>≈ <b>${mo} €</b>/Mo</span><span>≈ <b>${yr} €</b>/Jahr</span></div></div>`;
+              } catch (e) {
+                console.warn('Fehler bei Land-Berechnung:', c.land, e);
+                return '';
+              }
+            }).filter(r => r).join('');
+
+            if (rows) {
+              detailsHTML = `<div class="details"><div class="details-label">✓ Länderverteilung (geo_weights.json)</div>${rows}</div>`;
+            }
+          }
         }
-        const mo = ((d.p/100)*pAmt).toFixed(2);
-        const yr = ((d.p/100)*pAmt*12).toFixed(0);
-        const barW = Math.min(d.p,100);
-        return `<div class="detail-row">
-          <div class="detail-top">
-            <span class="detail-name">${d.n}</span>
-            <span class="detail-pct" style="color:${g.color}">${d.p}%</span>
-          </div>
-          <div class="mini-bar-track">
-            <div class="mini-bar-fill" style="width:${barW}%;background:${g.color}"></div>
-          </div>
-          <div class="detail-euros">
-            <span>≈ <b>${mo} €</b>/Mo</span>
-            <span>≈ <b>${yr} €</b>/Jahr</span>
-          </div>
-        </div>`;
-      }).join('');
-      detailsHTML = `<div class="details">
-        <div class="details-label">Positionen / Gewichtung</div>
-        ${rows}
-      </div>`;
+      } catch (err) {
+        console.warn('Fehler beim Laden der Länder-Details:', err);
+      }
     }
 
-    div.innerHTML = `
-      <div class="product-header" style="border-bottom-color:${g.color}15">
-        <div class="product-title-row">
-          <div class="product-name">${p.name}</div>
-          <div class="ticker-badge" style="border-color:${g.color}44;color:var(--muted)">${p.ticker}</div>
-        </div>
-        <div class="stats-row">
-          <div class="stat">
-            <div class="stat-label">Monatlich</div>
-            <div class="stat-val" style="color:${g.color}">${fmtAmt(p.pct)} €</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Jährlich</div>
-            <div class="stat-val" style="color:#d1d5db">${Math.round(pAmt*12)} €</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Kurs (09.05)</div>
-            <div class="stat-val" style="color:#facc15">${p.price}</div>
-          </div>
-        </div>
-      </div>
-      ${detailsHTML}
-      ${p.warning ? `<div style="padding:4px 14px 6px;font-size:11px;color:#a78bfa;font-style:italic">${p.warning}</div>` : ''}
-      <div style="display:flex;gap:8px;padding:8px 14px 12px;flex-wrap:wrap">
-        <button class="tr-link" style="margin:0;flex:1;min-width:0" onclick="openTR('${p.isin}')">
-          <span>🟢</span> Trade Republic
-          <span style="font-size:10px;opacity:0.5;overflow:hidden;text-overflow:ellipsis">${p.isin}</span>
-        </button>
-      </div>`;
+    // ← FALLBACK
+    if (!detailsHTML && p.details && p.details.length) {
+      const rows = p.details.map(d => {
+        const mo = ((d.p/100)*pAmt).toFixed(2);
+        const yr = ((d.p/100)*pAmt*12).toFixed(0);
+        const barW = Math.min(d.p, 100);
+        return `<div class="detail-row"><div class="detail-top"><span class="detail-name">${d.n}</span><span class="detail-pct" style="color:${g.color}">${d.p}%</span></div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${barW}%;background:${g.color}"></div></div><div class="detail-euros"><span>≈ <b>${mo} €</b>/Mo</span><span>≈ <b>${yr} €</b>/Jahr</span></div></div>`;
+      }).join('');
+      detailsHTML = `<div class="details"><div class="details-label">Positionen / Gewichtung (Fallback)</div>${rows}</div>`;
+    }
+
+    div.innerHTML = `<div class="product-header" style="border-bottom-color:${g.color}15"><div class="product-title-row"><div class="product-name">${p.name}</div><div class="ticker-badge">${p.ticker}</div></div><div class="stats-row"><div class="stat"><div class="stat-label">Monatlich</div><div class="stat-val" style="color:${g.color}">${fmtAmt(p.pct)} €</div></div><div class="stat"><div class="stat-label">Jährlich</div><div class="stat-val">${Math.round(pAmt*12)} €</div></div></div></div>${detailsHTML}`;
     prod.appendChild(div);
   });
 
@@ -869,581 +339,7 @@ function openModal(groupIndex){
 function closeModal(){
   document.getElementById('overlay').classList.remove('open');
   document.body.style.overflow='';
-  window._openModalIndex = undefined;
 }
-
-// ── PWA INSTALL PROMPT ──────────────────────────────────────
-let deferredPrompt = null;
-const installBtn = document.getElementById('installBtn');
-const iosHint = document.getElementById('iosHint');
-
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-// iOS Safari hat kein beforeinstallprompt → eigener Hinweis
-if (!isStandalone && isIOS) {
-  iosHint.style.display = 'block';
-}
-
-// Android/Desktop Chrome/Edge: beforeinstallprompt feuert wenn installierbar
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  if (!isStandalone) installBtn.style.display = 'block';
-});
-
-installBtn.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
-    deferredPrompt = null;
-    installBtn.style.display = 'none';
-  }
-});
-
-window.addEventListener('appinstalled', () => {
-  console.log('PWA wurde installiert');
-  installBtn.style.display = 'none';
-  iosHint.style.display = 'none';
-});
-
-// ── SERVICE WORKER REGISTRIERUNG ─────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
-      reg.update();
-      reg.addEventListener('updatefound', () => {
-        const newSW = reg.installing;
-        if (newSW) {
-          newSW.addEventListener('statechange', () => {
-            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-              window.location.reload();
-            }
-          });
-        }
-      });
-    }).catch(err => {
-      console.warn('Service Worker Fehler:', err);
-    });
-  });
-}
-
-
-// 3-SLIDE NAVIGATION (Sparplan -> Sektoren -> Geo -> Sparplan)
-const _arrowBtn = document.getElementById('slide-arrow');
-const _slider   = document.getElementById('app-slider');
-let _slideIdx = 0;
-let _geoInitialized = false;
-let _sectorsInitialized = false;
-let _geoData = null;
-let _geoRegions = null;
-const _SLIDE_CLASS = ['', 'show-sectors', 'show-geo'];
-function _setSlide(idx) {
-  _slideIdx = ((idx % 3) + 3) % 3;
-  _slider.className = _SLIDE_CLASS[_slideIdx];
-  _arrowBtn.innerHTML = _slideIdx === 2 ? '&lsaquo;' : '&rsaquo;';
-  if (_slideIdx === 1 && !_sectorsInitialized) { _sectorsInitialized = true; initSectors(); }
-  if (_slideIdx === 2 && !_geoInitialized)     { _geoInitialized = true; initGeo(); }
-  if (_slideIdx === 1) renderSectorSlide();
-  if (_slideIdx === 2) setTimeout(updateGeoEUR, 50);
-}
-function _toggleSlide() { _setSlide(_slideIdx + 1); }
-function goToSectorsSlide() { _setSlide(1); }
-_arrowBtn.addEventListener('click', _toggleSlide);
-
-function loadScript(src){
-  return new Promise((res,rej)=>{
-    const s=document.createElement('script');
-    s.src=src; s.onload=res; s.onerror=rej;
-    document.head.appendChild(s);
-  });
-}
-
-const REGION_META = {
-  'Nordamerika':    { color:'#3B82F6', emoji:'🇺🇸' },
-  'Europa':         { color:'#EC4899', emoji:'🇪🇺' },
-  'Asien-Pazifik':  { color:'#F59E0B', emoji:'🌏' },
-  'Emerging Mkts':  { color:'#10B981', emoji:'🌍' },
-  'Edelmetalle-Länder': { color:'#F97316', emoji:'🥇' },
-  'ETF-Cash & Reserven': { color:'#64748b', emoji:'💰' }
-};
-
-function regionOf(landName, regionsData) {
-  for (const r of regionsData) {
-    if (r['länder'] && r['länder'].includes(landName)) return r.region;
-  }
-  return null;
-}
-
-async function initGeo() {
-  try {
-    const resp = await fetch('./data/geo_weights.json?t=' + Date.now());
-    _geoData = await resp.json();
-    _geoRegions = _geoData.regions || [];
-    renderLegendAndTable();
-    await loadScript('https://d3js.org/d3.v7.min.js');
-    await loadScript('https://unpkg.com/topojson-client@3');
-    renderGeoMap();
-    updateGeoEUR();
-  } catch (e) {
-    console.warn('Geo init failed:', e);
-    document.getElementById('geoTableBody').innerHTML =
-      '<div class="geo-loading">Daten konnten nicht geladen werden.</div>';
-  }
-}
-
-function renderLegendAndTable() {
-  const legendEl = document.getElementById('geoLegend');
-  const tbody    = document.getElementById('geoTableBody');
-  legendEl.innerHTML = '';
-  tbody.innerHTML = '';
-  const rowMap = {};
-  const regions = [..._geoRegions].sort((a,b) => b.pct_gesamt - a.pct_gesamt);
-  regions.forEach(r => {
-    const meta = REGION_META[r.region] || { color:'#a78bfa', emoji:'🌐' };
-    const pct  = r.pct_gesamt;
-    const pill = document.createElement('div');
-    pill.className = 'geo-pill';
-    pill.dataset.rid = r.region;
-    pill.innerHTML =
-      '<div class="geo-pill-dot" style="background:'+meta.color+'"></div>'+
-      meta.emoji+' '+r.region+' <span style="color:'+meta.color+';margin-left:2px">'+pct.toFixed(1)+'%</span>';
-    pill.addEventListener('click', () => selectGeoRegion(r.region));
-    legendEl.appendChild(pill);
-    const row = document.createElement('div');
-    row.className = 'geo-row';
-    row.dataset.rid = r.region;
-    row.innerHTML =
-      '<div class="geo-row-name"><div class="geo-dot" style="background:'+meta.color+'"></div>'+meta.emoji+' '+r.region+'<span class="geo-chev">▶</span></div>'+
-      '<div class="geo-row-eur" data-eur-pct="'+pct+'">—</div>'+
-      '<div class="geo-row-pct" style="color:'+meta.color+'">'+pct.toFixed(1)+'%</div>';
-    rowMap[r.region] = row;
-    tbody.appendChild(row);
-
-    // Subrows mit Ländern dieser Region
-    const subrows = document.createElement('div');
-    subrows.className = 'geo-subrows';
-    subrows.dataset.rid = r.region;
-    const countriesInRegion = (_geoData.countries || []).filter(c => (r['länder'] || []).includes(c.land));
-    countriesInRegion.sort((a,b) => b.pct_gesamt - a.pct_gesamt);
-    countriesInRegion.forEach(c => {
-      const invested = Array.isArray(c.via) && c.via.length > 0;
-      const sr = document.createElement('div');
-      sr.className = 'geo-subrow';
-      sr.innerHTML =
-        '<div class="geo-subrow-left">'+
-          c.flag+' '+c.land+
-          (invested ? '<span class="geo-invested">✓ '+c.via.join(', ')+'</span>' : '')+
-        '</div>'+
-        '<div class="geo-subrow-right">'+
-          '<span><b class="geo-sub-eur" data-eur-pct="'+c.pct_gesamt+'">—</b></span>'+
-          '<span><b>'+c.pct_gesamt.toFixed(2)+'%</b></span>'+
-        '</div>';
-      subrows.appendChild(sr);
-    });
-    if (countriesInRegion.length === 0) {
-      const sr = document.createElement('div');
-      sr.className = 'geo-subrow';
-      sr.style.display = 'block';
-      sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
-        '<b style="color:#f3f4f6">Liquiditätsreserven der ETFs.</b><br>'+
-        'Jeder ETF hält ~1% Cash für tägliche Liquidität '+
-        '(Ein-/Auszahlungen, Rebalancing). Plus Mikro-Anteile in Ländern unter 0,05% '+
-        'die nicht einzeln aufgeführt werden. '+
-        'Echtes Geld &mdash; nur nicht einem konkreten Land zuordenbar.</div>';
-      subrows.appendChild(sr);
-    }
-    tbody.appendChild(subrows);
-
-    row.addEventListener('click', () => {
-      const wasOpen = subrows.classList.contains('open');
-      subrows.classList.toggle('open');
-      row.classList.toggle('open');
-      selectGeoRegion(r.region);
-    });
-  });
-  window._geoRowMap = rowMap;
-}
-
-function updateGeoEUR() {
-  if (!_geoRegions) return;
-  document.querySelectorAll('.geo-row-eur').forEach(el => {
-    const pct = parseFloat(el.dataset.eurPct);
-    el.textContent = Math.round(currentTotal * pct / 100) + ' €';
-  });
-  document.querySelectorAll('.geo-sub-eur').forEach(el => {
-    const pct = parseFloat(el.dataset.eurPct);
-    const eur = currentTotal * pct / 100;
-    el.textContent = (eur >= 10 ? Math.round(eur) : eur.toFixed(1)) + ' €';
-  });
-  document.getElementById('geoTotalBadge').textContent = currentTotal + ' € / Monat';
-}
-
-let _geoSvg = null, _geoActive = null;
-function renderGeoMap() {
-  const W = 960, H = 460, CROP_LEFT = 70;
-  const svg = d3.select('#geoSvg').attr('viewBox', CROP_LEFT+' 0 '+(W-CROP_LEFT)+' '+H);
-  _geoSvg = svg;
-  svg.append('defs').append('clipPath').attr('id','mapClip')
-    .append('rect').attr('width', W).attr('height', H);
-  svg.append('rect').attr('x', CROP_LEFT).attr('width', W).attr('height', H)
-    .attr('class', 'geo-ocean')
-    .on('click', () => deselectGeo());
-  const projection = d3.geoNaturalEarth1().scale(195).translate([W/2, H/1.68]);
-  const pathGen    = d3.geoPath().projection(projection);
-  svg.append('path').datum(d3.geoGraticule()()).attr('class','geo-graticule').attr('d', pathGen);
-
-  const isoToRegion = {};
-  (_geoData.countries || []).forEach(c => {
-    const r = regionOf(c.land, _geoRegions);
-    if (r) isoToRegion[c.iso_numeric] = r;
-  });
-
-  d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
-    const countries = topojson.feature(world, world.objects.countries).features;
-    const tip   = document.getElementById('geoTip');
-    const wrap  = document.querySelector('.geo-map-wrap');
-    svg.append('g').attr('clip-path','url(#mapClip)').selectAll('path')
-      .data(countries).enter().append('path')
-      .attr('class','geo-country')
-      .attr('d', pathGen)
-      .attr('fill', d => {
-        const rid = isoToRegion[+d.id];
-        return rid ? (REGION_META[rid] || {}).color || '#2a2a4a' : '#2a2a4a';
-      })
-      .attr('fill-opacity', d => {
-        const rid = isoToRegion[+d.id];
-        if (!rid) return 0.15;
-        const r = _geoRegions.find(x => x.region === rid);
-        return r ? Math.min(0.85, 0.15 + (r.pct_gesamt / 35) * 0.65) : 0.15;
-      })
-      .on('click', function(event, d) {
-        event.stopPropagation();
-        const rid = isoToRegion[+d.id];
-        if (!rid) { deselectGeo(); return; }
-        const [x, y] = pathGen.centroid(d);
-        const rect = wrap.getBoundingClientRect();
-        const px = (x / W) * rect.width;
-        const py = (y / H) * rect.height;
-        const TW = 160, TH = 50, PAD = 10;
-        let left = (rect.width - px >= TW + PAD) ? px + PAD
-                 : (px >= TW + PAD ? px - TW - PAD
-                 : Math.max(4, Math.min(px - TW/2, rect.width - TW - 4)));
-        let top  = (py >= TH + PAD) ? py - TH - PAD
-                 : (rect.height - py >= TH + PAD ? py + PAD
-                 : Math.max(4, Math.min(py - TH/2, rect.height - TH - 4)));
-        tip.style.left = left + 'px';
-        tip.style.top  = top  + 'px';
-        selectGeoRegion(rid);
-      });
-    svg.append('path')
-      .datum(topojson.mesh(world, world.objects.countries, (a,b) => a !== b))
-      .attr('fill','none').attr('stroke','rgba(255,255,255,0.08)')
-      .attr('stroke-width', 0.4).attr('d', pathGen);
-  }).catch(() => {
-    document.querySelector('.geo-map-wrap').innerHTML =
-      '<p style="color:#6b7280;text-align:center;padding:24px;font-size:13px;">Karte konnte nicht geladen werden.</p>';
-  });
-}
-
-function selectGeoRegion(rid) {
-  if (_geoActive === rid) { deselectGeo(); return; }
-  deselectGeo(false);
-  _geoActive = rid;
-  const r = _geoRegions.find(x => x.region === rid);
-  if (!r) return;
-  const meta = REGION_META[rid] || { color:'#a78bfa', emoji:'🌐' };
-  if (_geoSvg) {
-    _geoSvg.selectAll('.geo-country').classed('hl', false);
-    const isoSet = new Set();
-    (_geoData.countries || []).forEach(c => {
-      if (regionOf(c.land, _geoRegions) === rid) isoSet.add(c.iso_numeric);
-    });
-    _geoSvg.selectAll('.geo-country').filter(d => isoSet.has(+d.id)).classed('hl', true);
-  }
-  const eur = Math.round(currentTotal * r.pct_gesamt / 100);
-  document.getElementById('geoTipName').textContent = meta.emoji + ' ' + r.region;
-  document.getElementById('geoTipName').style.color = meta.color;
-  document.getElementById('geoTipEur').textContent = eur + ' €';
-  document.getElementById('geoTipPct').textContent = r.pct_gesamt.toFixed(1) + ' %';
-  document.getElementById('geoTip').classList.add('vis');
-  if (window._geoRowMap && window._geoRowMap[rid]) {
-    document.querySelectorAll('.geo-row').forEach(x => x.classList.remove('hl'));
-    window._geoRowMap[rid].classList.add('hl');
-    window._geoRowMap[rid].scrollIntoView({ behavior:'smooth', block:'nearest' });
-  }
-  document.querySelectorAll('.geo-pill').forEach(p =>
-    p.classList.toggle('active', p.dataset.rid === rid));
-}
-function deselectGeo(clearAll) {
-  if (clearAll === undefined) clearAll = true;
-  _geoActive = null;
-  if (_geoSvg) _geoSvg.selectAll('.geo-country').classed('hl', false);
-  document.getElementById('geoTip').classList.remove('vis');
-  if (clearAll) {
-    document.querySelectorAll('.geo-row').forEach(x => x.classList.remove('hl'));
-    document.querySelectorAll('.geo-pill').forEach(p => p.classList.remove('active'));
-  }
-}
-
-(function hookSaveTotal() {
-  if (typeof saveTotal !== 'function') return;
-  const _origSave = saveTotal;
-  window.saveTotal = function(v){
-    _origSave(v);
-    try { updateGeoEUR(); } catch(e){}
-    try { renderSectorSlide(); renderClusterCard(); } catch(e){}
-  };
-})();
-
-// ============================================================
-// ANALYTICS (Features A, B, D) - lazy load aus data/*.json
-// ============================================================
-let _analyticsData = null;
-let _analyticsLoading = null;
-
-function _portfolioPct(ticker) {
-  for (const g of GROUPS) for (const p of g.products) if (p.ticker === ticker) return p.pct;
-  return 0;
-}
-function _allTickers() {
-  const out = [];
-  for (const g of GROUPS) for (const p of g.products) out.push(p.ticker);
-  return out;
-}
-function _formatEur(v) { return v >= 10 ? Math.round(v) + ' €' : v.toFixed(2) + ' €'; }
-
-async function loadAnalytics() {
-  if (_analyticsData) return _analyticsData;
-  if (_analyticsLoading) return _analyticsLoading;
-  _analyticsLoading = (async () => {
-    const t = Date.now();
-    const [h, s, m] = await Promise.all([
-      fetch('./data/holdings.json?t=' + t).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch('./data/sectors.json?t='  + t).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch('./data/static_meta.json?t=' + t).then(r => r.ok ? r.json() : null).catch(() => null),
-    ]);
-    _analyticsData = { holdings: h, sectors: s, staticMeta: m };
-    return _analyticsData;
-  })();
-  return _analyticsLoading;
-}
-
-// Feature D: Klumpenrisiko
-function computeClusterRisk(data) {
-  if (!data || !data.holdings) return [];
-  const agg = {};
-  for (const [ticker, block] of Object.entries(data.holdings.etfs || {})) {
-    const pPct = _portfolioPct(ticker);
-    if (!pPct) continue;
-    for (const h of block.top_holdings || []) {
-      const key = h.isin || h.name;
-      if (!agg[key]) agg[key] = { name: h.name, isin: h.isin, total_pct: 0, via: [] };
-      agg[key].total_pct += pPct * (h.weight_pct / 100);
-      agg[key].via.push({ ticker, weight_in_etf: h.weight_pct });
-    }
-  }
-  return Object.values(agg)
-    .map(x => ({ ...x, total_pct: x.total_pct * 100 }))
-    .sort((a,b) => b.total_pct - a.total_pct);
-}
-
-// Feature A: Overlap
-function computeOverlap(holdingsA, holdingsB) {
-  if (!holdingsA || !holdingsB) return { pct: 0, shared: [] };
-  const mapB = {};
-  for (const h of holdingsB) mapB[h.isin || h.name] = h;
-  let total = 0;
-  const shared = [];
-  for (const h of holdingsA) {
-    const key = h.isin || h.name;
-    const m = mapB[key];
-    if (m) {
-      const mn = Math.min(h.weight_pct, m.weight_pct);
-      total += mn;
-      shared.push({ name: h.name, pct: mn });
-    }
-  }
-  shared.sort((a,b) => b.pct - a.pct);
-  return { pct: total, shared };
-}
-
-function computeOverlapsForTicker(ticker, data) {
-  if (!data || !data.holdings) return [];
-  const myH = data.holdings.etfs[ticker]?.top_holdings;
-  if (!myH) return [];
-  const out = [];
-  for (const other of _allTickers()) {
-    if (other === ticker) continue;
-    const oH = data.holdings.etfs[other]?.top_holdings;
-    if (!oH) continue;
-    const r = computeOverlap(myH, oH);
-    if (r.pct > 0.5) out.push({ ticker: other, ...r });
-  }
-  return out.sort((a,b) => b.pct - a.pct);
-}
-
-// Feature B: Sektor-Gewichtung
-function computeSectorBreakdown(data) {
-  if (!data || !data.sectors) return [];
-  const agg = {};
-  for (const [ticker, block] of Object.entries(data.sectors.etfs || {})) {
-    const pPct = _portfolioPct(ticker);
-    if (!pPct) continue;
-    for (const s of block.sectors || []) {
-      const key = s.sector;
-      agg[key] = (agg[key] || 0) + pPct * (s.weight_pct / 100);
-    }
-  }
-  const sm = data.staticMeta;
-  if (sm) {
-    for (const ticker of Object.keys(sm.etcs || {})) {
-      const pPct = _portfolioPct(ticker);
-      if (!pPct) continue;
-      agg['Rohstoffe'] = (agg['Rohstoffe'] || 0) + pPct;
-    }
-    for (const [ticker, stk] of Object.entries(sm.stocks || {})) {
-      const pPct = _portfolioPct(ticker);
-      if (!pPct) continue;
-      const key = stk.sector || 'Sonstige';
-      agg[key] = (agg[key] || 0) + pPct;
-    }
-  }
-  return Object.entries(agg)
-    .map(([s, p]) => ({ sector: s, pct: p * 100 }))
-    .sort((a,b) => b.pct - a.pct);
-}
-
-const SECTOR_COLOR = {
-  'IT':'#3B82F6', 'Information Technology':'#3B82F6', 'Technology':'#3B82F6',
-  'Financials':'#F59E0B', 'Finanzwesen':'#F59E0B',
-  'Health Care':'#10B981', 'Gesundheitsversorgung':'#10B981',
-  'Kommunikation':'#8B5CF6', 'Communication Services':'#8B5CF6',
-  'Zyklische Konsumgüter':'#EC4899', 'Consumer Discretionary':'#EC4899',
-  'Nichtzyklische Konsumgüter':'#14B8A6', 'Consumer Staples':'#14B8A6',
-  'Industrie':'#F97316', 'Industrials':'#F97316',
-  'Energie':'#EF4444', 'Energy':'#EF4444',
-  'Materialien':'#A78BFA', 'Materials':'#A78BFA',
-  'Versorger':'#22D3EE', 'Utilities':'#22D3EE',
-  'Immobilien':'#84CC16', 'Real Estate':'#84CC16',
-  'Rohstoffe':'#F97316', 'Insurance':'#F59E0B',
-  'Sonstige':'#6b7280', 'Cash und/oder Derivate':'#6b7280'
-};
-function _sectorColor(s) { return SECTOR_COLOR[s] || '#a78bfa'; }
-
-async function renderClusterCard() {
-  const body = document.getElementById('clusterCardBody');
-  if (!body) return;
-  const data = await loadAnalytics();
-  if (!data || !data.holdings || !data.holdings.etfs || !Object.keys(data.holdings.etfs).length) {
-    body.innerHTML = '<div class="cluster-card-loading">keine Daten</div>';
-    return;
-  }
-  const risks = computeClusterRisk(data).slice(0, 3);
-  if (!risks.length) { body.innerHTML = '<div class="cluster-card-loading">keine Konzentrationen erkannt</div>'; return; }
-  body.innerHTML = risks.map(r => {
-    const eur = (r.total_pct / 100) * currentTotal;
-    const viaTxt = r.via.map(v => v.ticker).join('+');
-    return '<div class="cluster-row">' +
-      '<span class="cluster-row-name"><b>' + r.name + '</b> <span class="cluster-row-via">via ' + viaTxt + '</span></span>' +
-      '<span class="cluster-row-pct">' + r.total_pct.toFixed(2) + '% · ' + _formatEur(eur) + '</span>' +
-    '</div>';
-  }).join('');
-}
-
-function initSectors() { renderSectorSlide(); }
-async function renderSectorSlide() {
-  const sectorList = document.getElementById('sectorList');
-  const riskList   = document.getElementById('riskList');
-  const badge      = document.getElementById('sectorTotalBadge');
-  if (!sectorList || !riskList) return;
-  if (badge) badge.textContent = currentTotal + ' € / Monat';
-  const data = await loadAnalytics();
-  if (!data || !data.holdings || !data.sectors) {
-    sectorList.innerHTML = '<div class="sector-loading">Daten konnten nicht geladen werden.</div>';
-    riskList.innerHTML   = '<div class="sector-loading">Daten konnten nicht geladen werden.</div>';
-    return;
-  }
-  const sectors = computeSectorBreakdown(data);
-  if (!sectors.length) {
-    sectorList.innerHTML = '<div class="sector-loading">keine Sektor-Daten</div>';
-  } else {
-    sectorList.innerHTML = sectors.map(s => {
-      const eur = (s.pct/100) * currentTotal;
-      const c = _sectorColor(s.sector);
-      return '<div class="sector-row">' +
-        '<div class="sector-dot" style="background:' + c + '"></div>' +
-        '<div class="sector-row-name">' + s.sector + '</div>' +
-        '<div class="sector-row-eur">' + _formatEur(eur) + '</div>' +
-        '<div class="sector-row-pct" style="color:' + c + '">' + s.pct.toFixed(1) + '%</div>' +
-      '</div>' +
-      '<div class="sector-bar-wrap"><div class="sector-bar-track"><div class="sector-bar-fill" style="width:' + Math.min(s.pct*2.5,100) + '%;background:' + c + '"></div></div></div>';
-    }).join('');
-  }
-  const risks = computeClusterRisk(data).filter(r => r.total_pct >= 0.3);
-  if (!risks.length) {
-    riskList.innerHTML = '<div class="sector-loading">keine relevanten Konzentrationen</div>';
-  } else {
-    riskList.innerHTML = risks.slice(0, 20).map(r => {
-      const eur = (r.total_pct/100) * currentTotal;
-      const viaTxt = r.via.map(v => v.ticker + ' (' + v.weight_in_etf.toFixed(1) + '%)').join(' · ');
-      return '<div class="risk-row">' +
-        '<div class="risk-row-name"><b>' + r.name + '</b><div class="risk-row-via">via ' + viaTxt + '</div></div>' +
-        '<div class="risk-row-eur">' + _formatEur(eur) + '</div>' +
-        '<div class="risk-row-pct">' + r.total_pct.toFixed(2) + '%</div>' +
-      '</div>';
-    }).join('');
-  }
-}
-
-async function renderOverlapInModal(ticker) {
-  const section = document.getElementById('mOverlapSection');
-  const body    = document.getElementById('mOverlapBody');
-  if (!section || !body || !ticker) return;
-  section.style.display = 'block';
-  body.innerHTML = '<div class="overlap-empty">wird geladen...</div>';
-  const data = await loadAnalytics();
-  if (!data || !data.holdings) { body.innerHTML = '<div class="overlap-empty">keine Daten</div>'; return; }
-  if (!data.holdings.etfs[ticker]) {
-    section.style.display = 'none';
-    return;
-  }
-  const overlaps = computeOverlapsForTicker(ticker, data);
-  if (!overlaps.length) {
-    body.innerHTML = '<div class="overlap-empty">keine Ueberschneidungen ueber 0,5% gefunden</div>';
-    return;
-  }
-  body.innerHTML = overlaps.slice(0, 5).map(o => {
-    const stocks = o.shared.slice(0, 3).map(s => s.name.split(' ').slice(0,2).join(' ')).join(', ');
-    return '<div><div class="overlap-pair">' +
-      '<span class="overlap-pair-name">↔ ' + o.ticker + '</span>' +
-      '<span class="overlap-pair-pct">' + o.pct.toFixed(1) + '%</span>' +
-      '</div>' +
-      '<div class="overlap-pair-stocks">' + stocks + (o.shared.length > 3 ? ' ...' : '') + '</div>' +
-    '</div>';
-  }).join('');
-}
-
-(function hookOpenModal() {
-  if (typeof openModal !== 'function') return;
-  const orig = openModal;
-  window.openModal = function(idx) {
-    orig(idx);
-    try {
-      const g = GROUPS[idx];
-      const t = g.products[0] && g.products[0].ticker;
-      if (t) renderOverlapInModal(t);
-      else document.getElementById('mOverlapSection').style.display = 'none';
-    } catch(e) { console.warn('overlap render failed', e); }
-  };
-})();
-
-loadAnalytics().then(() => {
-  try { renderClusterCard(); } catch(e) { console.warn('cluster card failed', e); }
-});
-
-
 </script>
 </body>
 </html>
