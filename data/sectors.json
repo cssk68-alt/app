@@ -1,0 +1,369 @@
+{
+  "_meta": {
+    "last_updated": "2026-05-18",
+    "source": "Aggregiert aus iShares Holdings",
+    "note": "Sektor-Namen wie von iShares-DE geliefert (DE/EN gemischt)"
+  },
+  "etfs": {
+    "SXR8": {
+      "product_id": "253743",
+      "last_updated": "2026-05-18",
+      "sectors": [
+        {
+          "sector": "IT",
+          "weight_pct": 37.3023
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 11.4371
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 10.8117
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 9.6056
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 8.3909
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 8.232
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 4.843
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 3.3962
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 2.1295
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 1.8494
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 1.8153
+        }
+      ]
+    },
+    "CPXJ": {
+      "product_id": "253735",
+      "last_updated": "2026-05-18",
+      "sectors": [
+        {
+          "sector": "Financials",
+          "weight_pct": 44.5084
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 15.8633
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 9.2322
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 7.9716
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 5.9871
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 3.5949
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 3.1584
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 2.8455
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 2.7576
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 2.6775
+        },
+        {
+          "sector": "IT",
+          "weight_pct": 0.6728
+        },
+        {
+          "sector": "Money Market",
+          "weight_pct": 0.008
+        }
+      ]
+    },
+    "CSKR": {
+      "product_id": "253733",
+      "last_updated": "2026-05-18",
+      "sectors": [
+        {
+          "sector": "IT",
+          "weight_pct": 52.9151
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 19.5458
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 8.8527
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 7.7997
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 2.7617
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 2.4462
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 1.8755
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 1.2976
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 0.8964
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 0.302
+        }
+      ]
+    },
+    "IJPA": {
+      "product_id": "251867",
+      "last_updated": "2026-05-18",
+      "sectors": [
+        {
+          "sector": "Industrie",
+          "weight_pct": 26.0838
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 15.9276
+        },
+        {
+          "sector": "IT",
+          "weight_pct": 15.4744
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 14.6011
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 5.809
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 5.5717
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 5.2904
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 4.5667
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 3.1438
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 1.227
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 0.9951
+        }
+      ]
+    },
+    "WHCS": {
+      "product_id": "308909",
+      "last_updated": "2026-05-18",
+      "sectors": [
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 99.5112
+        }
+      ]
+    },
+    "AGED": {
+      "product_id": "284218",
+      "last_updated": "2026-05-18",
+      "sectors": [
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 46.2916
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 44.1913
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 6.2861
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 1.0872
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 1.0241
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 0.2316
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 0.1039
+        },
+        {
+          "sector": "IT",
+          "weight_pct": 0.0786
+        }
+      ]
+    },
+    "EIMI": {
+      "product_id": "264659",
+      "last_updated": "2026-05-18",
+      "sectors": [
+        {
+          "sector": "IT",
+          "weight_pct": 37.6819
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 17.8877
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 9.231
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 8.3352
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 6.6245
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 6.0699
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 3.3601
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 3.2775
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 3.2595
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 2.0791
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 1.6221
+        },
+        {
+          "sector": "Money Market",
+          "weight_pct": 0.0107
+        },
+        {
+          "sector": "Sonstige",
+          "weight_pct": 0.0
+        }
+      ]
+    },
+    "ISF": {
+      "product_id": "251795",
+      "last_updated": "2026-05-18",
+      "sectors": [
+        {
+          "sector": "Financials",
+          "weight_pct": 26.2444
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 13.9979
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 13.0655
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 12.7463
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 11.1012
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 8.7962
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 4.5481
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 4.5081
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 2.1426
+        },
+        {
+          "sector": "IT",
+          "weight_pct": 1.0086
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 1.0063
+        },
+        {
+          "sector": "Money Market",
+          "weight_pct": 0.0666
+        }
+      ]
+    }
+  }
+}

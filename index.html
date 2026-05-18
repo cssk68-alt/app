@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-15T17:15:00 -->
+<!-- Cache-Buster: 2026-05-18T23:30:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v20260515t1715</title>
+<title>Mein Sparplan - v20260518t2330</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -214,24 +214,73 @@
   .tr-link:active { background: rgba(255,255,255,0.08); }
   .tr-logo { font-size: 13px; }
 
-/* === 2-SLIDE NAVIGATION === */
+/* === 3-SLIDE NAVIGATION === */
 html, body { overflow-x: hidden; }
 #app-slider {
   display: flex;
-  width: 200vw;
+  width: 300vw;
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
-#slide-sparplan, #slide-geo {
+#slide-sparplan, #slide-geo, #slide-sectors {
   width: 100vw;
   min-height: 100vh;
   flex-shrink: 0;
 }
-#slide-geo {
+#slide-geo, #slide-sectors {
   padding: 24px 16px 60px;
   overflow-y: auto;
 }
-#app-slider.show-geo { transform: translateX(-100vw); }
+#app-slider.show-sectors { transform: translateX(-100vw); }
+#app-slider.show-geo     { transform: translateX(-200vw); }
+
+/* === CLUSTER-RISK CARD (Slide 1) === */
+.cluster-card { border-radius: 14px; margin-bottom: 14px;
+  background: linear-gradient(135deg, rgba(248,113,113,0.10), rgba(167,139,250,0.08));
+  border: 1px solid rgba(248,113,113,0.25); padding: 12px 14px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.cluster-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cluster-card-title { font-size: 12px; font-weight: 700; color: #fca5a5; letter-spacing: 0.5px; }
+.cluster-card-hint { font-size: 10px; color: #6b7280; }
+.cluster-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; }
+.cluster-row-name { color: #e5e7eb; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 8px; }
+.cluster-row-name b { color: #fff; }
+.cluster-row-pct { font-weight: 700; color: #fca5a5; font-variant-numeric: tabular-nums; }
+.cluster-row-via { font-size: 10px; color: #6b7280; margin-left: 6px; }
+.cluster-card-loading { font-size: 11px; color: #6b7280; text-align: center; padding: 6px 0; }
+
+/* === SECTORS SLIDE (Slide 3) === */
+.sector-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
+.sector-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.sector-header-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
+.sector-header-badge { font-size: 10px; color: #6b7280; background: rgba(255,255,255,0.06); border-radius: 20px; padding: 2px 8px; }
+.sector-row { display: grid; grid-template-columns: 16px 1fr 70px 50px; gap: 8px; align-items: center; padding: 9px 18px; border-top: 1px solid rgba(255,255,255,0.04); }
+.sector-row:first-of-type { border-top: none; }
+.sector-dot { width: 10px; height: 10px; border-radius: 50%; }
+.sector-row-name { font-size: 13px; font-weight: 500; color: #e5e7eb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sector-row-eur { font-size: 12px; font-weight: 700; text-align: right; color: #d1d5db; font-variant-numeric: tabular-nums; }
+.sector-row-pct { font-size: 13px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.sector-bar-wrap { padding: 0 18px 9px; }
+.sector-bar-track { height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; }
+.sector-bar-fill { height: 100%; border-radius: 2px; opacity: 0.7; }
+.sector-loading { padding: 30px; text-align: center; color: #6b7280; font-size: 13px; }
+
+.risk-row { display: grid; grid-template-columns: 1fr 70px 50px; gap: 6px; align-items: center; padding: 10px 18px; border-top: 1px solid rgba(255,255,255,0.04); }
+.risk-row:first-of-type { border-top: none; }
+.risk-row-name { font-size: 12px; color: #e5e7eb; line-height: 1.3; }
+.risk-row-name b { color: #fff; font-weight: 600; display: block; font-size: 13px; }
+.risk-row-via { font-size: 10px; color: #6b7280; }
+.risk-row-eur { font-size: 12px; font-weight: 700; text-align: right; color: #d1d5db; font-variant-numeric: tabular-nums; }
+.risk-row-pct { font-size: 13px; font-weight: 700; color: #fca5a5; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* === OVERLAP-SEKTION im MODAL === */
+.overlap-section { padding: 10px 14px 14px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4px; }
+.overlap-label { font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.overlap-pair { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 12px; }
+.overlap-pair-name { color: #c4b5fd; }
+.overlap-pair-pct { font-weight: 700; color: #a78bfa; font-variant-numeric: tabular-nums; }
+.overlap-pair-stocks { font-size: 10px; color: #6b7280; margin-top: -2px; padding-left: 0; }
+.overlap-empty { font-size: 11px; color: #6b7280; padding: 4px 0; }
 #slide-arrow {
   position: fixed;
   right: 0;
@@ -321,11 +370,43 @@ html, body { overflow-x: hidden; }
   </div>
 
   <div class="pills" id="pills"></div>
+
+  <!-- Klumpenrisiko-Card (Feature D) - live aus data/holdings.json -->
+  <div class="cluster-card" id="clusterCard" onclick="goToSectorsSlide()">
+    <div class="cluster-card-head">
+      <span class="cluster-card-title">&#9888;&#65039; Top-Konzentrationen im Sparplan</span>
+      <span class="cluster-card-hint">Details &rarr;</span>
+    </div>
+    <div id="clusterCardBody"><div class="cluster-card-loading">wird geladen...</div></div>
+  </div>
+
   <div class="cards" id="cards"></div>
   <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr</div>
 </div>
 
 </div><!-- /slide-sparplan -->
+
+<div id="slide-sectors">
+  <div class="geo-wrap-outer">
+    <p class="slide-subtitle">Sektor- &amp; Risiko-Analyse</p>
+    <h1 class="slide-title">Sektoren</h1>
+    <div class="sector-section">
+      <div class="sector-header">
+        <div class="sector-header-title">&#128202; Sektor-Verteilung Gesamt</div>
+        <span class="sector-header-badge" id="sectorTotalBadge">live</span>
+      </div>
+      <div id="sectorList"><div class="sector-loading">wird geladen...</div></div>
+    </div>
+    <div class="sector-section">
+      <div class="sector-header">
+        <div class="sector-header-title">&#9888;&#65039; Klumpenrisiko &ndash; Top-Einzelpositionen</div>
+        <span class="sector-header-badge">aggregiert</span>
+      </div>
+      <div id="riskList"><div class="sector-loading">wird geladen...</div></div>
+    </div>
+  </div>
+</div><!-- /slide-sectors -->
+
 <div id="slide-geo">
   <div class="geo-wrap-outer">
     <p class="slide-subtitle">Geografische Verteilung</p>
@@ -382,6 +463,10 @@ html, body { overflow-x: hidden; }
       </div>
     </div>
     <div class="products" id="mProducts"></div>
+    <div class="overlap-section" id="mOverlapSection" style="display:none">
+      <div class="overlap-label">&harr; Ueberschneidungen mit anderen ETFs</div>
+      <div id="mOverlapBody"></div>
+    </div>
   </div>
 </div>
 
@@ -845,20 +930,26 @@ if ('serviceWorker' in navigator) {
 }
 
 
-// ── 2-SLIDE NAVIGATION ───────────────────────────────────────
+// 3-SLIDE NAVIGATION (Sparplan -> Sektoren -> Geo -> Sparplan)
 const _arrowBtn = document.getElementById('slide-arrow');
 const _slider   = document.getElementById('app-slider');
-let _onGeo = false;
+let _slideIdx = 0;
 let _geoInitialized = false;
+let _sectorsInitialized = false;
 let _geoData = null;
 let _geoRegions = null;
-function _toggleSlide() {
-  _onGeo = !_onGeo;
-  _slider.classList.toggle('show-geo', _onGeo);
-  _arrowBtn.innerHTML = _onGeo ? '&lsaquo;' : '&rsaquo;';
-  if (_onGeo && !_geoInitialized) { _geoInitialized = true; initGeo(); }
-  if (_onGeo) { setTimeout(updateGeoEUR, 50); }
+const _SLIDE_CLASS = ['', 'show-sectors', 'show-geo'];
+function _setSlide(idx) {
+  _slideIdx = ((idx % 3) + 3) % 3;
+  _slider.className = _SLIDE_CLASS[_slideIdx];
+  _arrowBtn.innerHTML = _slideIdx === 2 ? '&lsaquo;' : '&rsaquo;';
+  if (_slideIdx === 1 && !_sectorsInitialized) { _sectorsInitialized = true; initSectors(); }
+  if (_slideIdx === 2 && !_geoInitialized)     { _geoInitialized = true; initGeo(); }
+  if (_slideIdx === 1) renderSectorSlide();
+  if (_slideIdx === 2) setTimeout(updateGeoEUR, 50);
 }
+function _toggleSlide() { _setSlide(_slideIdx + 1); }
+function goToSectorsSlide() { _setSlide(1); }
 _arrowBtn.addEventListener('click', _toggleSlide);
 
 function loadScript(src){
@@ -1102,8 +1193,256 @@ function deselectGeo(clearAll) {
   window.saveTotal = function(v){
     _origSave(v);
     try { updateGeoEUR(); } catch(e){}
+    try { renderSectorSlide(); renderClusterCard(); } catch(e){}
   };
 })();
+
+// ============================================================
+// ANALYTICS (Features A, B, D) - lazy load aus data/*.json
+// ============================================================
+let _analyticsData = null;
+let _analyticsLoading = null;
+
+function _portfolioPct(ticker) {
+  for (const g of GROUPS) for (const p of g.products) if (p.ticker === ticker) return p.pct;
+  return 0;
+}
+function _allTickers() {
+  const out = [];
+  for (const g of GROUPS) for (const p of g.products) out.push(p.ticker);
+  return out;
+}
+function _formatEur(v) { return v >= 10 ? Math.round(v) + ' €' : v.toFixed(2) + ' €'; }
+
+async function loadAnalytics() {
+  if (_analyticsData) return _analyticsData;
+  if (_analyticsLoading) return _analyticsLoading;
+  _analyticsLoading = (async () => {
+    const t = Date.now();
+    const [h, s, m] = await Promise.all([
+      fetch('./data/holdings.json?t=' + t).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('./data/sectors.json?t='  + t).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('./data/static_meta.json?t=' + t).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]);
+    _analyticsData = { holdings: h, sectors: s, staticMeta: m };
+    return _analyticsData;
+  })();
+  return _analyticsLoading;
+}
+
+// Feature D: Klumpenrisiko
+function computeClusterRisk(data) {
+  if (!data || !data.holdings) return [];
+  const agg = {};
+  for (const [ticker, block] of Object.entries(data.holdings.etfs || {})) {
+    const pPct = _portfolioPct(ticker);
+    if (!pPct) continue;
+    for (const h of block.top_holdings || []) {
+      const key = h.isin || h.name;
+      if (!agg[key]) agg[key] = { name: h.name, isin: h.isin, total_pct: 0, via: [] };
+      agg[key].total_pct += pPct * (h.weight_pct / 100);
+      agg[key].via.push({ ticker, weight_in_etf: h.weight_pct });
+    }
+  }
+  return Object.values(agg)
+    .map(x => ({ ...x, total_pct: x.total_pct * 100 }))
+    .sort((a,b) => b.total_pct - a.total_pct);
+}
+
+// Feature A: Overlap
+function computeOverlap(holdingsA, holdingsB) {
+  if (!holdingsA || !holdingsB) return { pct: 0, shared: [] };
+  const mapB = {};
+  for (const h of holdingsB) mapB[h.isin || h.name] = h;
+  let total = 0;
+  const shared = [];
+  for (const h of holdingsA) {
+    const key = h.isin || h.name;
+    const m = mapB[key];
+    if (m) {
+      const mn = Math.min(h.weight_pct, m.weight_pct);
+      total += mn;
+      shared.push({ name: h.name, pct: mn });
+    }
+  }
+  shared.sort((a,b) => b.pct - a.pct);
+  return { pct: total, shared };
+}
+
+function computeOverlapsForTicker(ticker, data) {
+  if (!data || !data.holdings) return [];
+  const myH = data.holdings.etfs[ticker]?.top_holdings;
+  if (!myH) return [];
+  const out = [];
+  for (const other of _allTickers()) {
+    if (other === ticker) continue;
+    const oH = data.holdings.etfs[other]?.top_holdings;
+    if (!oH) continue;
+    const r = computeOverlap(myH, oH);
+    if (r.pct > 0.5) out.push({ ticker: other, ...r });
+  }
+  return out.sort((a,b) => b.pct - a.pct);
+}
+
+// Feature B: Sektor-Gewichtung
+function computeSectorBreakdown(data) {
+  if (!data || !data.sectors) return [];
+  const agg = {};
+  for (const [ticker, block] of Object.entries(data.sectors.etfs || {})) {
+    const pPct = _portfolioPct(ticker);
+    if (!pPct) continue;
+    for (const s of block.sectors || []) {
+      const key = s.sector;
+      agg[key] = (agg[key] || 0) + pPct * (s.weight_pct / 100);
+    }
+  }
+  const sm = data.staticMeta;
+  if (sm) {
+    for (const ticker of Object.keys(sm.etcs || {})) {
+      const pPct = _portfolioPct(ticker);
+      if (!pPct) continue;
+      agg['Rohstoffe'] = (agg['Rohstoffe'] || 0) + pPct;
+    }
+    for (const [ticker, stk] of Object.entries(sm.stocks || {})) {
+      const pPct = _portfolioPct(ticker);
+      if (!pPct) continue;
+      const key = stk.sector || 'Sonstige';
+      agg[key] = (agg[key] || 0) + pPct;
+    }
+  }
+  return Object.entries(agg)
+    .map(([s, p]) => ({ sector: s, pct: p * 100 }))
+    .sort((a,b) => b.pct - a.pct);
+}
+
+const SECTOR_COLOR = {
+  'IT':'#3B82F6', 'Information Technology':'#3B82F6', 'Technology':'#3B82F6',
+  'Financials':'#F59E0B', 'Finanzwesen':'#F59E0B',
+  'Health Care':'#10B981', 'Gesundheitsversorgung':'#10B981',
+  'Kommunikation':'#8B5CF6', 'Communication Services':'#8B5CF6',
+  'Zyklische Konsumgüter':'#EC4899', 'Consumer Discretionary':'#EC4899',
+  'Nichtzyklische Konsumgüter':'#14B8A6', 'Consumer Staples':'#14B8A6',
+  'Industrie':'#F97316', 'Industrials':'#F97316',
+  'Energie':'#EF4444', 'Energy':'#EF4444',
+  'Materialien':'#A78BFA', 'Materials':'#A78BFA',
+  'Versorger':'#22D3EE', 'Utilities':'#22D3EE',
+  'Immobilien':'#84CC16', 'Real Estate':'#84CC16',
+  'Rohstoffe':'#F97316', 'Insurance':'#F59E0B',
+  'Sonstige':'#6b7280', 'Cash und/oder Derivate':'#6b7280'
+};
+function _sectorColor(s) { return SECTOR_COLOR[s] || '#a78bfa'; }
+
+async function renderClusterCard() {
+  const body = document.getElementById('clusterCardBody');
+  if (!body) return;
+  const data = await loadAnalytics();
+  if (!data || !data.holdings || !data.holdings.etfs || !Object.keys(data.holdings.etfs).length) {
+    body.innerHTML = '<div class="cluster-card-loading">keine Daten</div>';
+    return;
+  }
+  const risks = computeClusterRisk(data).slice(0, 3);
+  if (!risks.length) { body.innerHTML = '<div class="cluster-card-loading">keine Konzentrationen erkannt</div>'; return; }
+  body.innerHTML = risks.map(r => {
+    const eur = (r.total_pct / 100) * currentTotal;
+    const viaTxt = r.via.map(v => v.ticker).join('+');
+    return '<div class="cluster-row">' +
+      '<span class="cluster-row-name"><b>' + r.name + '</b> <span class="cluster-row-via">via ' + viaTxt + '</span></span>' +
+      '<span class="cluster-row-pct">' + r.total_pct.toFixed(2) + '% · ' + _formatEur(eur) + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function initSectors() { renderSectorSlide(); }
+async function renderSectorSlide() {
+  const sectorList = document.getElementById('sectorList');
+  const riskList   = document.getElementById('riskList');
+  const badge      = document.getElementById('sectorTotalBadge');
+  if (!sectorList || !riskList) return;
+  if (badge) badge.textContent = currentTotal + ' € / Monat';
+  const data = await loadAnalytics();
+  if (!data || !data.holdings || !data.sectors) {
+    sectorList.innerHTML = '<div class="sector-loading">Daten konnten nicht geladen werden.</div>';
+    riskList.innerHTML   = '<div class="sector-loading">Daten konnten nicht geladen werden.</div>';
+    return;
+  }
+  const sectors = computeSectorBreakdown(data);
+  if (!sectors.length) {
+    sectorList.innerHTML = '<div class="sector-loading">keine Sektor-Daten</div>';
+  } else {
+    sectorList.innerHTML = sectors.map(s => {
+      const eur = (s.pct/100) * currentTotal;
+      const c = _sectorColor(s.sector);
+      return '<div class="sector-row">' +
+        '<div class="sector-dot" style="background:' + c + '"></div>' +
+        '<div class="sector-row-name">' + s.sector + '</div>' +
+        '<div class="sector-row-eur">' + _formatEur(eur) + '</div>' +
+        '<div class="sector-row-pct" style="color:' + c + '">' + s.pct.toFixed(1) + '%</div>' +
+      '</div>' +
+      '<div class="sector-bar-wrap"><div class="sector-bar-track"><div class="sector-bar-fill" style="width:' + Math.min(s.pct*2.5,100) + '%;background:' + c + '"></div></div></div>';
+    }).join('');
+  }
+  const risks = computeClusterRisk(data).filter(r => r.total_pct >= 0.3);
+  if (!risks.length) {
+    riskList.innerHTML = '<div class="sector-loading">keine relevanten Konzentrationen</div>';
+  } else {
+    riskList.innerHTML = risks.slice(0, 20).map(r => {
+      const eur = (r.total_pct/100) * currentTotal;
+      const viaTxt = r.via.map(v => v.ticker + ' (' + v.weight_in_etf.toFixed(1) + '%)').join(' · ');
+      return '<div class="risk-row">' +
+        '<div class="risk-row-name"><b>' + r.name + '</b><div class="risk-row-via">via ' + viaTxt + '</div></div>' +
+        '<div class="risk-row-eur">' + _formatEur(eur) + '</div>' +
+        '<div class="risk-row-pct">' + r.total_pct.toFixed(2) + '%</div>' +
+      '</div>';
+    }).join('');
+  }
+}
+
+async function renderOverlapInModal(ticker) {
+  const section = document.getElementById('mOverlapSection');
+  const body    = document.getElementById('mOverlapBody');
+  if (!section || !body || !ticker) return;
+  section.style.display = 'block';
+  body.innerHTML = '<div class="overlap-empty">wird geladen...</div>';
+  const data = await loadAnalytics();
+  if (!data || !data.holdings) { body.innerHTML = '<div class="overlap-empty">keine Daten</div>'; return; }
+  if (!data.holdings.etfs[ticker]) {
+    section.style.display = 'none';
+    return;
+  }
+  const overlaps = computeOverlapsForTicker(ticker, data);
+  if (!overlaps.length) {
+    body.innerHTML = '<div class="overlap-empty">keine Ueberschneidungen ueber 0,5% gefunden</div>';
+    return;
+  }
+  body.innerHTML = overlaps.slice(0, 5).map(o => {
+    const stocks = o.shared.slice(0, 3).map(s => s.name.split(' ').slice(0,2).join(' ')).join(', ');
+    return '<div><div class="overlap-pair">' +
+      '<span class="overlap-pair-name">↔ ' + o.ticker + '</span>' +
+      '<span class="overlap-pair-pct">' + o.pct.toFixed(1) + '%</span>' +
+      '</div>' +
+      '<div class="overlap-pair-stocks">' + stocks + (o.shared.length > 3 ? ' ...' : '') + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+(function hookOpenModal() {
+  if (typeof openModal !== 'function') return;
+  const orig = openModal;
+  window.openModal = function(idx) {
+    orig(idx);
+    try {
+      const g = GROUPS[idx];
+      const t = g.products[0] && g.products[0].ticker;
+      if (t) renderOverlapInModal(t);
+      else document.getElementById('mOverlapSection').style.display = 'none';
+    } catch(e) { console.warn('overlap render failed', e); }
+  };
+})();
+
+loadAnalytics().then(() => {
+  try { renderClusterCard(); } catch(e) { console.warn('cluster card failed', e); }
+});
+
 
 </script>
 </body>

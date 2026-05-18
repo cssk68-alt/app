@@ -20,9 +20,9 @@ from datetime import datetime
 PORTFOLIO = {
     "SXR8":  {"isin": "IE00B5BMR087", "product_id": "253743", "pct": 0.200},  # iShares Core S&P 500
     "CPXJ":  {"isin": "IE00B52MJY50", "product_id": "253735", "pct": 0.150},  # MSCI Pacific ex-Japan
-    "CSKR":  {"isin": "IE00B5W4TY14", "product_id": "253742", "pct": 0.026},  # MSCI Korea (Product-ID korrigiert)
-    "IJPA":  {"isin": "IE00B4L5YX21", "product_id": "251929", "pct": 0.024},  # MSCI Japan IMI (ISIN korrigiert)
-    "WHCS":  {"isin": "IE00B4L5Y983", "product_id": "251882", "pct": 0.140},  # MSCI World Health Care
+    "CSKR":  {"isin": "IE00B5W4TY14", "product_id": "253733", "pct": 0.026},  # MSCI Korea (Product-ID korrigiert 2026-05-18)
+    "IJPA":  {"isin": "IE00B4L5YX21", "product_id": "251867", "pct": 0.024},  # MSCI Japan IMI (Product-ID korrigiert 2026-05-18)
+    "WHCS":  {"isin": "IE00BJ5JNZ06", "product_id": "308909", "pct": 0.140},  # MSCI World Health Care (ISIN+ID korrigiert 2026-05-18)
     "AGED":  {"isin": "IE00BYZK4669", "product_id": "284218", "pct": 0.050},  # Ageing Population
     "EIMI":  {"isin": "IE00BKM4GZ66", "product_id": "264659", "pct": 0.140},  # MSCI EM IMI
     # Edelmetalle: keine Länder-Tab → Fallback auf Mining-Daten (statisch)
@@ -214,4 +214,4 @@ if __name__ == "__main__":
         }
         with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
-        print(f"=== Fertig: {len(new_weights)} Länder in {OUTPUT_PATH} gespeichert ===")
+        print(f"=== Fertig: {l

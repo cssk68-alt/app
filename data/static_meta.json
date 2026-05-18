@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "last_updated": "2026-05-18",
+    "note": "Statische Metadaten fuer ETCs (Underlying-Spezifikation) und Einzelaktien. Aendert sich praktisch nie. Manuell editierbar."
+  },
+  "etcs": {
+    "PHAG": {
+      "isin": "JE00B1VS3333",
+      "name": "WisdomTree Physical Silver",
+      "replication": "physical",
+      "storage_location": "London Vaults",
+      "roll_strategy": null,
+      "underlying": "Silver Spot",
+      "primary_country": "Mexico",
+      "country_breakdown": {
+        "Mexico": 24.0, "Peru": 15.0, "China": 13.0, "Russia": 8.0,
+        "Chile": 5.0, "Australia": 5.0, "Poland": 5.0, "Bolivia": 5.0,
+        "Argentina": 5.0, "Other": 15.0
+      },
+      "source_url": "https://www.wisdomtree.eu/de-de/products/exchange-traded-commodities/metals/wisdomtree-physical-silver"
+    },
+    "PHPT": {
+      "isin": "JE00B1VS2W53",
+      "name": "WisdomTree Physical Platinum",
+      "replication": "physical",
+      "storage_location": "London Vaults",
+      "roll_strategy": null,
+      "underlying": "Platinum Spot",
+      "primary_country": "South Africa",
+      "country_breakdown": {
+        "South Africa": 73.0, "Russia": 11.0, "Zimbabwe": 8.0,
+        "Canada": 4.0, "United States": 2.0, "Other": 2.0
+      },
+      "source_url": "https://www.wisdomtree.eu/de-de/products/exchange-traded-commodities/metals/wisdomtree-physical-platinum"
+    },
+    "COPA": {
+      "isin": "GB00B15KXQ89",
+      "name": "WisdomTree Copper",
+      "replication": "futures",
+      "storage_location": null,
+      "roll_strategy": "front-month",
+      "underlying": "Bloomberg Copper Subindex",
+      "primary_country": "Chile",
+      "country_breakdown": {
+        "Chile": 27.0, "Peru": 10.0, "Congo Dem. Rep.": 10.0,
+        "China": 8.0, "United States": 6.0, "Australia": 5.0,
+        "Zambia": 4.0, "Indonesia": 4.0, "Mexico": 3.0, "Other": 23.0
+      },
+      "source_url": "https://www.wisdomtree.eu/de-de/products/exchange-traded-commodities/commodities/wisdomtree-copper"
+    }
+  },
+  "stocks": {
+    "ALV": {
+      "isin": "DE0008404005",
+      "name": "Allianz SE",
+      "sector": "Financials",
+      "industry": "Insurance",
+      "country": "Deutschland",
+      "source_url": "https://www.allianz.com/de/investor_relations/aktie.html"
+    }
+  }
+}
