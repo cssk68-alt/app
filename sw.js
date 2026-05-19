@@ -1,25 +1,31 @@
 // Service Worker – Mein Sparplan PWA
-// Cache-First-Strategie: alles wird beim ersten Aufruf gecacht und danach offline serviert.
+// Bug 4 Fix: Network-First für /data/* (frische ETF-Daten), Cache-First für statische Assets.
+// Zusatz: Truncation-Fix (originale Datei fehlte die letzten 5 schließenden Klammern).
 
-const CACHE_NAME = 'sparplan-v6-20260519-restore';
+const CACHE_NAME = 'sparplan-v7-20260519-networkfirst';
 
-const ASSETS = [
+const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-180.png',
   './icon-192.png',
   './icon-512.png',
+];
+
+// Datenpfade: werden NICHT im Install vorab gecacht,
+// damit der erste Fetch immer fresh vom Server kommt.
+const DATA_PATHS = [
   './data/geo_weights.json',
   './data/holdings.json',
   './data/sectors.json',
-  './data/static_meta.json'
+  './data/static_meta.json',
 ];
 
-// Installation: alle Dateien vorab cachen
+// Installation: nur statische Assets vorab cachen (keine Daten-Files!)
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
@@ -34,16 +40,50 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch: Cache-First
+// Hilfsfunktion: ist die angefragte URL ein Datenpfad?
+function isDataRequest(url) {
+  const path = new URL(url).pathname;
+  return path.includes('/data/');
+}
+
+// Fetch-Handler:
+//   /data/*  → Network-First: frisch vom Server, Fallback auf Cache (Offline-Support)
+//   Alles andere → Cache-First: schnell aus Cache, Fallback auf Network
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(response => {
-        // Nur gültige Antworten cachen
-        if (!response || response.status !== 200 || response.type === 'opaque') {
+  if (event.request.method !== 'GET') return;
+
+  if (isDataRequest(event.request.url)) {
+    // Network-First für ETF-Daten: Sonntags-Update sofort sichtbar
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (!response || response.status !== 200 || response.type === 'opaque') {
+            return response;
+          }
+          // Frische Antwort in Cache schreiben (als Offline-Fallback)
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
           return response;
-        }
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-       
+        })
+        .catch(() => {
+          // Netzwerk nicht erreichbar → gecachte Version ausliefern
+          return caches.match(event.request);
+        })
+    );
+  } else {
+    // Cache-First für statische Assets (index.html, Icons, manifest)
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).then(response => {
+          if (!response || response.status !== 200 || response.type === 'opaque') {
+            return response;
+          }
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return response;
+        });
+      })
+    );
+  }
+});

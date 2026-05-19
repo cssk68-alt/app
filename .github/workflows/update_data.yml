@@ -22,12 +22,31 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Update Geo Weights (Laender pro Portfolio)
+        id: step_geo
         run: python update_weights.py
         continue-on-error: true
 
       - name: Update Holdings + Sectors (Top-Positionen + Sektor-Splits)
+        id: step_holdings
         run: python update_holdings_sectors.py
         continue-on-error: true
+
+      # Bug 7 Fix: Workflow failt explizit wenn BEIDE Scripts fehlschlagen.
+      # Einzelner Fehler ist tolerierbar (graceful degradation), beide = kritisch.
+      - name: Pruefe ob beide Scripts fehlgeschlagen sind
+        if: steps.step_geo.outcome == 'failure' && steps.step_holdings.outcome == 'failure'
+        run: |
+          echo "::error::BEIDE Update-Scripts fehlgeschlagen – keine Daten aktualisiert!"
+          echo "  update_weights.py:          ${{ steps.step_geo.outcome }}"
+          echo "  update_holdings_sectors.py: ${{ steps.step_holdings.outcome }}"
+          echo "Moegliche Ursachen: iShares-API down, Netzwerkfehler, Parsing-Fehler."
+          exit 1
+
+      - name: Zeige Update-Status
+        if: always()
+        run: |
+          echo "update_weights.py:          ${{ steps.step_geo.outcome }}"
+          echo "update_holdings_sectors.py: ${{ steps.step_holdings.outcome }}"
 
       - name: Commit and Push changes
         run: |

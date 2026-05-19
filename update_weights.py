@@ -42,17 +42,17 @@ EDELMETALL_FALLBACK = {
 }
 EINZELPOSITIONEN_FALLBACK = {"ALV": {"Deutschland": 100.0}}
 
+# Bug 3 Fix: Erweiterte COUNTRY_MAP mit Edge-Cases die iShares liefern kann.
+# Regel: alle Werte (canonical names) müssen in COUNTRY_META vorhanden sein.
 COUNTRY_MAP = {
+    # Nordamerika
     "Vereinigte Staaten": "USA", "United States": "USA", "USA": "USA",
-    "Germany": "Deutschland", "Deutschland": "Deutschland",
-    "Vereinigtes Königreich": "UK", "United Kingdom": "UK", "UK": "UK",
-    "Korea": "Südkorea", "South Korea": "Südkorea", "Südkorea": "Südkorea", "Republic of Korea": "Südkorea",
-    "South Africa": "Südafrika", "Südafrika": "Südafrika",
-    "Mexico": "Mexiko", "Mexiko": "Mexiko",
-    "Russia": "Russland", "Russian Federation": "Russland", "Russland": "Russland",
-    "Brazil": "Brasilien", "Brasilien": "Brasilien",
     "Canada": "Kanada", "Kanada": "Kanada",
-    "Australia": "Australien", "Australien": "Australien",
+    "Bermuda": "Bermuda",                                 # Steuerdomizel vieler Firmen
+    "Cayman Islands": "Cayman Islands",                   # Idem
+    # Europa
+    "Germany": "Deutschland", "Deutschland": "Deutschland",
+    "Vereinigtes Königreich": "UK", "United Kingdom": "UK", "UK": "UK", "Great Britain": "UK",
     "France": "Frankreich", "Frankreich": "Frankreich",
     "Netherlands": "Niederlande", "Niederlande": "Niederlande",
     "Sweden": "Schweden", "Schweden": "Schweden",
@@ -63,86 +63,142 @@ COUNTRY_MAP = {
     "Spain": "Spanien", "Spanien": "Spanien",
     "Greece": "Griechenland", "Griechenland": "Griechenland",
     "Poland": "Polen", "Polen": "Polen",
-    "Turkey": "Türkei", "Türkei": "Türkei",
-    "Indonesia": "Indonesien", "Indonesien": "Indonesien",
-    "Philippines": "Philippinen", "Philippinen": "Philippinen",
-    "Saudi Arabia": "Saudi-Arabien", "Saudi-Arabien": "Saudi-Arabien",
-    "United Arab Emirates": "Ver. Arabische Emirate", "Ver. Arabische Emirate": "Ver. Arabische Emirate",
-    "Argentina": "Argentinien", "Argentinien": "Argentinien",
-    "Bolivia": "Bolivien", "Bolivien": "Bolivien",
-    "Zambia": "Sambia", "Sambia": "Sambia",
-    "Zimbabwe": "Simbabwe", "Simbabwe": "Simbabwe",
-    "Congo, Dem. Rep.": "DRK", "DR Congo": "DRK", "DRK": "DRK",
-    "New Zealand": "Neuseeland", "Neuseeland": "Neuseeland",
+    "Czech Republic": "Tschechien", "Czechia": "Tschechien", "Tschechien": "Tschechien",
+    "Austria": "Österreich", "Österreich": "Österreich",
+    "Portugal": "Portugal",
+    "Finland": "Finnland", "Finnland": "Finnland",
+    "Norway": "Norwegen", "Norwegen": "Norwegen",
+    "Hungary": "Ungarn", "Ungarn": "Ungarn",
+    "Ireland": "Irland", "Irland": "Irland",
+    "Luxembourg": "Luxemburg", "Luxemburg": "Luxemburg",
+    # Asien-Pazifik
+    "Korea": "Südkorea", "South Korea": "Südkorea", "Südkorea": "Südkorea",
+    "Republic of Korea": "Südkorea",
+    "Japan": "Japan",
+    "China": "China", "Taiwan": "Taiwan",
     "Hong Kong": "Hongkong", "Hongkong": "Hongkong",
     "Singapore": "Singapur", "Singapur": "Singapur",
     "India": "Indien", "Indien": "Indien",
-    "China": "China", "Taiwan": "Taiwan", "Japan": "Japan",
-    "Israel": "Israel", "Chile": "Chile", "Peru": "Peru",
-    "Malaysia": "Malaysia", "Thailand": "Thailand", "Qatar": "Qatar", "Kuwait": "Kuwait",
+    "Australia": "Australien", "Australien": "Australien",
+    "New Zealand": "Neuseeland", "Neuseeland": "Neuseeland",
+    "Malaysia": "Malaysia", "Thailand": "Thailand",
+    "Indonesia": "Indonesien", "Indonesien": "Indonesien",
+    "Philippines": "Philippinen", "Philippinen": "Philippinen",
+    "Vietnam": "Vietnam",
+    # Emerging Markets / MENA
+    "Turkey": "Türkei", "Türkei": "Türkei",
+    "Saudi Arabia": "Saudi-Arabien", "Saudi-Arabien": "Saudi-Arabien",
+    "United Arab Emirates": "Ver. Arabische Emirate", "Ver. Arabische Emirate": "Ver. Arabische Emirate",
+    "Qatar": "Qatar", "Kuwait": "Kuwait", "Israel": "Israel",
+    "Egypt": "Ägypten", "Ägypten": "Ägypten",
+    "Morocco": "Marokko", "Marokko": "Marokko",
+    "Nigeria": "Nigeria",
+    "South Africa": "Südafrika", "Südafrika": "Südafrika",
+    "Republic of South Africa": "Südafrika",              # iShares-Variante
+    # Latam
+    "Brazil": "Brasilien", "Brasilien": "Brasilien",
+    "Mexico": "Mexiko", "Mexiko": "Mexiko",
+    "Argentina": "Argentinien", "Argentinien": "Argentinien",
+    "Bolivia": "Bolivien", "Bolivien": "Bolivien",
+    "Chile": "Chile", "Peru": "Peru",
+    "Colombia": "Kolumbien", "Kolumbien": "Kolumbien",
+    # Rohstoff-Länder
+    "Russia": "Russland", "Russian Federation": "Russland", "Russland": "Russland",
+    "Zambia": "Sambia", "Sambia": "Sambia",
+    "Zimbabwe": "Simbabwe", "Simbabwe": "Simbabwe",
+    "Congo, Dem. Rep.": "DRK", "DR Congo": "DRK", "DRK": "DRK",
+    # Pakistan
+    "Pakistan": "Pakistan",
 }
 
+# Bug 3 Fix: COUNTRY_META erweitert um alle neuen canonical names.
+# Alle COUNTRY_MAP-Werte MÜSSEN hier einen Eintrag haben (validate_country_maps prüft das).
 COUNTRY_META = {
+    # Nordamerika
     "USA":            {"iso_numeric": 840, "flag": "🇺🇸"},
+    "Kanada":         {"iso_numeric": 124, "flag": "🇨🇦"},
+    "Bermuda":        {"iso_numeric":  60, "flag": "🇧🇲"},
+    "Cayman Islands": {"iso_numeric": 136, "flag": "🇰🇾"},
+    # Europa
     "Deutschland":    {"iso_numeric": 276, "flag": "🇩🇪"},
     "UK":             {"iso_numeric": 826, "flag": "🇬🇧"},
-    "Südkorea":       {"iso_numeric": 410, "flag": "🇰🇷"},
-    "Japan":          {"iso_numeric": 392, "flag": "🇯🇵"},
-    "Südafrika":      {"iso_numeric": 710, "flag": "🇿🇦"},
-    "Taiwan":         {"iso_numeric": 158, "flag": "🇹🇼"},
-    "Australien":     {"iso_numeric":  36, "flag": "🇦🇺"},
-    "China":          {"iso_numeric": 156, "flag": "🇨🇳"},
-    "Hongkong":       {"iso_numeric": 344, "flag": "🇭🇰"},
-    "Singapur":       {"iso_numeric": 702, "flag": "🇸🇬"},
-    "Indien":         {"iso_numeric": 356, "flag": "🇮🇳"},
-    "Schweiz":        {"iso_numeric": 756, "flag": "🇨🇭"},
     "Frankreich":     {"iso_numeric": 250, "flag": "🇫🇷"},
     "Niederlande":    {"iso_numeric": 528, "flag": "🇳🇱"},
     "Schweden":       {"iso_numeric": 752, "flag": "🇸🇪"},
+    "Schweiz":        {"iso_numeric": 756, "flag": "🇨🇭"},
     "Dänemark":       {"iso_numeric": 208, "flag": "🇩🇰"},
     "Belgien":        {"iso_numeric":  56, "flag": "🇧🇪"},
     "Italien":        {"iso_numeric": 380, "flag": "🇮🇹"},
     "Spanien":        {"iso_numeric": 724, "flag": "🇪🇸"},
     "Griechenland":   {"iso_numeric": 300, "flag": "🇬🇷"},
     "Polen":          {"iso_numeric": 616, "flag": "🇵🇱"},
-    "Türkei":         {"iso_numeric": 792, "flag": "🇹🇷"},
-    "Brasilien":      {"iso_numeric":  76, "flag": "🇧🇷"},
-    "Mexiko":         {"iso_numeric": 484, "flag": "🇲🇽"},
-    "Kanada":         {"iso_numeric": 124, "flag": "🇨🇦"},
-    "Russland":       {"iso_numeric": 643, "flag": "🇷🇺"},
+    "Tschechien":     {"iso_numeric": 203, "flag": "🇨🇿"},
+    "Österreich":     {"iso_numeric":  40, "flag": "🇦🇹"},
+    "Portugal":       {"iso_numeric": 620, "flag": "🇵🇹"},
+    "Finnland":       {"iso_numeric": 246, "flag": "🇫🇮"},
+    "Norwegen":       {"iso_numeric": 578, "flag": "🇳🇴"},
+    "Ungarn":         {"iso_numeric": 348, "flag": "🇭🇺"},
+    "Irland":         {"iso_numeric": 372, "flag": "🇮🇪"},
+    "Luxemburg":      {"iso_numeric": 442, "flag": "🇱🇺"},
+    # Asien-Pazifik
+    "Südkorea":       {"iso_numeric": 410, "flag": "🇰🇷"},
+    "Japan":          {"iso_numeric": 392, "flag": "🇯🇵"},
+    "Taiwan":         {"iso_numeric": 158, "flag": "🇹🇼"},
+    "Australien":     {"iso_numeric":  36, "flag": "🇦🇺"},
+    "China":          {"iso_numeric": 156, "flag": "🇨🇳"},
+    "Hongkong":       {"iso_numeric": 344, "flag": "🇭🇰"},
+    "Singapur":       {"iso_numeric": 702, "flag": "🇸🇬"},
+    "Indien":         {"iso_numeric": 356, "flag": "🇮🇳"},
+    "Neuseeland":     {"iso_numeric": 554, "flag": "🇳🇿"},
+    "Malaysia":       {"iso_numeric": 458, "flag": "🇲🇾"},
+    "Thailand":       {"iso_numeric": 764, "flag": "🇹🇭"},
     "Indonesien":     {"iso_numeric": 360, "flag": "🇮🇩"},
     "Philippinen":    {"iso_numeric": 608, "flag": "🇵🇭"},
+    "Vietnam":        {"iso_numeric": 704, "flag": "🇻🇳"},
+    # Emerging / MENA
+    "Türkei":         {"iso_numeric": 792, "flag": "🇹🇷"},
+    "Saudi-Arabien":  {"iso_numeric": 682, "flag": "🇸🇦"},
+    "Ver. Arabische Emirate": {"iso_numeric": 784, "flag": "🇦🇪"},
+    "Qatar":          {"iso_numeric": 634, "flag": "🇶🇦"},
+    "Kuwait":         {"iso_numeric": 414, "flag": "🇰🇼"},
+    "Israel":         {"iso_numeric": 376, "flag": "🇮🇱"},
+    "Ägypten":        {"iso_numeric": 818, "flag": "🇪🇬"},
+    "Marokko":        {"iso_numeric": 504, "flag": "🇲🇦"},
+    "Nigeria":        {"iso_numeric": 566, "flag": "🇳🇬"},
+    "Südafrika":      {"iso_numeric": 710, "flag": "🇿🇦"},
+    # Latam
+    "Brasilien":      {"iso_numeric":  76, "flag": "🇧🇷"},
+    "Mexiko":         {"iso_numeric": 484, "flag": "🇲🇽"},
     "Argentinien":    {"iso_numeric":  32, "flag": "🇦🇷"},
     "Bolivien":       {"iso_numeric":  68, "flag": "🇧🇴"},
     "Peru":           {"iso_numeric": 604, "flag": "🇵🇪"},
     "Chile":          {"iso_numeric": 152, "flag": "🇨🇱"},
+    "Kolumbien":      {"iso_numeric": 170, "flag": "🇨🇴"},
+    # Rohstoff-Länder / Sonstige
+    "Russland":       {"iso_numeric": 643, "flag": "🇷🇺"},
     "Sambia":         {"iso_numeric": 894, "flag": "🇿🇲"},
     "Simbabwe":       {"iso_numeric": 716, "flag": "🇿🇼"},
     "DRK":            {"iso_numeric": 180, "flag": "🇨🇩"},
-    "Neuseeland":     {"iso_numeric": 554, "flag": "🇳🇿"},
-    "Israel":         {"iso_numeric": 376, "flag": "🇮🇱"},
-    "Saudi-Arabien":  {"iso_numeric": 682, "flag": "🇸🇦"},
-    "Ver. Arabische Emirate": {"iso_numeric": 784, "flag": "🇦🇪"},
-    "Malaysia":       {"iso_numeric": 458, "flag": "🇲🇾"},
-    "Thailand":       {"iso_numeric": 764, "flag": "🇹🇭"},
-    "Qatar":          {"iso_numeric": 634, "flag": "🇶🇦"},
-    "Kuwait":         {"iso_numeric": 414, "flag": "🇰🇼"},
+    "Pakistan":       {"iso_numeric": 586, "flag": "🇵🇰"},
 }
 
-# Region-Zuordnung (kanonische DE-Namen aus COUNTRY_MAP/COUNTRY_META).
-# Wird genutzt um regions-Block in geo_weights.json automatisch zu erzeugen.
+# Bug 1 + 3 Fix: REGION_MAP vollständig – alle COUNTRY_META-Länder zugeordnet.
+# Cross-Check wird durch validate_country_maps() erzwungen.
 REGION_MAP = {
     "Nordamerika":   ["USA", "Kanada"],
     "Europa":        ["Deutschland", "UK", "Schweiz", "Frankreich", "Niederlande",
-                       "Schweden", "Dänemark", "Belgien", "Italien", "Spanien",
-                       "Griechenland", "Polen"],
+                      "Schweden", "Dänemark", "Belgien", "Italien", "Spanien",
+                      "Griechenland", "Polen", "Tschechien", "Österreich", "Portugal",
+                      "Finnland", "Norwegen", "Ungarn", "Irland", "Luxemburg"],
     "Asien-Pazifik": ["Japan", "Südkorea", "Taiwan", "Hongkong", "China", "Singapur",
-                       "Indien", "Australien", "Neuseeland", "Malaysia", "Thailand",
-                       "Indonesien", "Philippinen"],
+                      "Indien", "Australien", "Neuseeland", "Malaysia", "Thailand",
+                      "Indonesien", "Philippinen", "Vietnam"],
     "Emerging Mkts": ["Brasilien", "Argentinien", "Bolivien", "Peru", "Chile", "Mexiko",
-                       "Türkei", "Saudi-Arabien", "Ver. Arabische Emirate", "Qatar",
-                       "Kuwait", "Israel", "Russland", "Südafrika"],
+                      "Kolumbien", "Türkei", "Saudi-Arabien", "Ver. Arabische Emirate",
+                      "Qatar", "Kuwait", "Israel", "Russland", "Südafrika",
+                      "Ägypten", "Marokko", "Nigeria", "Pakistan"],
     "Edelmetalle-Länder": ["Simbabwe", "DRK", "Sambia"],
+    "Offshore/Sonstige":  ["Bermuda", "Cayman Islands"],
 }
 
 ENDPOINT_TMPL = (
@@ -158,6 +214,41 @@ HEADERS = {
 ISIN_RX = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
 ASSET_CLASS_SKIP = {"geldmarkt", "cash und/oder derivate", "cash", "futures", "futures sell"}
 NAME_SKIP = ("CASH", "FUTURES", "DERIVATIVE", "MARGIN")
+
+
+def validate_country_maps():
+    """Bug 3 Fix: Crash-früh-Validierung – verhindert stille Daten-Fragmentierung.
+    Prüft zwei Invarianten:
+      1. Alle COUNTRY_MAP-Werte (canonical names) sind in COUNTRY_META definiert.
+      2. Alle COUNTRY_META-Länder sind in genau einer Region im REGION_MAP gelistet.
+    Bei Verletzung: SystemExit mit Details – nie still fehlschlagen.
+    """
+    all_in_regions = set(c for countries in REGION_MAP.values() for c in countries)
+    errors = []
+
+    # Invariante 1: COUNTRY_MAP → COUNTRY_META
+    for src, canonical in COUNTRY_MAP.items():
+        if canonical not in COUNTRY_META:
+            errors.append(f"COUNTRY_MAP['{src}'] → '{canonical}' fehlt in COUNTRY_META")
+
+    # Invariante 2: COUNTRY_META → REGION_MAP
+    for country in COUNTRY_META:
+        if country not in all_in_regions:
+            errors.append(f"COUNTRY_META['{country}'] hat keine Region in REGION_MAP")
+
+    # Invariante 3: REGION_MAP → COUNTRY_META (umgekehrt, entdeckt Tippfehler)
+    for region, countries in REGION_MAP.items():
+        for country in countries:
+            if country not in COUNTRY_META:
+                errors.append(f"REGION_MAP['{region}'] enthält '{country}' – nicht in COUNTRY_META")
+
+    if errors:
+        raise SystemExit(
+            "FEHLER: COUNTRY_MAP/META/REGION_MAP Inkonsistenz – bitte beheben:\n"
+            + "\n".join(f"  ✗ {e}" for e in errors)
+        )
+    print(f"✓ validate_country_maps: {len(COUNTRY_META)} Länder, {len(REGION_MAP)} Regionen – OK")
+
 
 def canon(name):
     return COUNTRY_MAP.get(name, name)
@@ -279,6 +370,10 @@ if __name__ == "__main__":
     OUTPUT = "data/geo_weights.json"
     os.makedirs("data", exist_ok=True)
     print(f"=== Geo-Update gestartet ({datetime.now():%Y-%m-%d %H:%M}) ===")
+
+    # Bug 3 Fix: Validierung vor jeder Ausführung – crash bei Inkonsistenz
+    validate_country_maps()
+
     existing = load_existing(OUTPUT)
     new_weights = calculate_portfolio_weights()
     if not new_weights:
