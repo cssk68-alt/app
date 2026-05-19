@@ -867,9 +867,24 @@ function openModal(groupIndex){
 }
 
 function closeModal(){
-  document.getElementById('overlay').classList.remove('open');
+  const overlay = document.getElementById('overlay');
+  overlay.classList.remove('open');
   document.body.style.overflow='';
   window._openModalIndex = undefined;
+
+  // Modal-Content komplett resetten -> verhindert akkumulierende inline-onclick-Handler
+  // und befreit Holding-Referenzen (Speicher-Druck auf iOS/Safari).
+  const prod = document.getElementById('mProducts');
+  if (prod) prod.innerHTML = '';
+  const ovSec = document.getElementById('mOverlapSection');
+  if (ovSec) ovSec.style.display = 'none';
+  const ovBody = document.getElementById('mOverlapBody');
+  if (ovBody) ovBody.innerHTML = '';
+
+  // Inline-Handler explizit nullen (Defensive, falls Browser sie haelt)
+  overlay.querySelectorAll('[onclick]').forEach(el => {
+    if (el.id !== 'overlay' && !el.closest('.modal-header')) el.onclick = null;
+  });
 }
 
 // ── PWA INSTALL PROMPT ──────────────────────────────────────
@@ -1200,6 +1215,10 @@ function deselectGeo(clearAll) {
 // ============================================================
 // ANALYTICS (Features A, B, D) - lazy load aus data/*.json
 // ============================================================
+// Promise-Cache mit Error-Recovery:
+// _analyticsData    -> resolved-Daten, dauerhaft gecached
+// _analyticsLoading -> in-flight Promise (single-flight)
+// Bei Fehler wird _analyticsLoading geloescht damit der naechste Call erneut versucht.
 let _analyticsData = null;
 let _analyticsLoading = null;
 
@@ -1218,15 +1237,25 @@ async function loadAnalytics() {
   if (_analyticsData) return _analyticsData;
   if (_analyticsLoading) return _analyticsLoading;
   _analyticsLoading = (async () => {
-    const t = Date.now();
-    const [h, s, m] = await Promise.all([
-      fetch('./data/holdings.json?t=' + t).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch('./data/sectors.json?t='  + t).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch('./data/static_meta.json?t=' + t).then(r => r.ok ? r.json() : null).catch(() => null),
-    ]);
-    _analyticsData = { holdings: h, sectors: s, staticMeta: m };
-    return _analyticsData;
+    try {
+      const t = Date.now();
+      const [h, s, m] = await Promise.all([
+        fetch('./data/holdings.json?t=' + t).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('./data/sectors.json?t='  + t).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('./data/static_meta.json?t=' + t).then(r => r.ok ? r.json() : null).catch(() => null),
+      ]);
+      // Wenn ALLE drei null sind -> als Fehler werten und Cache nicht setzen
+      if (!h && !s && !m) throw new Error('alle data-Files unerreichbar');
+      _analyticsData = { holdings: h, sectors: s, staticMeta: m };
+      return _analyticsData;
+    } catch (err) {
+      console.warn('loadAnalytics fehlgeschlagen:', err);
+      _analyticsLoading = null;        // <- Cache loeschen, naechster Call retried
+      throw err;
+    }
   })();
+  // Bei Promise-Rejection auch sicherstellen dass _analyticsLoading auf null geht
+  _analyticsLoading.catch(() => { _analyticsLoading = null; });
   return _analyticsLoading;
 }
 

@@ -14,6 +14,7 @@ Wird woechentlich via GitHub Actions ausgefuehrt.
 """
 import json
 import os
+import random
 import re
 import time
 import requests
@@ -98,19 +99,38 @@ def parse_row(row):
     return {"name": name, "isin": isin, "weight_pct": round(weight, 4), "sector": sector, "country": country}
 
 
-def fetch_holdings_raw(pid, ticker):
+def fetch_holdings_raw(pid, ticker, max_retries=3):
+    """Holt iShares-Holdings mit Exponential-Backoff bei HTTP 429."""
     url = ENDPOINT_TMPL.format(pid=pid)
-    try:
-        resp = requests.get(url, headers=HEADERS, timeout=20)
-        if resp.status_code != 200:
-            print(f"  [{ticker}] HTTP {resp.status_code} (pid={pid})", flush=True)
+    for attempt in range(max_retries):
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=20)
+            if resp.status_code == 429:
+                # Respect Retry-After header if present, else exponential backoff with jitter
+                ra = resp.headers.get("Retry-After")
+                if ra and ra.isdigit():
+                    wait = float(ra)
+                else:
+                    wait = (2 ** attempt) + random.random()
+                print(f"  [{ticker}] HTTP 429 - waiting {wait:.1f}s before retry ({attempt+1}/{max_retries})", flush=True)
+                time.sleep(wait)
+                continue
+            if resp.status_code != 200:
+                print(f"  [{ticker}] HTTP {resp.status_code} (pid={pid})", flush=True)
+                return None
+            text = resp.content.decode("utf-8-sig")
+            data = json.loads(text)
+            return data.get("aaData", [])
+        except (requests.RequestException, json.JSONDecodeError) as e:
+            wait = (2 ** attempt) + random.random()
+            print(f"  [{ticker}] Fehler ({e.__class__.__name__}) - retry in {wait:.1f}s ({attempt+1}/{max_retries})", flush=True)
+            if attempt < max_retries - 1:
+                time.sleep(wait)
+                continue
+            print(f"  [{ticker}] Aufgegeben nach {max_retries} Versuchen: {e}", flush=True)
             return None
-        text = resp.content.decode("utf-8-sig")
-        data = json.loads(text)
-        return data.get("aaData", [])
-    except (requests.RequestException, json.JSONDecodeError) as e:
-        print(f"  [{ticker}] Fehler: {e}", flush=True)
-        return None
+    print(f"  [{ticker}] {max_retries} 429-Retries erschoepft - skip", flush=True)
+    return None
 
 
 def load_existing(path):

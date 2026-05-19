@@ -9,6 +9,7 @@ Output: data/geo_weights.json (kompatibel zum Frontend-Schema mit
 """
 import json
 import os
+import random
 import re
 import time
 import requests
@@ -161,17 +162,36 @@ NAME_SKIP = ("CASH", "FUTURES", "DERIVATIVE", "MARGIN")
 def canon(name):
     return COUNTRY_MAP.get(name, name)
 
-def fetch_country_weights(product_id, ticker):
+def fetch_country_weights(product_id, ticker, max_retries=3):
+    """Holt iShares-Holdings mit Exponential-Backoff bei HTTP 429."""
     url = ENDPOINT_TMPL.format(pid=product_id)
+    rows = None
+    for attempt in range(max_retries):
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=20)
+            if resp.status_code == 429:
+                ra = resp.headers.get("Retry-After")
+                wait = float(ra) if (ra and ra.isdigit()) else (2 ** attempt) + random.random()
+                print(f"  [{ticker}] HTTP 429 - waiting {wait:.1f}s before retry ({attempt+1}/{max_retries})", flush=True)
+                time.sleep(wait); continue
+            if resp.status_code != 200:
+                print(f"  [{ticker}] HTTP {resp.status_code}")
+                return None
+            data = json.loads(resp.content.decode("utf-8-sig"))
+            rows = data.get("aaData", [])
+            break
+        except (requests.RequestException, json.JSONDecodeError) as e:
+            wait = (2 ** attempt) + random.random()
+            print(f"  [{ticker}] Fehler ({e.__class__.__name__}) - retry in {wait:.1f}s ({attempt+1}/{max_retries})", flush=True)
+            if attempt < max_retries - 1:
+                time.sleep(wait); continue
+            print(f"  [{ticker}] Aufgegeben: {e}"); return None
+    if rows is None:
+        print(f"  [{ticker}] {max_retries} 429-Retries erschoepft - skip", flush=True)
+        return None
+    if not rows:
+        return None
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=20)
-        if resp.status_code != 200:
-            print(f"  [{ticker}] HTTP {resp.status_code}")
-            return None
-        data = json.loads(resp.content.decode("utf-8-sig"))
-        rows = data.get("aaData", [])
-        if not rows:
-            return None
         country_sum = {}
         for row in rows:
             if not isinstance(row, list) or len(row) < 6: continue
@@ -201,9 +221,9 @@ def fetch_country_weights(product_id, ticker):
         if not country_sum: return None
         print(f"  [{ticker}] OK - {len(country_sum)} Laender")
         return country_sum
-    except (requests.RequestException, json.JSONDecodeError) as e:
-        print(f"  [{ticker}] Fehler: {e}"); return None
-
+    except (KeyError, ValueError, TypeError) as e:
+        print(f"  [{ticker}] Parse-Fehler: {e}")
+        return None
 
 def calculate_portfolio_weights():
     global_weights = {}
