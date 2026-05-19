@@ -496,76 +496,136 @@
   "regions": [
     {
       "region": "Nordamerika",
-      "pct_gesamt": 31.91,
+      "pct_gesamt": 32.86,
       "länder": [
+        "USA",
+        "Kanada"
+      ],
+      "aktuelle_länder": [
         "USA",
         "Kanada"
       ]
     },
     {
       "region": "Europa",
-      "pct_gesamt": 17.88,
+      "pct_gesamt": 17.12,
       "länder": [
         "Deutschland",
         "UK",
         "Schweiz",
         "Frankreich",
-        "Dänemark",
         "Niederlande",
         "Schweden",
+        "Dänemark",
+        "Belgien",
+        "Italien",
+        "Spanien",
+        "Griechenland",
         "Polen"
+      ],
+      "aktuelle_länder": [
+        "Deutschland",
+        "UK",
+        "Schweiz",
+        "Dänemark",
+        "Polen",
+        "Frankreich",
+        "Belgien",
+        "Schweden",
+        "Niederlande",
+        "Griechenland",
+        "Italien"
       ]
     },
     {
       "region": "Asien-Pazifik",
-      "pct_gesamt": 33.75,
+      "pct_gesamt": 35.07,
       "länder": [
-        "Australien",
         "Japan",
         "Südkorea",
         "Taiwan",
         "Hongkong",
         "China",
-        "Indien",
         "Singapur",
+        "Indien",
+        "Australien",
         "Neuseeland",
-        "Indonesien",
-        "Thailand",
         "Malaysia",
+        "Thailand",
+        "Indonesien",
+        "Philippinen"
+      ],
+      "aktuelle_länder": [
+        "Australien",
+        "Südkorea",
+        "China",
+        "Taiwan",
+        "Japan",
+        "Hongkong",
+        "Singapur",
+        "Indien",
+        "Indonesien",
+        "Neuseeland",
+        "Malaysia",
+        "Thailand",
         "Philippinen"
       ]
     },
     {
       "region": "Emerging Mkts",
-      "pct_gesamt": 5.32,
+      "pct_gesamt": 11.75,
       "länder": [
+        "Brasilien",
         "Argentinien",
         "Bolivien",
-        "Brasilien",
-        "DRK",
-        "Kolumbien",
+        "Peru",
+        "Chile",
+        "Mexiko",
+        "Türkei",
+        "Saudi-Arabien",
+        "Ver. Arabische Emirate",
+        "Qatar",
+        "Kuwait",
+        "Israel",
+        "Russland",
+        "Südafrika"
+      ],
+      "aktuelle_länder": [
+        "Südafrika",
+        "Mexiko",
+        "Chile",
         "Peru",
         "Russland",
-        "Sambia",
+        "Brasilien",
         "Saudi-Arabien",
+        "Bolivien",
+        "Argentinien",
+        "Israel",
+        "Ver. Arabische Emirate",
         "Türkei",
-        "Zimbabwe",
-        "Ägypten"
+        "Kuwait",
+        "Qatar"
       ]
     },
     {
       "region": "Edelmetalle-Länder",
-      "pct_gesamt": 6.91,
+      "pct_gesamt": 0.99,
       "länder": [
-        "Südafrika",
-        "Mexiko",
-        "Chile"
+        "Simbabwe",
+        "DRK",
+        "Sambia"
+      ],
+      "aktuelle_länder": [
+        "DRK",
+        "Simbabwe",
+        "Sambia"
       ]
     },
     {
       "region": "ETF-Cash & Reserven",
-      "pct_gesamt": 4.23,
-      "länder": []
+      "pct_gesamt": 2.21,
+      "länder": [],
+      "aktuelle_länder": []
     }
   ]
 }

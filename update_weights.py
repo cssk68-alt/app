@@ -128,6 +128,22 @@ COUNTRY_META = {
     "Kuwait":         {"iso_numeric": 414, "flag": "🇰🇼"},
 }
 
+# Region-Zuordnung (kanonische DE-Namen aus COUNTRY_MAP/COUNTRY_META).
+# Wird genutzt um regions-Block in geo_weights.json automatisch zu erzeugen.
+REGION_MAP = {
+    "Nordamerika":   ["USA", "Kanada"],
+    "Europa":        ["Deutschland", "UK", "Schweiz", "Frankreich", "Niederlande",
+                       "Schweden", "Dänemark", "Belgien", "Italien", "Spanien",
+                       "Griechenland", "Polen"],
+    "Asien-Pazifik": ["Japan", "Südkorea", "Taiwan", "Hongkong", "China", "Singapur",
+                       "Indien", "Australien", "Neuseeland", "Malaysia", "Thailand",
+                       "Indonesien", "Philippinen"],
+    "Emerging Mkts": ["Brasilien", "Argentinien", "Bolivien", "Peru", "Chile", "Mexiko",
+                       "Türkei", "Saudi-Arabien", "Ver. Arabische Emirate", "Qatar",
+                       "Kuwait", "Israel", "Russland", "Südafrika"],
+    "Edelmetalle-Länder": ["Simbabwe", "DRK", "Sambia"],
+}
+
 ENDPOINT_TMPL = (
     "https://www.ishares.com/de/privatanleger/de/produkte/{pid}/fund/"
     "1478358465952.ajax?fileType=json&tab=all"
@@ -248,6 +264,26 @@ if __name__ == "__main__":
     if not new_weights:
         print("WARNUNG: Keine Daten - behalte bestehende JSON.")
     else:
+        # regions automatisch aus countries berechnen (vorher waren sie statisch und drifteten weg)
+        regions_out = []
+        for region_name, country_list in REGION_MAP.items():
+            total = sum(c["pct_gesamt"] for c in new_weights if c["land"] in country_list)
+            actual_countries = [c["land"] for c in new_weights if c["land"] in country_list]
+            regions_out.append({
+                "region": region_name,
+                "pct_gesamt": round(total, 2),
+                "länder": country_list,
+                "aktuelle_länder": actual_countries,
+            })
+        # Cash-Reserve = Differenz zu 100%
+        country_sum = sum(c["pct_gesamt"] for c in new_weights)
+        regions_out.append({
+            "region": "ETF-Cash & Reserven",
+            "pct_gesamt": round(max(0, 100 - country_sum), 2),
+            "länder": [],
+            "aktuelle_länder": [],
+        })
+
         result = dict(existing) if existing else {}
         result["_meta"] = {
             "last_updated": datetime.now().strftime("%Y-%m-%d"),
@@ -257,6 +293,7 @@ if __name__ == "__main__":
             "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100",
         }
         result["countries"] = new_weights
+        result["regions"] = regions_out
         with open(OUTPUT, "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
-        print(f"=== Fertig: {len(new_weights)} Laender ===")
+        print(f"=== Fertig: {len(new_weights)} Laender, {len(regions_out)} Regionen ===")
