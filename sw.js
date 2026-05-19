@@ -1,7 +1,7 @@
 // Service Worker – Mein Sparplan PWA
 // Cache-First-Strategie: alles wird beim ersten Aufruf gecacht und danach offline serviert.
 
-const CACHE_NAME = 'sparplan-v5-20260518-analytics';
+const CACHE_NAME = 'sparplan-v6-20260519-restore';
 
 const ASSETS = [
   './',
