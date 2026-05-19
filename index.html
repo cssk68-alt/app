@@ -1260,6 +1260,19 @@ async function loadAnalytics() {
 }
 
 // Feature D: Klumpenrisiko
+// Bug 5 Fix: safeText verhindert XSS durch externe Daten (Holding-Namen, Sektoren).
+// Nutzerdaten nie direkt per innerHTML – immer safeText() wrappen.
+function safeText(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Bug 2 Fix: ADR/Pref-Duplikate auf Master-ISIN normalisieren.
+// Ohne Dedup wird Samsung zweimal gezählt (Regular + Non-Voting Pref → Klumpenrisiko unterschätzt).
+const ISIN_DEDUP_MAP = {
+  "KR7005931001": "KR7005930003", // Samsung Non-Voting Pref → Regular
+  "KR7000660037": "KR7000660001", // SK Hynix Pref → Common
+};
+
 function computeClusterRisk(data) {
   if (!data || !data.holdings) return [];
   const agg = {};
@@ -1267,8 +1280,9 @@ function computeClusterRisk(data) {
     const pPct = _portfolioPct(ticker);
     if (!pPct) continue;
     for (const h of block.top_holdings || []) {
-      const key = h.isin || h.name;
-      if (!agg[key]) agg[key] = { name: h.name, isin: h.isin, total_pct: 0, via: [] };
+      const rawKey = h.isin || h.name;
+      const key    = (h.isin && ISIN_DEDUP_MAP[h.isin]) || rawKey; // Bug 2 Fix
+      if (!agg[key]) agg[key] = { name: h.name, isin: key, total_pct: 0, via: [] };
       agg[key].total_pct += pPct * (h.weight_pct / 100);
       agg[key].via.push({ ticker, weight_in_etf: h.weight_pct });
     }
@@ -1279,7 +1293,11 @@ function computeClusterRisk(data) {
 }
 
 // Feature A: Overlap
-function computeOverlap(holdingsA, holdingsB) {
+// Bug 6 Fix: Portfolio-gewichteter Overlap statt min(wA, wB).
+// Formel: Σ (portPct_A × w_ISIN_in_A + portPct_B × w_ISIN_in_B) pro gemeinsame ISIN.
+// Beispiel: CSKR 2.6% × Samsung 27.5% + EIMI 14% × Samsung 6% = 0.715+0.840 = 1.555%
+// (Alt-Formel min(27.5,6)=6% überschätzte den Overlap stark.)
+function computeOverlap(holdingsA, holdingsB, pctA, pctB) {
   if (!holdingsA || !holdingsB) return { pct: 0, shared: [] };
   const mapB = {};
   for (const h of holdingsB) mapB[h.isin || h.name] = h;
@@ -1289,9 +1307,11 @@ function computeOverlap(holdingsA, holdingsB) {
     const key = h.isin || h.name;
     const m = mapB[key];
     if (m) {
-      const mn = Math.min(h.weight_pct, m.weight_pct);
-      total += mn;
-      shared.push({ name: h.name, pct: mn });
+      // Portfolio-Beitrag dieser gemeinsamen Position in Prozentpunkten
+      const contribution = ((pctA || 0) * (h.weight_pct / 100)
+                          + (pctB || 0) * (m.weight_pct / 100)) * 100;
+      total += contribution;
+      shared.push({ name: h.name, pct: contribution });
     }
   }
   shared.sort((a,b) => b.pct - a.pct);
@@ -1300,15 +1320,17 @@ function computeOverlap(holdingsA, holdingsB) {
 
 function computeOverlapsForTicker(ticker, data) {
   if (!data || !data.holdings) return [];
-  const myH = data.holdings.etfs[ticker]?.top_holdings;
+  const myH   = data.holdings.etfs[ticker]?.top_holdings;
+  const myPct = _portfolioPct(ticker); // Bug 6 Fix: Portfolio-Gewicht übergeben
   if (!myH) return [];
   const out = [];
   for (const other of _allTickers()) {
     if (other === ticker) continue;
-    const oH = data.holdings.etfs[other]?.top_holdings;
+    const oH   = data.holdings.etfs[other]?.top_holdings;
+    const oPct = _portfolioPct(other);
     if (!oH) continue;
-    const r = computeOverlap(myH, oH);
-    if (r.pct > 0.5) out.push({ ticker: other, ...r });
+    const r = computeOverlap(myH, oH, myPct, oPct); // Bug 6 Fix
+    if (r.pct > 0.1) out.push({ ticker: other, ...r }); // Schwellwert 0.1% (war 0.5% ETF-intern)
   }
   return out.sort((a,b) => b.pct - a.pct);
 }
@@ -1375,7 +1397,7 @@ async function renderClusterCard() {
     const eur = (r.total_pct / 100) * currentTotal;
     const viaTxt = r.via.map(v => v.ticker).join('+');
     return '<div class="cluster-row">' +
-      '<span class="cluster-row-name"><b>' + r.name + '</b> <span class="cluster-row-via">via ' + viaTxt + '</span></span>' +
+      '<span class="cluster-row-name"><b>' + safeText(r.name) + '</b> <span class="cluster-row-via">via ' + safeText(viaTxt) + '</span></span>' + /* Bug 5 Fix */
       '<span class="cluster-row-pct">' + r.total_pct.toFixed(2) + '% · ' + _formatEur(eur) + '</span>' +
     '</div>';
   }).join('');
@@ -1403,7 +1425,7 @@ async function renderSectorSlide() {
       const c = _sectorColor(s.sector);
       return '<div class="sector-row">' +
         '<div class="sector-dot" style="background:' + c + '"></div>' +
-        '<div class="sector-row-name">' + s.sector + '</div>' +
+        '<div class="sector-row-name">' + safeText(s.sector) + '</div>' + /* Bug 5 Fix */
         '<div class="sector-row-eur">' + _formatEur(eur) + '</div>' +
         '<div class="sector-row-pct" style="color:' + c + '">' + s.pct.toFixed(1) + '%</div>' +
       '</div>' +
@@ -1418,7 +1440,7 @@ async function renderSectorSlide() {
       const eur = (r.total_pct/100) * currentTotal;
       const viaTxt = r.via.map(v => v.ticker + ' (' + v.weight_in_etf.toFixed(1) + '%)').join(' · ');
       return '<div class="risk-row">' +
-        '<div class="risk-row-name"><b>' + r.name + '</b><div class="risk-row-via">via ' + viaTxt + '</div></div>' +
+        '<div class="risk-row-name"><b>' + safeText(r.name) + '</b><div class="risk-row-via">via ' + safeText(viaTxt) + '</div></div>' + /* Bug 5 Fix */
         '<div class="risk-row-eur">' + _formatEur(eur) + '</div>' +
         '<div class="risk-row-pct">' + r.total_pct.toFixed(2) + '%</div>' +
       '</div>';
@@ -1444,9 +1466,9 @@ async function renderOverlapInModal(ticker) {
     return;
   }
   body.innerHTML = overlaps.slice(0, 5).map(o => {
-    const stocks = o.shared.slice(0, 3).map(s => s.name.split(' ').slice(0,2).join(' ')).join(', ');
+    const stocks = o.shared.slice(0, 3).map(s => safeText(s.name.split(' ').slice(0,2).join(' '))).join(', '); /* Bug 5 Fix */
     return '<div><div class="overlap-pair">' +
-      '<span class="overlap-pair-name">↔ ' + o.ticker + '</span>' +
+      '<span class="overlap-pair-name">↔ ' + safeText(o.ticker) + '</span>' +
       '<span class="overlap-pair-pct">' + o.pct.toFixed(1) + '%</span>' +
       '</div>' +
       '<div class="overlap-pair-stocks">' + stocks + (o.shared.length > 3 ? ' ...' : '') + '</div>' +
