@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-22T16:30:00 -->
+<!-- Cache-Buster: 2026-05-22T17:00:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v20260522t1630</title>
+<title>Mein Sparplan - v20260522t1700</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -146,6 +146,13 @@
     border: none; border-radius: 10px; font-size: 12px; font-weight: 700;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
     box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .app-install-btn:active { transform: scale(0.96); }
+  .app-install-btn.ready { animation: pulse-install 1.4s ease-in-out infinite; }
+  @keyframes pulse-install {
+    0%, 100% { transform: scale(1);    box-shadow: 0 2px 8px rgba(0,0,0,0.4),   0 0 0 0 rgba(167,139,250,0.6); }
+    50%      { transform: scale(1.07); box-shadow: 0 4px 14px rgba(167,139,250,0.7), 0 0 0 8px rgba(167,139,250,0); }
   }
   .app-install-hint {
     padding: 8px 10px; background: #1e293b; border: 1px solid #a78bfa;
@@ -387,7 +394,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v10</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v11</div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -884,8 +891,14 @@ function closeModal(){
   });
 }
 
-// ── PWA INSTALL PROMPT ──────────────────────────────────────
+// ── PWA INSTALL ENGINE (Multi-Strategy) ──────────────────────
+// Mehrere parallele Strategien beim Click, weil Browser-Heuristik
+// (Engagement, Origin/Scope) nicht ueberschrieben werden kann:
+//   A native deferredPrompt | B late-event auto-fire | C navigator.share
+//   D retry-loop            | E browser-hint         | F pulse+toast
+//   G already-installed detection
 let deferredPrompt = null;
+let userWantsInstall = false;
 const installBtn = document.getElementById('installBtn');
 const installHint = document.getElementById('installHint');
 
@@ -898,66 +911,145 @@ const isFirefox = /Firefox\//.test(ua);
 const isSafariMac = /Safari/.test(ua) && /Macintosh/.test(ua) && !/Chrome|Edg|OPR/.test(ua);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-function showHint(html) {
+function showHint(html, autoDismissMs) {
   installHint.innerHTML = html + ' <span class="app-install-hint-close" onclick="document.getElementById(\'installHint\').style.display=\'none\'">✕</span>';
   installHint.style.display = 'block';
+  if (autoDismissMs) {
+    clearTimeout(showHint._t);
+    showHint._t = setTimeout(() => { installHint.style.display = 'none'; }, autoDismissMs);
+  }
 }
 
 function browserSpecificInstallHint() {
-  if (isIOS) {
-    return '📲 <b>iPhone:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>';
-  }
-  if (isAndroid) {
-    return '📲 <b>Android:</b> Browser-Menü <b>⋮</b> → <b>„App installieren"</b> oder <b>„Zum Startbildschirm"</b>';
-  }
-  if (isEdge) {
-    return '📲 <b>Edge:</b> Klick das <b>⊕</b>-Icon rechts in der Adressleiste, oder Menü <b>⋯</b> → <b>Apps</b> → <b>„Diese Site als App installieren"</b>';
-  }
-  if (isOpera) {
-    return '📲 <b>Opera:</b> Adressleiste rechts → Symbol für <b>Installieren</b>, oder Menü → <b>Seite</b> → <b>„App installieren"</b>. Falls nicht da: Seite kurz benutzen, dann Tab neu laden.';
-  }
-  if (isFirefox) {
-    return '📲 <b>Firefox</b> (Desktop) hat keine native PWA-Installation. Workaround: Chrome/Edge/Opera nutzen, oder Lesezeichen anlegen.';
-  }
-  if (isSafariMac) {
-    return '📲 <b>Safari Mac:</b> Menü <b>Datei</b> → <b>„Zum Dock hinzufügen"</b> (macOS Sonoma 14+).';
-  }
+  if (isIOS)       return '📲 <b>iPhone:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>';
+  if (isAndroid)   return '📲 <b>Android:</b> Browser-Menü <b>⋮</b> → <b>„App installieren"</b> oder <b>„Zum Startbildschirm"</b>';
+  if (isEdge)      return '📲 <b>Edge:</b> ⊕-Icon rechts in der Adressleiste, oder Menü <b>⋯</b> → <b>Apps</b> → <b>„Diese Site als App installieren"</b>';
+  if (isOpera)     return '📲 <b>Opera:</b> Adressleiste rechts → <b>Installieren</b>-Symbol, oder Menü → <b>Seite</b> → <b>„App installieren"</b>. Falls nicht da: Tab kurz benutzen, dann reload.';
+  if (isFirefox)   return '📲 <b>Firefox</b> (Desktop) hat keine native PWA-Installation. Chrome/Edge/Opera nutzen, oder Lesezeichen anlegen.';
+  if (isSafariMac) return '📲 <b>Safari Mac:</b> Menü <b>Datei</b> → <b>„Zum Dock hinzufügen"</b> (macOS Sonoma 14+).';
   return '📲 Klick das <b>⊕ Install-Icon</b> in der Adressleiste, oder Browser-Menü → <b>„App installieren"</b>.';
 }
 
-if (!isStandalone) {
+// Strategie A: nativen Prompt feuern
+async function firePrompt() {
+  if (!deferredPrompt) return false;
+  try {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log('[Install] native prompt outcome:', outcome);
+    deferredPrompt = null;
+    userWantsInstall = false;
+    if (outcome === 'accepted') {
+      installBtn.style.display = 'none';
+      installHint.style.display = 'none';
+    } else {
+      installBtn.classList.remove('ready');
+    }
+    return true;
+  } catch (e) { console.warn('[Install] prompt failed:', e); return false; }
+}
+
+// Strategie C: OS-eigene Teilen-Karte (enthaelt Add-to-Home auf iOS/Android)
+async function tryWebShare() {
+  if (!navigator.share) return false;
+  try {
+    await navigator.share({
+      title: 'Mein Sparplan',
+      text:  'Mein persönlicher Sparplan-Tracker',
+      url:   location.href
+    });
+    console.log('[Install] share sheet completed');
+    return true;
+  } catch (e) {
+    // AbortError = User-Cancel → still verschlucken
+    console.log('[Install] share cancelled or unavailable:', e.name);
+    return false;
+  }
+}
+
+// Strategie D: 5x retry alle 1s — fuer spaet feuerndes beforeinstallprompt
+function startRetryLoop() {
+  let tries = 5;
+  clearInterval(startRetryLoop._iv);
+  startRetryLoop._iv = setInterval(() => {
+    if (deferredPrompt) {
+      clearInterval(startRetryLoop._iv);
+      console.log('[Install] retry-loop caught deferredPrompt');
+      firePrompt();
+    } else if (--tries <= 0) {
+      clearInterval(startRetryLoop._iv);
+    }
+  }, 1000);
+}
+
+// Strategie F: Puls-Animation + Toast wenn Browser installierbar meldet
+function pulseButton() {
+  installBtn.classList.add('ready');
+  installBtn.textContent = '📲 App installieren ✓';
+  // Nach 6 Pulsen (~8.4s) Animation stoppen, Button bleibt klickbar
+  clearTimeout(pulseButton._t);
+  pulseButton._t = setTimeout(() => installBtn.classList.remove('ready'), 8400);
+  showHint('✓ <b>App jetzt installierbar</b> — Button oben rechts klicken', 4000);
+}
+
+// Initial: Standalone-Detection (Strategie G)
+async function detectInstalled() {
+  if (isStandalone) return true;
+  if (navigator.getInstalledRelatedApps) {
+    try {
+      const apps = await navigator.getInstalledRelatedApps();
+      if (apps.length > 0) return true;
+    } catch(e) { /* ignore */ }
+  }
+  return false;
+}
+
+(async () => {
+  if (await detectInstalled()) {
+    installBtn.style.display = 'none';
+    installHint.style.display = 'none';
+    return;
+  }
   if (isIOS) {
+    // iOS hat kein beforeinstallprompt — Button ist Trigger fuer Share-Sheet
+    installBtn.style.display = 'block';
     showHint(browserSpecificInstallHint());
   } else {
     installBtn.style.display = 'block';
   }
-}
+})();
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  installBtn.textContent = '📲 App installieren ✓';
-});
-
-installBtn.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log('Install outcome:', outcome);
-    deferredPrompt = null;
-    if (outcome === 'accepted') {
-      installBtn.style.display = 'none';
-      installHint.style.display = 'none';
-    }
+  // Strategie B: User hat schon geklickt → sofort Auto-Fire
+  if (userWantsInstall) {
+    firePrompt();
   } else {
-    showHint(browserSpecificInstallHint());
+    // Strategie F: visuelles Feedback dass jetzt installiert werden kann
+    pulseButton();
   }
 });
 
+// Multi-Strategy Click-Choreo
+installBtn.addEventListener('click', async () => {
+  // Strategie A: Wenn nativer Prompt parat ist → direkt feuern
+  if (await firePrompt()) return;
+  // Strategie B vormerken (greift wenn Event spaeter feuert)
+  userWantsInstall = true;
+  // Strategie C: parallel die OS-Share-Karte versuchen (fire-and-forget)
+  tryWebShare();
+  // Strategie E: garantierter Visual-Hint
+  showHint(browserSpecificInstallHint());
+  // Strategie D: Retry-Loop fuer spaet feuerndes Event
+  startRetryLoop();
+});
+
 window.addEventListener('appinstalled', () => {
-  console.log('PWA installed');
+  console.log('[Install] PWA installed');
   installBtn.style.display = 'none';
   installHint.style.display = 'none';
+  installBtn.classList.remove('ready');
 });
 
 // ── SERVICE WORKER REGISTRIERUNG ─────────────────────────────
