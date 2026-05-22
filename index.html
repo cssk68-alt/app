@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-22T12:30:00 -->
+<!-- Cache-Buster: 2026-05-22T15:45:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v20260522t1230</title>
+<title>Mein Sparplan - v20260522t1545</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -382,7 +382,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v8</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v9</div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -933,6 +933,17 @@ window.addEventListener('appinstalled', () => {
 
 // ── SERVICE WORKER REGISTRIERUNG ─────────────────────────────
 if ('serviceWorker' in navigator) {
+  // Force-Reload-Message vom Service-Worker empfangen (einmaliger Cache-Invalidate-Pulse).
+  // Mehrfach-Reloads in derselben Session blocken via sessionStorage-Flag.
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'force-reload') {
+      if (sessionStorage.getItem('sw-reloaded') === e.data.cache) return;
+      sessionStorage.setItem('sw-reloaded', e.data.cache);
+      console.log('SW force-reload triggered:', e.data.cache);
+      window.location.reload();
+    }
+  });
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
       reg.update();

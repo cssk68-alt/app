@@ -2,7 +2,8 @@
 // Bug 4 Fix: Network-First für /data/* (frische ETF-Daten), Cache-First für statische Assets.
 // Zusatz: Truncation-Fix (originale Datei fehlte die letzten 5 schließenden Klammern).
 
-const CACHE_NAME = 'sparplan-v8-20260522-design-polish';
+const CACHE_NAME = 'sparplan-v9-20260522-force-reload';
+const FORCE_RELOAD = true;
 
 const STATIC_ASSETS = [
   './',
@@ -30,14 +31,17 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Aktivierung: alte Caches löschen
+// Aktivierung: alte Caches löschen, offene Clients zum Reload anstossen
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+    await self.clients.claim();
+    if (FORCE_RELOAD) {
+      const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const c of clients) c.postMessage({ type: 'force-reload', cache: CACHE_NAME });
+    }
+  })());
 });
 
 // Hilfsfunktion: ist die angefragte URL ein Datenpfad?
