@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-19T07:00:00 -->
+<!-- Cache-Buster: 2026-05-22T12:30:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v20260519t0700</title>
+<title>Mein Sparplan - v20260522t1230</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -268,25 +268,6 @@ html, body { overflow-x: hidden; }
 #app-slider.show-sectors { transform: translateX(-100vw); }
 #app-slider.show-geo     { transform: translateX(-200vw); }
 
-/* === CLUSTER-RISK CARD (Slide 1) === */
-.cluster-card { border-radius: 16px; margin: 12px auto 14px;
-  max-width: 480px;
-  background: linear-gradient(135deg, rgba(248,113,113,0.10), rgba(167,139,250,0.08));
-  border: 1px solid rgba(248,113,113,0.25); padding: 12px 14px;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-  transition: transform .15s ease, box-shadow .15s ease; }
-.cluster-card:active { transform: scale(0.985); box-shadow: 0 1px 6px rgba(0,0,0,0.3); }
-.cluster-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.cluster-card-title { font-size: 13px; font-weight: 700; color: #fca5a5; letter-spacing: 0.5px; }
-.cluster-card-hint { font-size: 11px; color: #6b7280; }
-.cluster-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 13px; }
-.cluster-row-name { color: #e5e7eb; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 8px; }
-.cluster-row-name b { color: #fff; }
-.cluster-row-pct { font-weight: 700; color: #fca5a5; font-variant-numeric: tabular-nums; }
-.cluster-row-via { font-size: 10px; color: #6b7280; margin-left: 6px; }
-.cluster-card-loading { font-size: 12px; color: #6b7280; text-align: center; padding: 6px 0; }
-
 /* === SECTORS SLIDE (Slide 3) === */
 .sector-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
 .sector-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
@@ -389,11 +370,8 @@ html, body { overflow-x: hidden; }
     <div class="header-hint">↓ Segment oder Karte antippen für Details</div>
   </div>
 <div class="app-install-tray" aria-hidden="false">
-  <button id="installBtn" class="app-install-btn" style="display:none">📲 Installieren</button>
-  <div id="iosHint" class="app-install-hint" style="display:none">
-    📲 <b>Zum Home:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>
-    <span class="app-install-hint-close" onclick="document.getElementById('iosHint').style.display='none'">✕ schließen</span>
-  </div>
+  <button id="installBtn" class="app-install-btn" style="display:none">📲 App installieren</button>
+  <div id="installHint" class="app-install-hint" style="display:none"></div>
 </div>
 
   <div class="pie-wrap">
@@ -403,17 +381,8 @@ html, body { overflow-x: hidden; }
 
   <div class="pills" id="pills"></div>
 
-  <!-- Klumpenrisiko-Card (Feature D) - live aus data/holdings.json -->
-  <div class="cluster-card" id="clusterCard" onclick="goToSectorsSlide()">
-    <div class="cluster-card-head">
-      <span class="cluster-card-title">&#9888;&#65039; Top-Konzentrationen im Sparplan</span>
-      <span class="cluster-card-hint">Details &rarr;</span>
-    </div>
-    <div id="clusterCardBody"><div class="cluster-card-loading">wird geladen...</div></div>
-  </div>
-
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v7</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v8</div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -913,37 +882,53 @@ function closeModal(){
 // ── PWA INSTALL PROMPT ──────────────────────────────────────
 let deferredPrompt = null;
 const installBtn = document.getElementById('installBtn');
-const iosHint = document.getElementById('iosHint');
+const installHint = document.getElementById('installHint');
 
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-// iOS Safari hat kein beforeinstallprompt → eigener Hinweis
-if (!isStandalone && isIOS) {
-  iosHint.style.display = 'block';
+function showHint(html) {
+  installHint.innerHTML = html + ' <span class="app-install-hint-close" onclick="document.getElementById(\'installHint\').style.display=\'none\'">✕</span>';
+  installHint.style.display = 'block';
 }
 
-// Android/Desktop Chrome/Edge: beforeinstallprompt feuert wenn installierbar
+if (!isStandalone) {
+  if (isIOS) {
+    // iOS Safari: kein beforeinstallprompt → direkt Hint zeigen
+    showHint('📲 <b>Zum Home:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>');
+  } else {
+    // Desktop / Android: Button immer sichtbar
+    installBtn.style.display = 'block';
+  }
+}
+
+// Android/Desktop Chrome/Edge: beforeinstallprompt cached für späteren Click
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  if (!isStandalone) installBtn.style.display = 'block';
 });
 
 installBtn.addEventListener('click', async () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
+    console.log('Install: ' + outcome);
     deferredPrompt = null;
-    installBtn.style.display = 'none';
+    if (outcome === 'accepted') {
+      installBtn.style.display = 'none';
+      installHint.style.display = 'none';
+    }
+  } else {
+    // Fallback: Browser hat Install noch nicht freigegeben (Engagement-Heuristik)
+    // oder bereits installiert / Browser unterstuetzt PWA-Install nicht.
+    showHint('Klick auf das <b>⊕ Install-Icon</b> rechts in der Adressleiste — oder Browser-Menü → <b>„App installieren"</b>.');
   }
 });
 
 window.addEventListener('appinstalled', () => {
   console.log('PWA wurde installiert');
   installBtn.style.display = 'none';
-  iosHint.style.display = 'none';
+  installHint.style.display = 'none';
 });
 
 // ── SERVICE WORKER REGISTRIERUNG ─────────────────────────────
@@ -1231,7 +1216,7 @@ function deselectGeo(clearAll) {
   window.saveTotal = function(v){
     _origSave(v);
     try { updateGeoEUR(); } catch(e){}
-    try { renderSectorSlide(); renderClusterCard(); } catch(e){}
+    try { renderSectorSlide(); } catch(e){}
   };
 })();
 
@@ -1363,26 +1348,6 @@ const SECTOR_COLOR = {
 };
 function _sectorColor(s) { return SECTOR_COLOR[s] || '#a78bfa'; }
 
-async function renderClusterCard() {
-  const body = document.getElementById('clusterCardBody');
-  if (!body) return;
-  const data = await loadAnalytics();
-  if (!data || !data.holdings || !data.holdings.etfs || !Object.keys(data.holdings.etfs).length) {
-    body.innerHTML = '<div class="cluster-card-loading">keine Daten</div>';
-    return;
-  }
-  const risks = computeClusterRisk(data).slice(0, 3);
-  if (!risks.length) { body.innerHTML = '<div class="cluster-card-loading">keine Konzentrationen erkannt</div>'; return; }
-  body.innerHTML = risks.map(r => {
-    const eur = (r.total_pct / 100) * currentTotal;
-    const viaTxt = r.via.map(v => v.ticker).join('+');
-    return '<div class="cluster-row">' +
-      '<span class="cluster-row-name"><b>' + safeText(r.name) + '</b> <span class="cluster-row-via">via ' + safeText(viaTxt) + '</span></span>' + /* Bug 5 Fix */
-      '<span class="cluster-row-pct">' + r.total_pct.toFixed(2) + '% · ' + _formatEur(eur) + '</span>' +
-    '</div>';
-  }).join('');
-}
-
 function initSectors() { renderSectorSlide(); }
 async function renderSectorSlide() {
   const sectorList = document.getElementById('sectorList');
@@ -1427,11 +1392,6 @@ async function renderSectorSlide() {
     }).join('');
   }
 }
-
-loadAnalytics().then(() => {
-  try { renderClusterCard(); } catch(e) { console.warn('cluster card failed', e); }
-});
-
 
 </script>
 </body>
