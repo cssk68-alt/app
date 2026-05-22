@@ -40,7 +40,7 @@
     min-height: 100vh;
     font-family: 'DM Sans', system-ui, sans-serif;
     color: var(--text);
-    padding: 24px 16px 40px;
+    padding: 16px 16px 40px;
   }
 
   .container { max-width: 480px; margin: 0 auto; }
@@ -48,7 +48,7 @@
   /* HEADER */
   .header { text-align: center; margin-bottom: 20px; }
   .header-label {
-    font-size: 11px; letter-spacing: 3px; color: #a78bfa;
+    font-size: 12px; letter-spacing: 3px; color: #a78bfa;
     text-transform: uppercase; margin-bottom: 6px; display: block;
   }
   .header-total {
@@ -59,7 +59,7 @@
     line-height: 1.15;
   }
   .header-sub { font-size: 12px; color: var(--dim); margin-top: 6px; display: block; }
-  .header-hint { font-size: 11px; color: var(--dimmer); margin-top: 6px; display: block; }
+  .header-hint { font-size: 12px; color: var(--dimmer); margin-top: 6px; display: block; }
 
   /* PIE */
   .pie-wrap {
@@ -93,40 +93,74 @@
   .pill {
     display: flex; align-items: center; gap: 5px;
     border-radius: 20px; padding: 4px 11px;
-    font-size: 12px; cursor: pointer; border: 1px solid;
+    font-size: 13px; cursor: pointer; border: 1px solid;
     color: #e5e7eb; background: none;
     -webkit-tap-highlight-color: transparent;
+    transition: opacity .12s ease;
   }
+  .pill:active { opacity: 0.7; }
   .pill-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
   .pill-pct { font-weight: 700; }
 
   /* CARDS */
-  .cards { display: flex; flex-direction: column; gap: 9px; }
+  .cards { display: flex; flex-direction: column; gap: 9px; max-width: 480px; margin: 0 auto; }
   .card {
     border-radius: 14px; overflow: hidden; cursor: pointer;
     border: 1px solid; background: rgba(255,255,255,0.04);
     -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
   }
+  .card:active { transform: scale(0.985); box-shadow: 0 1px 6px rgba(0,0,0,0.3); background: rgba(255,255,255,0.06); }
   .card-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
   .card-left { display: flex; align-items: center; gap: 8px; }
   .card-emoji { font-size: 16px; }
-  .card-name { font-weight: 700; font-size: 13px; }
+  .card-name { font-weight: 700; font-size: 14px; }
   .card-count { font-size: 10px; color: #4b5563; }
-  .card-right { font-weight: 700; font-size: 14px; }
+  .card-right { font-weight: 700; font-size: 15px; }
   .card-right span { margin-left: 6px; font-size: 11px; color: var(--muted); font-weight: 400; }
   .card-tickers { padding: 5px 16px 9px; display: flex; flex-wrap: wrap; gap: 2px 12px; }
   .card-bar-wrap { height: 2px; background: rgba(255,255,255,0.05); }
   .card-bar { height: 100%; }
-  .card-ticker-item { font-size: 10px; color: var(--dim); }
+  .card-ticker-item { font-size: 11px; color: var(--dim); }
 
   .footer { text-align: center; margin-top: 20px; font-size: 10px; color: var(--dimmer); }
+  .footer-link { color: var(--muted); text-decoration: underline; text-decoration-color: rgba(255,255,255,0.2); }
+
+  /* App-Install-Tray (oben rechts, ueberlagert nicht den Header) */
+  .app-install-tray {
+    position: fixed;
+    top: env(safe-area-inset-top, 8px);
+    right: 8px;
+    left: auto;
+    display: flex; flex-direction: column; gap: 6px;
+    align-items: flex-end;
+    z-index: 90;
+    max-width: 240px;
+    pointer-events: none;
+  }
+  .app-install-tray > * { pointer-events: auto; }
+  .app-install-btn {
+    padding: 6px 10px; background: #a78bfa; color: #fff;
+    border: none; border-radius: 10px; font-size: 12px; font-weight: 700;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .app-install-hint {
+    padding: 8px 10px; background: #1e293b; border: 1px solid #a78bfa;
+    color: #e2e8f0; border-radius: 10px; font-size: 12px; line-height: 1.4;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .app-install-hint-close {
+    display: block; margin-top: 4px; font-size: 10px; color: #94a3b8; cursor: pointer;
+  }
 
   /* MODAL OVERLAY */
   .overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.78);
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    z-index: 200;
+    z-index: 1100;
     align-items: flex-end; justify-content: center;
   }
   .overlay.open { display: flex; }
@@ -164,8 +198,8 @@
   .modal-share-bar { margin-top: 14px; border-radius: 10px; padding: 10px 14px; }
   .modal-share-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; }
   .modal-share-row span:first-child { color: var(--dim); }
-  .bar-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; }
-  .bar-fill { height: 100%; border-radius: 3px; }
+  .bar-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 999px; }
+  .bar-fill { height: 100%; border-radius: 999px; }
   .modal-share-note { font-size: 11px; color: var(--dim); margin-top: 5px; }
 
   /* PRODUCTS */
@@ -197,16 +231,16 @@
   .detail-row { padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
   .detail-row:last-child { border-bottom: none; }
   .detail-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-  .detail-name { font-size: 13px; color: var(--text); }
-  .detail-name.overlap { color: #a78bfa; font-style: italic; }
-  .detail-pct { font-size: 12px; font-weight: 700; }
-  .mini-bar-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-bottom: 4px; }
-  .mini-bar-fill { height: 100%; border-radius: 2px; opacity: 0.65; }
+  .detail-name { font-size: 14px; color: var(--text); }
+  .detail-pct { font-size: 13px; font-weight: 700; }
+  .detail-euros { display: flex; gap: 12px; margin-top: 2px; font-size: 11px; color: var(--muted); }
+  .mini-bar-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 999px; margin-bottom: 4px; }
+  .mini-bar-fill { height: 100%; border-radius: 999px; opacity: 0.65; }
   .tr-link {
     display: inline-flex; align-items: center; gap: 5px;
     margin: 10px 14px 12px;
     font-size: 11px; color: #6b7280;
-    border: 1px solid #ffffff0f; border-radius: 8px;
+    border: 1px solid #ffffff0f; border-radius: 10px;
     padding: 5px 10px; background: rgba(255,255,255,0.03);
     cursor: pointer; text-decoration: none;
     -webkit-tap-highlight-color: transparent;
@@ -235,19 +269,23 @@ html, body { overflow-x: hidden; }
 #app-slider.show-geo     { transform: translateX(-200vw); }
 
 /* === CLUSTER-RISK CARD (Slide 1) === */
-.cluster-card { border-radius: 14px; margin-bottom: 14px;
+.cluster-card { border-radius: 16px; margin: 12px auto 14px;
+  max-width: 480px;
   background: linear-gradient(135deg, rgba(248,113,113,0.10), rgba(167,139,250,0.08));
   border: 1px solid rgba(248,113,113,0.25); padding: 12px 14px;
-  cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  transition: transform .15s ease, box-shadow .15s ease; }
+.cluster-card:active { transform: scale(0.985); box-shadow: 0 1px 6px rgba(0,0,0,0.3); }
 .cluster-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.cluster-card-title { font-size: 12px; font-weight: 700; color: #fca5a5; letter-spacing: 0.5px; }
-.cluster-card-hint { font-size: 10px; color: #6b7280; }
-.cluster-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; }
+.cluster-card-title { font-size: 13px; font-weight: 700; color: #fca5a5; letter-spacing: 0.5px; }
+.cluster-card-hint { font-size: 11px; color: #6b7280; }
+.cluster-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 13px; }
 .cluster-row-name { color: #e5e7eb; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 8px; }
 .cluster-row-name b { color: #fff; }
 .cluster-row-pct { font-weight: 700; color: #fca5a5; font-variant-numeric: tabular-nums; }
 .cluster-row-via { font-size: 10px; color: #6b7280; margin-left: 6px; }
-.cluster-card-loading { font-size: 11px; color: #6b7280; text-align: center; padding: 6px 0; }
+.cluster-card-loading { font-size: 12px; color: #6b7280; text-align: center; padding: 6px 0; }
 
 /* === SECTORS SLIDE (Slide 3) === */
 .sector-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
@@ -257,7 +295,7 @@ html, body { overflow-x: hidden; }
 .sector-row { display: grid; grid-template-columns: 16px 1fr 70px 50px; gap: 8px; align-items: center; padding: 9px 18px; border-top: 1px solid rgba(255,255,255,0.04); }
 .sector-row:first-of-type { border-top: none; }
 .sector-dot { width: 10px; height: 10px; border-radius: 50%; }
-.sector-row-name { font-size: 13px; font-weight: 500; color: #e5e7eb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sector-row-name { font-size: 14px; font-weight: 500; color: #e5e7eb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sector-row-eur { font-size: 12px; font-weight: 700; text-align: right; color: #d1d5db; font-variant-numeric: tabular-nums; }
 .sector-row-pct { font-size: 13px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
 .sector-bar-wrap { padding: 0 18px 9px; }
@@ -273,14 +311,6 @@ html, body { overflow-x: hidden; }
 .risk-row-eur { font-size: 12px; font-weight: 700; text-align: right; color: #d1d5db; font-variant-numeric: tabular-nums; }
 .risk-row-pct { font-size: 13px; font-weight: 700; color: #fca5a5; text-align: right; font-variant-numeric: tabular-nums; }
 
-/* === OVERLAP-SEKTION im MODAL === */
-.overlap-section { padding: 10px 14px 14px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4px; }
-.overlap-label { font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-.overlap-pair { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 12px; }
-.overlap-pair-name { color: #c4b5fd; }
-.overlap-pair-pct { font-weight: 700; color: #a78bfa; font-variant-numeric: tabular-nums; }
-.overlap-pair-stocks { font-size: 10px; color: #6b7280; margin-top: -2px; padding-left: 0; }
-.overlap-empty { font-size: 11px; color: #6b7280; padding: 4px 0; }
 #slide-arrow {
   position: fixed;
   right: 0;
@@ -325,7 +355,7 @@ html, body { overflow-x: hidden; }
 .geo-pill.active { background: rgba(255,255,255,0.12); border-color: rgba(167,139,250,0.4); }
 .geo-pill-dot { width: 8px; height: 8px; border-radius: 50%; }
 .geo-divider { height: 1px; background: rgba(255,255,255,0.05); }
-.geo-table-head { display: grid; grid-template-columns: 1fr 80px 56px; gap: 4px; padding: 8px 18px; font-size: 10px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.6px; }
+.geo-table-head { display: grid; grid-template-columns: 1fr 80px 56px; gap: 4px; padding: 8px 18px; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
 .geo-table-head span:not(:first-child) { text-align: right; }
 .geo-row { display: grid; grid-template-columns: 1fr 80px 56px; gap: 4px; align-items: center; padding: 11px 18px; border-top: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: background 0.15s; }
 .geo-row.hl { background: rgba(167,139,250,0.07); }
@@ -358,10 +388,12 @@ html, body { overflow-x: hidden; }
     <div class="header-sub" id="hdrSub"></div>
     <div class="header-hint">↓ Segment oder Karte antippen für Details</div>
   </div>
-<button id="installBtn" style="display:none; position:fixed; top:8px; left:8px; padding:6px 10px; background:#a78bfa; color:#fff; border:none; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; z-index:1000; box-shadow:0 2px 8px rgba(0,0,0,0.4);">📲 Installieren</button>
-<div id="iosHint" style="display:none; position:fixed; top:8px; left:8px; max-width:230px; padding:8px 10px; background:#1e293b; border:1px solid #a78bfa; color:#e2e8f0; border-radius:8px; font-size:11px; line-height:1.4; z-index:1000; box-shadow:0 2px 8px rgba(0,0,0,0.4);">
-  📲 <b>Zum Home:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>
-  <span style="display:block; margin-top:4px; font-size:10px; color:#94a3b8; cursor:pointer" onclick="document.getElementById('iosHint').style.display='none'">✕ schließen</span>
+<div class="app-install-tray" aria-hidden="false">
+  <button id="installBtn" class="app-install-btn" style="display:none">📲 Installieren</button>
+  <div id="iosHint" class="app-install-hint" style="display:none">
+    📲 <b>Zum Home:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>
+    <span class="app-install-hint-close" onclick="document.getElementById('iosHint').style.display='none'">✕ schließen</span>
+  </div>
 </div>
 
   <div class="pie-wrap">
@@ -381,7 +413,7 @@ html, body { overflow-x: hidden; }
   </div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v7</div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -463,10 +495,6 @@ html, body { overflow-x: hidden; }
       </div>
     </div>
     <div class="products" id="mProducts"></div>
-    <div class="overlap-section" id="mOverlapSection" style="display:none">
-      <div class="overlap-label">&harr; Ueberschneidungen mit anderen ETFs</div>
-      <div id="mOverlapBody"></div>
-    </div>
   </div>
 </div>
 
@@ -484,7 +512,6 @@ const GROUPS = [
       details:[{n:"Australien",p:61},{n:"Hongkong",p:22},{n:"Singapur",p:12}] },
     { name:"iShares MSCI Korea UCITS ETF EUR (Acc)", amount:13, price:"485 €", ticker:"CSKR",
       isin:"IE00B5W4TY14", trType:"etf",
-      warning:"~11% Überschneidung mit EIMI",
       details:[{n:"Samsung Electronics",p:24},{n:"SK Hynix",p:9},{n:"LG Energy Solution",p:4}] },
     { name:"iShares Core MSCI Japan IMI UCITS ETF", amount:12, price:"65 €", ticker:"IJPA",
       isin:"IE00B4L5YX21", trType:"etf",
@@ -496,7 +523,7 @@ const GROUPS = [
       details:[{n:"Eli Lilly",p:9.8},{n:"Johnson & Johnson",p:7.3},{n:"AbbVie",p:4.9}] },
     { name:"iShares Ageing Population UCITS ETF (Acc)", amount:25, price:"8 €", ticker:"AGED",
       isin:"IE00BYZK4669", trType:"etf",
-      details:[{n:"Healthcare-Anteil",p:47},{n:"Finanzdienstleistungen",p:43},{n:"↔ Overlap: Novo Nordisk, Roche, J&J",p:null}] }
+      details:[{n:"Healthcare-Anteil",p:47},{n:"Finanzdienstleistungen",p:43}] }
   ]},
   { name:"Edelmetalle", color:"#F97316", emoji:"🥇", products:[
     { name:"WisdomTree Physical Silver (USD)", amount:30, price:"62 €", ticker:"PHAG",
@@ -803,7 +830,7 @@ function openModal(groupIndex){
         if(d.p===null){
           return `<div class="detail-row">
             <div class="detail-top">
-              <span class="detail-name overlap">${d.n}</span>
+              <span class="detail-name">${d.n}</span>
             </div>
           </div>`;
         }
@@ -876,10 +903,6 @@ function closeModal(){
   // und befreit Holding-Referenzen (Speicher-Druck auf iOS/Safari).
   const prod = document.getElementById('mProducts');
   if (prod) prod.innerHTML = '';
-  const ovSec = document.getElementById('mOverlapSection');
-  if (ovSec) ovSec.style.display = 'none';
-  const ovBody = document.getElementById('mOverlapBody');
-  if (ovBody) ovBody.innerHTML = '';
 
   // Inline-Handler explizit nullen (Defensive, falls Browser sie haelt)
   overlay.querySelectorAll('[onclick]').forEach(el => {
@@ -1292,49 +1315,6 @@ function computeClusterRisk(data) {
     .sort((a,b) => b.total_pct - a.total_pct);
 }
 
-// Feature A: Overlap
-// Bug 6 Fix: Portfolio-gewichteter Overlap statt min(wA, wB).
-// Formel: Σ (portPct_A × w_ISIN_in_A + portPct_B × w_ISIN_in_B) pro gemeinsame ISIN.
-// Beispiel: CSKR 2.6% × Samsung 27.5% + EIMI 14% × Samsung 6% = 0.715+0.840 = 1.555%
-// (Alt-Formel min(27.5,6)=6% überschätzte den Overlap stark.)
-function computeOverlap(holdingsA, holdingsB, pctA, pctB) {
-  if (!holdingsA || !holdingsB) return { pct: 0, shared: [] };
-  const mapB = {};
-  for (const h of holdingsB) mapB[h.isin || h.name] = h;
-  let total = 0;
-  const shared = [];
-  for (const h of holdingsA) {
-    const key = h.isin || h.name;
-    const m = mapB[key];
-    if (m) {
-      // Portfolio-Beitrag dieser gemeinsamen Position in Prozentpunkten
-      const contribution = ((pctA || 0) * (h.weight_pct / 100)
-                          + (pctB || 0) * (m.weight_pct / 100)) * 100;
-      total += contribution;
-      shared.push({ name: h.name, pct: contribution });
-    }
-  }
-  shared.sort((a,b) => b.pct - a.pct);
-  return { pct: total, shared };
-}
-
-function computeOverlapsForTicker(ticker, data) {
-  if (!data || !data.holdings) return [];
-  const myH   = data.holdings.etfs[ticker]?.top_holdings;
-  const myPct = _portfolioPct(ticker); // Bug 6 Fix: Portfolio-Gewicht übergeben
-  if (!myH) return [];
-  const out = [];
-  for (const other of _allTickers()) {
-    if (other === ticker) continue;
-    const oH   = data.holdings.etfs[other]?.top_holdings;
-    const oPct = _portfolioPct(other);
-    if (!oH) continue;
-    const r = computeOverlap(myH, oH, myPct, oPct); // Bug 6 Fix
-    if (r.pct > 0.1) out.push({ ticker: other, ...r }); // Schwellwert 0.1% (war 0.5% ETF-intern)
-  }
-  return out.sort((a,b) => b.pct - a.pct);
-}
-
 // Feature B: Sektor-Gewichtung
 function computeSectorBreakdown(data) {
   if (!data || !data.sectors) return [];
@@ -1447,48 +1427,6 @@ async function renderSectorSlide() {
     }).join('');
   }
 }
-
-async function renderOverlapInModal(ticker) {
-  const section = document.getElementById('mOverlapSection');
-  const body    = document.getElementById('mOverlapBody');
-  if (!section || !body || !ticker) return;
-  section.style.display = 'block';
-  body.innerHTML = '<div class="overlap-empty">wird geladen...</div>';
-  const data = await loadAnalytics();
-  if (!data || !data.holdings) { body.innerHTML = '<div class="overlap-empty">keine Daten</div>'; return; }
-  if (!data.holdings.etfs[ticker]) {
-    section.style.display = 'none';
-    return;
-  }
-  const overlaps = computeOverlapsForTicker(ticker, data);
-  if (!overlaps.length) {
-    body.innerHTML = '<div class="overlap-empty">keine Ueberschneidungen ueber 0,5% gefunden</div>';
-    return;
-  }
-  body.innerHTML = overlaps.slice(0, 5).map(o => {
-    const stocks = o.shared.slice(0, 3).map(s => safeText(s.name.split(' ').slice(0,2).join(' '))).join(', '); /* Bug 5 Fix */
-    return '<div><div class="overlap-pair">' +
-      '<span class="overlap-pair-name">↔ ' + safeText(o.ticker) + '</span>' +
-      '<span class="overlap-pair-pct">' + o.pct.toFixed(1) + '%</span>' +
-      '</div>' +
-      '<div class="overlap-pair-stocks">' + stocks + (o.shared.length > 3 ? ' ...' : '') + '</div>' +
-    '</div>';
-  }).join('');
-}
-
-(function hookOpenModal() {
-  if (typeof openModal !== 'function') return;
-  const orig = openModal;
-  window.openModal = function(idx) {
-    orig(idx);
-    try {
-      const g = GROUPS[idx];
-      const t = g.products[0] && g.products[0].ticker;
-      if (t) renderOverlapInModal(t);
-      else document.getElementById('mOverlapSection').style.display = 'none';
-    } catch(e) { console.warn('overlap render failed', e); }
-  };
-})();
 
 loadAnalytics().then(() => {
   try { renderClusterCard(); } catch(e) { console.warn('cluster card failed', e); }
