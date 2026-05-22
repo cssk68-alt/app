@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-22T15:45:00 -->
+<!-- Cache-Buster: 2026-05-22T16:30:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v20260522t1545</title>
+<title>Mein Sparplan - v20260522t1630</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -40,7 +40,8 @@
     min-height: 100vh;
     font-family: 'DM Sans', system-ui, sans-serif;
     color: var(--text);
-    padding: 16px 16px 40px;
+    margin: 0;
+    padding: 0;
   }
 
   .container { max-width: 480px; margin: 0 auto; }
@@ -260,10 +261,12 @@ html, body { overflow-x: hidden; }
   width: 100vw;
   min-height: 100vh;
   flex-shrink: 0;
+  padding: 16px 16px 40px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 #slide-geo, #slide-sectors {
   padding: 24px 16px 60px;
-  overflow-y: auto;
 }
 #app-slider.show-sectors { transform: translateX(-100vw); }
 #app-slider.show-geo     { transform: translateX(-200vw); }
@@ -360,6 +363,12 @@ html, body { overflow-x: hidden; }
 </style>
 </head>
 <body>
+<!-- App-Install-Tray MUSS ausserhalb von #app-slider stehen, weil dessen transform
+     den containing-block fuer position:fixed kapert (CSS Transform Spec). -->
+<div class="app-install-tray" aria-hidden="false">
+  <button id="installBtn" class="app-install-btn" style="display:none">📲 App installieren</button>
+  <div id="installHint" class="app-install-hint" style="display:none"></div>
+</div>
 <div id="app-slider">
 <div id="slide-sparplan">
 <div class="container">
@@ -369,10 +378,6 @@ html, body { overflow-x: hidden; }
     <div class="header-sub" id="hdrSub"></div>
     <div class="header-hint">↓ Segment oder Karte antippen für Details</div>
   </div>
-<div class="app-install-tray" aria-hidden="false">
-  <button id="installBtn" class="app-install-btn" style="display:none">📲 App installieren</button>
-  <div id="installHint" class="app-install-hint" style="display:none"></div>
-</div>
 
   <div class="pie-wrap">
     <svg id="piesvg" viewBox="0 0 260 260" width="260" height="260"></svg>
@@ -382,7 +387,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v9</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v10</div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -884,7 +889,13 @@ let deferredPrompt = null;
 const installBtn = document.getElementById('installBtn');
 const installHint = document.getElementById('installHint');
 
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const ua = navigator.userAgent;
+const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+const isAndroid = /Android/.test(ua);
+const isEdge = /Edg\//.test(ua);
+const isOpera = /OPR\//.test(ua);
+const isFirefox = /Firefox\//.test(ua);
+const isSafariMac = /Safari/.test(ua) && /Macintosh/.test(ua) && !/Chrome|Edg|OPR/.test(ua);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
 function showHint(html) {
@@ -892,41 +903,59 @@ function showHint(html) {
   installHint.style.display = 'block';
 }
 
+function browserSpecificInstallHint() {
+  if (isIOS) {
+    return '📲 <b>iPhone:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>';
+  }
+  if (isAndroid) {
+    return '📲 <b>Android:</b> Browser-Menü <b>⋮</b> → <b>„App installieren"</b> oder <b>„Zum Startbildschirm"</b>';
+  }
+  if (isEdge) {
+    return '📲 <b>Edge:</b> Klick das <b>⊕</b>-Icon rechts in der Adressleiste, oder Menü <b>⋯</b> → <b>Apps</b> → <b>„Diese Site als App installieren"</b>';
+  }
+  if (isOpera) {
+    return '📲 <b>Opera:</b> Adressleiste rechts → Symbol für <b>Installieren</b>, oder Menü → <b>Seite</b> → <b>„App installieren"</b>. Falls nicht da: Seite kurz benutzen, dann Tab neu laden.';
+  }
+  if (isFirefox) {
+    return '📲 <b>Firefox</b> (Desktop) hat keine native PWA-Installation. Workaround: Chrome/Edge/Opera nutzen, oder Lesezeichen anlegen.';
+  }
+  if (isSafariMac) {
+    return '📲 <b>Safari Mac:</b> Menü <b>Datei</b> → <b>„Zum Dock hinzufügen"</b> (macOS Sonoma 14+).';
+  }
+  return '📲 Klick das <b>⊕ Install-Icon</b> in der Adressleiste, oder Browser-Menü → <b>„App installieren"</b>.';
+}
+
 if (!isStandalone) {
   if (isIOS) {
-    // iOS Safari: kein beforeinstallprompt → direkt Hint zeigen
-    showHint('📲 <b>Zum Home:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>');
+    showHint(browserSpecificInstallHint());
   } else {
-    // Desktop / Android: Button immer sichtbar
     installBtn.style.display = 'block';
   }
 }
 
-// Android/Desktop Chrome/Edge: beforeinstallprompt cached für späteren Click
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+  installBtn.textContent = '📲 App installieren ✓';
 });
 
 installBtn.addEventListener('click', async () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    console.log('Install: ' + outcome);
+    console.log('Install outcome:', outcome);
     deferredPrompt = null;
     if (outcome === 'accepted') {
       installBtn.style.display = 'none';
       installHint.style.display = 'none';
     }
   } else {
-    // Fallback: Browser hat Install noch nicht freigegeben (Engagement-Heuristik)
-    // oder bereits installiert / Browser unterstuetzt PWA-Install nicht.
-    showHint('Klick auf das <b>⊕ Install-Icon</b> rechts in der Adressleiste — oder Browser-Menü → <b>„App installieren"</b>.');
+    showHint(browserSpecificInstallHint());
   }
 });
 
 window.addEventListener('appinstalled', () => {
-  console.log('PWA wurde installiert');
+  console.log('PWA installed');
   installBtn.style.display = 'none';
   installHint.style.display = 'none';
 });
