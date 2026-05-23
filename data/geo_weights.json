@@ -2,22 +2,20 @@
   "_meta": {
     "last_updated": "2026-05-19",
     "total_positions": 12,
-    "total_countries": 43,
+    "total_countries": 34,
     "source": "iShares-DE AJAX tab=all (Laender aus Holdings aggregiert + COUNTRY_MAP konsolidiert)",
-    "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100"
+    "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100. Physische Rohstoffe (PHAG/PHPT/COPA) sind eigene Region — nicht auf Mining-Länder verteilt."
   },
   "countries": [
     {
       "land": "USA",
       "iso_numeric": 840,
       "flag": "🇺🇸",
-      "pct_gesamt": 32.51,
+      "pct_gesamt": 32.07,
       "via": [
         "SXR8",
         "WHCS",
-        "AGED",
-        "PHPT",
-        "COPA"
+        "AGED"
       ],
       "last_updated": "2026-05-19"
     },
@@ -25,13 +23,11 @@
       "land": "Australien",
       "iso_numeric": 36,
       "flag": "🇦🇺",
-      "pct_gesamt": 10.26,
+      "pct_gesamt": 9.62,
       "via": [
         "CPXJ",
         "WHCS",
-        "AGED",
-        "PHAG",
-        "COPA"
+        "AGED"
       ],
       "last_updated": "2026-05-19"
     },
@@ -73,31 +69,6 @@
       "last_updated": "2026-05-19"
     },
     {
-      "land": "China",
-      "iso_numeric": 156,
-      "flag": "🇨🇳",
-      "pct_gesamt": 4.18,
-      "via": [
-        "AGED",
-        "EIMI",
-        "PHAG",
-        "COPA"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "Südafrika",
-      "iso_numeric": 710,
-      "flag": "🇿🇦",
-      "pct_gesamt": 3.88,
-      "via": [
-        "AGED",
-        "EIMI",
-        "PHPT"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
       "land": "Taiwan",
       "iso_numeric": 158,
       "flag": "🇹🇼",
@@ -133,6 +104,17 @@
       "last_updated": "2026-05-19"
     },
     {
+      "land": "China",
+      "iso_numeric": 156,
+      "flag": "🇨🇳",
+      "pct_gesamt": 2.81,
+      "via": [
+        "AGED",
+        "EIMI"
+      ],
+      "last_updated": "2026-05-19"
+    },
+    {
       "land": "Singapur",
       "iso_numeric": 702,
       "flag": "🇸🇬",
@@ -155,60 +137,12 @@
       "last_updated": "2026-05-19"
     },
     {
-      "land": "Mexiko",
-      "iso_numeric": 484,
-      "flag": "🇲🇽",
-      "pct_gesamt": 1.82,
-      "via": [
-        "EIMI",
-        "PHAG",
-        "COPA"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
       "land": "Indien",
       "iso_numeric": 356,
       "flag": "🇮🇳",
       "pct_gesamt": 1.73,
       "via": [
         "EIMI"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "Chile",
-      "iso_numeric": 152,
-      "flag": "🇨🇱",
-      "pct_gesamt": 1.56,
-      "via": [
-        "EIMI",
-        "PHAG",
-        "COPA"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "Peru",
-      "iso_numeric": 604,
-      "flag": "🇵🇪",
-      "pct_gesamt": 1.38,
-      "via": [
-        "EIMI",
-        "PHAG",
-        "COPA"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "Russland",
-      "iso_numeric": 643,
-      "flag": "🇷🇺",
-      "pct_gesamt": 0.99,
-      "via": [
-        "EIMI",
-        "PHAG",
-        "PHPT"
       ],
       "last_updated": "2026-05-19"
     },
@@ -235,24 +169,13 @@
       "last_updated": "2026-05-19"
     },
     {
-      "land": "Polen",
-      "iso_numeric": 616,
-      "flag": "🇵🇱",
-      "pct_gesamt": 0.47,
+      "land": "Südafrika",
+      "iso_numeric": 710,
+      "flag": "🇿🇦",
+      "pct_gesamt": 0.45,
       "via": [
         "AGED",
-        "EIMI",
-        "PHAG"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "DRK",
-      "iso_numeric": 180,
-      "flag": "🇨🇩",
-      "pct_gesamt": 0.44,
-      "via": [
-        "COPA"
+        "EIMI"
       ],
       "last_updated": "2026-05-19"
     },
@@ -268,65 +191,12 @@
       "last_updated": "2026-05-19"
     },
     {
-      "land": "Simbabwe",
-      "iso_numeric": 716,
-      "flag": "🇿🇼",
-      "pct_gesamt": 0.37,
-      "via": [
-        "PHPT"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "Kanada",
-      "iso_numeric": 124,
-      "flag": "🇨🇦",
-      "pct_gesamt": 0.35,
-      "via": [
-        "AGED",
-        "PHPT"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
       "land": "Saudi-Arabien",
       "iso_numeric": 682,
       "flag": "🇸🇦",
       "pct_gesamt": 0.34,
       "via": [
         "EIMI"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "Bolivien",
-      "iso_numeric": 68,
-      "flag": "🇧🇴",
-      "pct_gesamt": 0.3,
-      "via": [
-        "PHAG"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "Argentinien",
-      "iso_numeric": 32,
-      "flag": "🇦🇷",
-      "pct_gesamt": 0.3,
-      "via": [
-        "PHAG"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "Indonesien",
-      "iso_numeric": 360,
-      "flag": "🇮🇩",
-      "pct_gesamt": 0.29,
-      "via": [
-        "AGED",
-        "EIMI",
-        "COPA"
       ],
       "last_updated": "2026-05-19"
     },
@@ -387,12 +257,12 @@
       "last_updated": "2026-05-19"
     },
     {
-      "land": "Sambia",
-      "iso_numeric": 894,
-      "flag": "🇿🇲",
-      "pct_gesamt": 0.18,
+      "land": "Kanada",
+      "iso_numeric": 124,
+      "flag": "🇨🇦",
+      "pct_gesamt": 0.16,
       "via": [
-        "COPA"
+        "AGED"
       ],
       "last_updated": "2026-05-19"
     },
@@ -414,6 +284,17 @@
       "via": [
         "WHCS",
         "AGED"
+      ],
+      "last_updated": "2026-05-19"
+    },
+    {
+      "land": "Polen",
+      "iso_numeric": 616,
+      "flag": "🇵🇱",
+      "pct_gesamt": 0.12,
+      "via": [
+        "AGED",
+        "EIMI"
       ],
       "last_updated": "2026-05-19"
     },
@@ -483,6 +364,17 @@
       "last_updated": "2026-05-19"
     },
     {
+      "land": "Indonesien",
+      "iso_numeric": 360,
+      "flag": "🇮🇩",
+      "pct_gesamt": 0.06,
+      "via": [
+        "AGED",
+        "EIMI"
+      ],
+      "last_updated": "2026-05-19"
+    },
+    {
       "land": "Philippinen",
       "iso_numeric": 608,
       "flag": "🇵🇭",
@@ -496,7 +388,7 @@
   "regions": [
     {
       "region": "Nordamerika",
-      "pct_gesamt": 32.86,
+      "pct_gesamt": 32.23,
       "länder": [
         "USA",
         "Kanada"
@@ -508,7 +400,7 @@
     },
     {
       "region": "Europa",
-      "pct_gesamt": 17.12,
+      "pct_gesamt": 16.77,
       "länder": [
         "Deutschland",
         "UK",
@@ -521,17 +413,25 @@
         "Italien",
         "Spanien",
         "Griechenland",
-        "Polen"
+        "Polen",
+        "Tschechien",
+        "Österreich",
+        "Portugal",
+        "Finnland",
+        "Norwegen",
+        "Ungarn",
+        "Irland",
+        "Luxemburg"
       ],
       "aktuelle_länder": [
         "Deutschland",
         "UK",
         "Schweiz",
         "Dänemark",
-        "Polen",
         "Frankreich",
         "Belgien",
         "Schweden",
+        "Polen",
         "Niederlande",
         "Griechenland",
         "Italien"
@@ -539,7 +439,7 @@
     },
     {
       "region": "Asien-Pazifik",
-      "pct_gesamt": 35.07,
+      "pct_gesamt": 32.83,
       "länder": [
         "Japan",
         "Südkorea",
@@ -553,27 +453,28 @@
         "Malaysia",
         "Thailand",
         "Indonesien",
-        "Philippinen"
+        "Philippinen",
+        "Vietnam"
       ],
       "aktuelle_länder": [
         "Australien",
         "Südkorea",
-        "China",
         "Taiwan",
         "Japan",
         "Hongkong",
+        "China",
         "Singapur",
         "Indien",
-        "Indonesien",
         "Neuseeland",
         "Malaysia",
         "Thailand",
+        "Indonesien",
         "Philippinen"
       ]
     },
     {
       "region": "Emerging Mkts",
-      "pct_gesamt": 11.75,
+      "pct_gesamt": 1.97,
       "länder": [
         "Brasilien",
         "Argentinien",
@@ -581,6 +482,7 @@
         "Peru",
         "Chile",
         "Mexiko",
+        "Kolumbien",
         "Türkei",
         "Saudi-Arabien",
         "Ver. Arabische Emirate",
@@ -588,18 +490,19 @@
         "Kuwait",
         "Israel",
         "Russland",
-        "Südafrika"
+        "Südafrika",
+        "Ägypten",
+        "Marokko",
+        "Nigeria",
+        "Pakistan",
+        "Simbabwe",
+        "DRK",
+        "Sambia"
       ],
       "aktuelle_länder": [
-        "Südafrika",
-        "Mexiko",
-        "Chile",
-        "Peru",
-        "Russland",
         "Brasilien",
+        "Südafrika",
         "Saudi-Arabien",
-        "Bolivien",
-        "Argentinien",
         "Israel",
         "Ver. Arabische Emirate",
         "Türkei",
@@ -608,22 +511,19 @@
       ]
     },
     {
-      "region": "Edelmetalle-Länder",
-      "pct_gesamt": 0.99,
-      "länder": [
-        "Simbabwe",
-        "DRK",
-        "Sambia"
-      ],
-      "aktuelle_länder": [
-        "DRK",
-        "Simbabwe",
-        "Sambia"
+      "region": "Physische Rohstoffe",
+      "pct_gesamt": 15.0,
+      "länder": [],
+      "aktuelle_länder": [],
+      "via": [
+        "PHAG",
+        "COPA",
+        "PHPT"
       ]
     },
     {
       "region": "ETF-Cash & Reserven",
-      "pct_gesamt": 2.21,
+      "pct_gesamt": 1.2,
       "länder": [],
       "aktuelle_länder": []
     }

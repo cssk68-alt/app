@@ -944,6 +944,7 @@ async function firePrompt() {
       installHint.style.display = 'none';
     } else {
       installBtn.classList.remove('ready');
+      installBtn.textContent = '📲 App installieren';
     }
     return true;
   } catch (e) { console.warn('[Install] prompt failed:', e); return false; }
@@ -1010,8 +1011,15 @@ async function detectInstalled() {
     installHint.style.display = 'none';
     return;
   }
+  // Firefox-Desktop kann keine PWAs installieren und feuert kein
+  // beforeinstallprompt. Button waere nur Frust → nur Hint einmalig zeigen.
+  if (isFirefox && !isAndroid) {
+    installBtn.style.display = 'none';
+    showHint(browserSpecificInstallHint(), 8000);
+    return;
+  }
   if (isIOS) {
-    // iOS hat kein beforeinstallprompt — Button ist Trigger fuer Share-Sheet
+    // iOS hat kein beforeinstallprompt — Button zeigt Safari-Toolbar-Hint
     installBtn.style.display = 'block';
     showHint(browserSpecificInstallHint());
   } else {
@@ -1037,8 +1045,12 @@ installBtn.addEventListener('click', async () => {
   if (await firePrompt()) return;
   // Strategie B vormerken (greift wenn Event spaeter feuert)
   userWantsInstall = true;
-  // Strategie C: parallel die OS-Share-Karte versuchen (fire-and-forget)
-  tryWebShare();
+  // Strategie C: OS-Share-Karte versuchen — aber NICHT auf iOS:
+  // navigator.share oeffnet dort das generische Share-Sheet ohne
+  // "Zum Home-Bildschirm"-Eintrag. Der findet sich nur in Safaris
+  // Toolbar-Share (untere Leiste). User wuerde versehentlich teilen
+  // statt installieren. Auf iOS reicht der visuelle Hint.
+  if (!isIOS) tryWebShare();
   // Strategie E: garantierter Visual-Hint
   showHint(browserSpecificInstallHint());
   // Strategie D: Retry-Loop fuer spaet feuerndes Event
@@ -1120,7 +1132,7 @@ const REGION_META = {
   'Europa':         { color:'#EC4899', emoji:'🇪🇺' },
   'Asien-Pazifik':  { color:'#F59E0B', emoji:'🌏' },
   'Emerging Mkts':  { color:'#10B981', emoji:'🌍' },
-  'Edelmetalle-Länder': { color:'#F97316', emoji:'🥇' },
+  'Physische Rohstoffe': { color:'#F97316', emoji:'🥇' },
   'ETF-Cash & Reserven': { color:'#64748b', emoji:'💰' }
 };
 
@@ -1201,12 +1213,20 @@ function renderLegendAndTable() {
       const sr = document.createElement('div');
       sr.className = 'geo-subrow';
       sr.style.display = 'block';
-      sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
-        '<b style="color:#f3f4f6">Liquiditätsreserven der ETFs.</b><br>'+
-        'Jeder ETF hält ~1% Cash für tägliche Liquidität '+
-        '(Ein-/Auszahlungen, Rebalancing). Plus Mikro-Anteile in Ländern unter 0,05% '+
-        'die nicht einzeln aufgeführt werden. '+
-        'Echtes Geld &mdash; nur nicht einem konkreten Land zuordenbar.</div>';
+      if (r.region === 'Physische Rohstoffe') {
+        sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
+          '<b style="color:#f3f4f6">🥇 Physisch hinterlegte Rohstoffe.</b><br>'+
+          'WisdomTree Silver (PHAG), Platinum (PHPT) und Copper (COPA). '+
+          'Echte Metallbarren/Lagerbestände &mdash; nicht an Firmen oder Länder gebunden, '+
+          'sondern der reine Materialwert. Deshalb keine Länder-Aufschlüsselung auf der Karte.</div>';
+      } else {
+        sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
+          '<b style="color:#f3f4f6">Liquiditätsreserven der ETFs.</b><br>'+
+          'Jeder ETF hält ~1% Cash für tägliche Liquidität '+
+          '(Ein-/Auszahlungen, Rebalancing). Plus Mikro-Anteile in Ländern unter 0,05% '+
+          'die nicht einzeln aufgeführt werden. '+
+          'Echtes Geld &mdash; nur nicht einem konkreten Land zuordenbar.</div>';
+      }
       subrows.appendChild(sr);
     }
     tbody.appendChild(subrows);

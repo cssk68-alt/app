@@ -30,6 +30,12 @@ PORTFOLIO = {
     "ISF":  {"isin": "IE0005042456", "product_id": "251795", "pct": 0.050},
 }
 
+# Physisch hinterlegte Rohstoffe (Silber, Platin, Kupfer) — keine Aktien, keine
+# Firmen, keine Länder. Werden als eigene Region "Physische Rohstoffe" geführt
+# statt auf Mining-Länder verteilt zu werden, sonst verschmilzt der Beitrag mit
+# Aktien-Investments in denselben Ländern (Bug: User sah nur 5€ statt 75€).
+PHYSICAL_COMMODITY_TICKERS = {"PHAG", "PHPT", "COPA"}
+
 EDELMETALL_FALLBACK = {
     "PHAG": {"Mexiko": 24.0, "Peru": 15.0, "China": 13.0, "Russland": 8.0,
              "Chile": 5.0, "Australien": 5.0, "Polen": 5.0, "Bolivien": 5.0,
@@ -196,8 +202,8 @@ REGION_MAP = {
     "Emerging Mkts": ["Brasilien", "Argentinien", "Bolivien", "Peru", "Chile", "Mexiko",
                       "Kolumbien", "Türkei", "Saudi-Arabien", "Ver. Arabische Emirate",
                       "Qatar", "Kuwait", "Israel", "Russland", "Südafrika",
-                      "Ägypten", "Marokko", "Nigeria", "Pakistan"],
-    "Edelmetalle-Länder": ["Simbabwe", "DRK", "Sambia"],
+                      "Ägypten", "Marokko", "Nigeria", "Pakistan",
+                      "Simbabwe", "DRK", "Sambia"],
     "Offshore/Sonstige":  ["Bermuda", "Cayman Islands"],
 }
 
@@ -318,18 +324,25 @@ def fetch_country_weights(product_id, ticker, max_retries=3):
 
 def calculate_portfolio_weights():
     global_weights = {}
+    physical_commodities_pct = 0.0
+    physical_via = []
     for ticker, config in PORTFOLIO.items():
         portfolio_pct = config["pct"]
+        # Physische Rohstoffe: nicht auf Länder verteilen, sondern als eigene
+        # Region führen. Sonst landen sie verstreut in Aktien-Regionen und
+        # wirken als wären sie Aktien-Investments in den Mining-Ländern.
+        if ticker in PHYSICAL_COMMODITY_TICKERS:
+            physical_commodities_pct += portfolio_pct
+            physical_via.append(ticker)
+            print(f"  [{ticker}] Physische Rohstoffe (keine Länder-Attribution)")
+            continue
         country_data = None
         if config.get("product_id"):
             print(f"Lade {ticker}...")
             country_data = fetch_country_weights(config["product_id"], ticker)
             time.sleep(1.5)
         if country_data is None:
-            if ticker in EDELMETALL_FALLBACK:
-                country_data = EDELMETALL_FALLBACK[ticker]
-                print(f"  [{ticker}] Fallback (USGS)")
-            elif ticker in EINZELPOSITIONEN_FALLBACK:
+            if ticker in EINZELPOSITIONEN_FALLBACK:
                 country_data = EINZELPOSITIONEN_FALLBACK[ticker]
                 print(f"  [{ticker}] Fallback")
             else: continue
@@ -358,7 +371,7 @@ def calculate_portfolio_weights():
             "last_updated": today,
         })
     output.sort(key=lambda x: x["pct_gesamt"], reverse=True)
-    return output
+    return output, physical_commodities_pct, physical_via
 
 
 def load_existing(path):
@@ -375,7 +388,7 @@ if __name__ == "__main__":
     validate_country_maps()
 
     existing = load_existing(OUTPUT)
-    new_weights = calculate_portfolio_weights()
+    new_weights, physical_commodities_pct, physical_via = calculate_portfolio_weights()
     if not new_weights:
         print("WARNUNG: Keine Daten - behalte bestehende JSON.")
     else:
@@ -390,11 +403,21 @@ if __name__ == "__main__":
                 "länder": country_list,
                 "aktuelle_länder": actual_countries,
             })
-        # Cash-Reserve = Differenz zu 100%
+        # Physische Rohstoffe: eigene Region ohne Länder-Attribution
+        physical_pct = physical_commodities_pct * 100
+        if physical_pct > 0:
+            regions_out.append({
+                "region": "Physische Rohstoffe",
+                "pct_gesamt": round(physical_pct, 2),
+                "länder": [],
+                "aktuelle_länder": [],
+                "via": physical_via,
+            })
+        # Cash-Reserve = Differenz zu 100% (minus physische Rohstoffe!)
         country_sum = sum(c["pct_gesamt"] for c in new_weights)
         regions_out.append({
             "region": "ETF-Cash & Reserven",
-            "pct_gesamt": round(max(0, 100 - country_sum), 2),
+            "pct_gesamt": round(max(0, 100 - country_sum - physical_pct), 2),
             "länder": [],
             "aktuelle_länder": [],
         })
