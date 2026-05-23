@@ -21,6 +21,27 @@
 <!-- Theme Color (Android Chrome) -->
 <meta name="theme-color" content="#a78bfa">
 
+<!-- PWA: beforeinstallprompt SO FRÜH WIE MÖGLICH abfangen (noch im <head>),
+     damit das Event nicht verloren geht, falls es VOR dem Body-Script feuert
+     (die Seite wird vom Service-Worker Cache-First sofort ausgeliefert, das
+     Install-Script steht aber am Ende des <body>). Ohne das hier war auf Edge
+     deferredPrompt beim Klick null → es kam nur die Anleitung statt des Dialogs. -->
+<script>
+  window.__bip = null;          // gespeichertes beforeinstallprompt-Event
+  window.__bipWaiters = [];      // Klick-Handler, die auf ein spätes Event warten
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    window.__bip = e;
+    var ws = window.__bipWaiters.splice(0);
+    for (var i = 0; i < ws.length; i++) { try { ws[i](e); } catch (_) {} }
+    if (typeof window.__bipOnReady === 'function') { try { window.__bipOnReady(e); } catch (_) {} }
+  });
+  window.addEventListener('appinstalled', function () {
+    window.__bip = null;
+    if (typeof window.__bipOnInstalled === 'function') { try { window.__bipOnInstalled(); } catch (_) {} }
+  });
+</script>
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap');
 
@@ -397,7 +418,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v12</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v13</div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -895,6 +916,9 @@ function closeModal(){
 }
 
 // ── PWA INSTALL-BUTTON (oben links) ──────────────────────────
+// Das beforeinstallprompt-Event wird bereits im <head> abgefangen und in
+// window.__bip gespeichert (sonst ginge es bei Cache-First-Auslieferung evtl.
+// verloren). Hier nutzen wir window.__bip als einzige Quelle.
 (function () {
   const tray = document.getElementById('installTray');
   const btn  = document.getElementById('installBtn');
@@ -910,8 +934,6 @@ function closeModal(){
   const isStandalone = matchMedia('(display-mode: standalone)').matches
                        || navigator.standalone === true;
   const INSTALLED_KEY = 'sparplanInstalled';
-
-  let deferredPrompt = null;
 
   // Schon installiert → Button bleibt aus.
   if (isStandalone || localStorage.getItem(INSTALLED_KEY) === '1') return;
@@ -932,41 +954,55 @@ function closeModal(){
     if (isAndroid)   return '📲 <b>Android:</b> Browser-Menü <b>⋮</b> → <b>„App installieren"</b> bzw. <b>„Zum Startbildschirm".</b>';
     if (isFirefox)   return '📲 <b>Firefox</b> kann am Laptop keine Apps installieren. Bitte Chrome/Edge nutzen — oder ein Lesezeichen anlegen.';
     if (isSafariMac) return '📲 <b>Safari (Mac):</b> Menü <b>Ablage</b> → <b>„Zum Dock hinzufügen".</b>';
-    if (isEdge)      return '📲 <b>Edge:</b> Symbol ⊕ rechts in der Adressleiste, oder Menü <b>…</b> → <b>Apps</b> → <b>„Diese Website als App installieren".</b>';
+    if (isEdge)      return '📲 <b>Edge:</b> rechts in der Adressleiste auf das <b>Installations-Symbol ⊕</b> klicken (oder Menü <b>…</b> → <b>Apps</b> → <b>„Diese Website als App installieren"</b>). Tipp: evtl. wurde der Dialog vorher schon einmal weggeklickt — dann ist nur noch dieser Weg möglich.';
     return '📲 Klicke das <b>Installations-Symbol ⊕</b> in der Adressleiste, oder Browser-Menü → <b>„App installieren".</b>';
   }
 
-  async function fireNative() {
-    if (!deferredPrompt) return false;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    if (outcome === 'accepted') hideAll();
+  // Kurz auf ein evtl. verspätet feuerndes beforeinstallprompt warten.
+  function waitForPrompt(ms) {
+    if (window.__bip) return Promise.resolve(window.__bip);
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = (v) => { if (!done) { done = true; resolve(v || null); } };
+      (window.__bipWaiters || (window.__bipWaiters = [])).push(finish);
+      setTimeout(() => finish(window.__bip), ms);
+    });
+  }
+
+  async function tryNative() {
+    let evt = window.__bip;
+    if (!evt) evt = await waitForPrompt(1800);  // verspätetes Event abwarten
+    if (!evt) return false;
+    window.__bip = null;
+    evt.prompt();                               // echter System-Dialog (1 Klick)
+    try {
+      const { outcome } = await evt.userChoice;
+      if (outcome === 'accepted') hideAll();
+    } catch (_) {}
     return true;
   }
 
   btn.addEventListener('click', async () => {
-    if (await fireNative()) return;   // Chromium: echter System-Dialog (1 Klick)
-    showHint(manualHint());           // iPhone/Firefox/…: kurze Anleitung
+    if (await tryNative()) return;   // Chromium (Chrome/Edge/…): nativer Dialog
+    showHint(manualHint());          // iPhone/Firefox/…: kurze Anleitung
   });
 
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    show();                            // installierbar → Button zeigen
-  });
-
-  window.addEventListener('appinstalled', () => {
+  // Event kam evtl. schon vor diesem Script (im <head> gespeichert):
+  if (window.__bip) show();
+  // Späteres Event → Button einblenden:
+  window.__bipOnReady = () => show();
+  // Installation abgeschlossen → Button verschwindet dauerhaft:
+  window.__bipOnInstalled = () => {
     localStorage.setItem(INSTALLED_KEY, '1');
-    deferredPrompt = null;
-    hideAll();                         // installiert → Button verschwindet
-  });
+    hideAll();
+  };
 
   // Browser ohne beforeinstallprompt (iOS/Firefox/Safari-Mac) bekommen den Button
-  // trotzdem (für die Anleitung). Chromium zeigt ihn via Event oben — der Timeout
-  // vermeidet einen „toten" Klick, falls das Event nur minimal verzögert feuert.
+  // trotzdem (für die Anleitung). Bei Chromium zeigt ihn __bipOnReady; der Timeout
+  // fängt den Fall ab, dass das Event nicht (mehr) feuert (z.B. Prompt zuvor
+  // abgelehnt → Edge sperrt es eine Weile) — dann führt der Klick zur Anleitung.
   if (isIOS || isFirefox || isSafariMac) show();
-  else setTimeout(() => { if (!deferredPrompt) show(); }, 1500);
+  else setTimeout(() => { if (!window.__bip) show(); }, 1500);
 })();
 
 // ── SERVICE WORKER REGISTRIERUNG ─────────────────────────────
