@@ -10,7 +10,7 @@
 <title>Mein Sparplan - v20260522t1230</title>
 
 <!-- PWA Manifest -->
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json?v=1.0.2">
 
 <!-- Apple / iPhone PWA Meta-Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -154,6 +154,46 @@
   .app-install-hint-close {
     display: block; margin-top: 4px; font-size: 10px; color: #94a3b8; cursor: pointer;
   }
+
+  /* PWA Install Modals (Ansatz 2 & 3) */
+  .pwa-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 1200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .pwa-modal-card {
+    background: linear-gradient(180deg, #1c1c40 0%, #13132d 100%);
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 18px;
+    padding: 22px 20px 20px;
+    max-width: 420px; width: 100%;
+    color: #e2e8f0;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    animation: pwaPopIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes pwaPopIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+  .pwa-modal-card h3 {
+    margin: 0 0 12px; color: #fff;
+    font-size: 18px; font-weight: 800;
+  }
+  .pwa-modal-card p { line-height: 1.55; font-size: 14px; margin: 0 0 10px; color: #cbd5e1; }
+  .pwa-modal-card ol { padding-left: 22px; line-height: 1.7; font-size: 14px; color: #cbd5e1; margin: 8px 0 4px; }
+  .pwa-modal-card strong { color: #a78bfa; }
+  .pwa-ico { display: inline-block; margin: 0 2px; }
+  .pwa-close-btn {
+    width: 100%; margin-top: 16px;
+    padding: 11px; background: #a78bfa; color: #0f0c29;
+    border: none; border-radius: 10px;
+    font-weight: 800; font-size: 14px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pwa-close-btn:active { background: #8b6df0; }
 
   /* MODAL OVERLAY */
   .overlay {
@@ -371,7 +411,28 @@ html, body { overflow-x: hidden; }
   </div>
 <div class="app-install-tray" aria-hidden="false">
   <button id="installBtn" class="app-install-btn" style="display:none">📲 App installieren</button>
-  <div id="installHint" class="app-install-hint" style="display:none"></div>
+</div>
+
+<!-- PWA Install Modals (Ansatz 2 = iOS Safari, Ansatz 3 = Chromium Heuristik-Fallback) -->
+<div id="pwa-ios-modal" class="pwa-modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="pwa-modal-card">
+    <h3>📲 Installation auf iOS</h3>
+    <p>Um diese App auf deinem iPhone oder iPad zu installieren, befolge diese kurzen Schritte:</p>
+    <ol>
+      <li>Tippe unten im Safari-Browser auf das <strong>Teilen-Icon</strong> <span class="pwa-ico">⬆️</span> (Viereck mit Pfeil nach oben).</li>
+      <li>Scrolle im Menü nach unten und wähle <strong>„Zum Home-Bildschirm hinzufügen"</strong> <span class="pwa-ico">➕</span>.</li>
+    </ol>
+    <button class="pwa-close-btn" onclick="document.getElementById('pwa-ios-modal').style.display='none'">Verstanden</button>
+  </div>
+</div>
+
+<div id="pwa-fallback-modal" class="pwa-modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="pwa-modal-card">
+    <h3>📲 Installation starten</h3>
+    <p>Der automatische Schnellstart wird aktuell von deinem Browser verzögert (Engagement-Heuristik).</p>
+    <p><strong>Manueller Weg:</strong> Klicke oben rechts in der Browser-Adressleiste auf das <strong>⊕ Installations-Symbol</strong> — oder öffne das Browser-Menü (⋮) und wähle <strong>„App installieren"</strong>.</p>
+    <button class="pwa-close-btn" onclick="document.getElementById('pwa-fallback-modal').style.display='none'">Schließen</button>
+  </div>
 </div>
 
   <div class="pie-wrap">
@@ -382,7 +443,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v8</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v9</div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -879,56 +940,64 @@ function closeModal(){
   });
 }
 
-// ── PWA INSTALL PROMPT ──────────────────────────────────────
+// ── PWA INSTALL PROMPT (3-Wege-Ansatz) ──────────────────────────────────────
+// Ansatz 1 = native beforeinstallprompt (Chromium Desktop/Android)
+// Ansatz 2 = iOS-spezifisches Modal (Safari)
+// Ansatz 3 = Heuristik-Fallback-Modal (Chromium hält Event noch zurück)
 let deferredPrompt = null;
 const installBtn = document.getElementById('installBtn');
-const installHint = document.getElementById('installHint');
 
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-function showHint(html) {
-  installHint.innerHTML = html + ' <span class="app-install-hint-close" onclick="document.getElementById(\'installHint\').style.display=\'none\'">✕</span>';
-  installHint.style.display = 'block';
-}
-
+// Button anzeigen, wenn nicht bereits installiert (auf iOS auch — Klick triggert Anleitung)
 if (!isStandalone) {
-  if (isIOS) {
-    // iOS Safari: kein beforeinstallprompt → direkt Hint zeigen
-    showHint('📲 <b>Zum Home:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>');
-  } else {
-    // Desktop / Android: Button immer sichtbar
-    installBtn.style.display = 'block';
-  }
+  installBtn.style.display = 'block';
 }
 
-// Android/Desktop Chrome/Edge: beforeinstallprompt cached für späteren Click
+// Ansatz 1 vorbereiten: Event abfangen, bevor der Browser-Mini-Banner erscheint
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+  console.log("Ansatz 1 bereit: 'beforeinstallprompt' abgefangen.");
 });
 
 installBtn.addEventListener('click', async () => {
+  // ── ANSATZ 1: Nativer Chromium-Prompt ────────────────────────────────
   if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log('Install: ' + outcome);
-    deferredPrompt = null;
-    if (outcome === 'accepted') {
-      installBtn.style.display = 'none';
-      installHint.style.display = 'none';
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log('Install (nativ): ' + outcome);
+      deferredPrompt = null;
+      if (outcome === 'accepted') {
+        installBtn.style.display = 'none';
+      }
+      return;
+    } catch (err) {
+      console.error('Fehler bei Ansatz 1:', err);
     }
-  } else {
-    // Fallback: Browser hat Install noch nicht freigegeben (Engagement-Heuristik)
-    // oder bereits installiert / Browser unterstuetzt PWA-Install nicht.
-    showHint('Klick auf das <b>⊕ Install-Icon</b> rechts in der Adressleiste — oder Browser-Menü → <b>„App installieren"</b>.');
   }
+
+  // ── ANSATZ 2: iOS / Safari ───────────────────────────────────────────
+  if (isIOS) {
+    if (isStandalone) {
+      alert('Die App ist bereits auf deinem Home-Bildschirm installiert.');
+    } else {
+      document.getElementById('pwa-ios-modal').style.display = 'flex';
+    }
+    return;
+  }
+
+  // ── ANSATZ 3: Heuristik-Fallback (Chromium hat Event noch nicht freigegeben) ─
+  console.log('Ansatz 1 noch nicht freigegeben — zeige Ansatz 3 (Fallback-Modal).');
+  document.getElementById('pwa-fallback-modal').style.display = 'flex';
 });
 
 window.addEventListener('appinstalled', () => {
   console.log('PWA wurde installiert');
   installBtn.style.display = 'none';
-  installHint.style.display = 'none';
+  deferredPrompt = null;
 });
 
 // ── SERVICE WORKER REGISTRIERUNG ─────────────────────────────

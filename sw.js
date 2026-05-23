@@ -2,7 +2,7 @@
 // Bug 4 Fix: Network-First für /data/* (frische ETF-Daten), Cache-First für statische Assets.
 // Zusatz: Truncation-Fix (originale Datei fehlte die letzten 5 schließenden Klammern).
 
-const CACHE_NAME = 'sparplan-v8-20260522-design-polish';
+const CACHE_NAME = 'sparplan-v9-20260523-install-3wege';
 
 const STATIC_ASSETS = [
   './',
