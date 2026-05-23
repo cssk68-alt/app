@@ -373,7 +373,7 @@ html, body { overflow-x: hidden; }
 <!-- App-Install-Tray MUSS ausserhalb von #app-slider stehen, weil dessen transform
      den containing-block fuer position:fixed kapert (CSS Transform Spec). -->
 <div class="app-install-tray" aria-hidden="false">
-  <button id="installBtn" class="app-install-btn" style="display:none">📲 App installieren</button>
+  <button id="installBtn" class="app-install-btn" style="display:none">⬇ Download</button>
   <div id="installHint" class="app-install-hint" style="display:none"></div>
 </div>
 <div id="app-slider">
@@ -944,7 +944,7 @@ async function firePrompt() {
       installHint.style.display = 'none';
     } else {
       installBtn.classList.remove('ready');
-      installBtn.textContent = '📲 App installieren';
+      installBtn.textContent = '⬇ Download';
     }
     return true;
   } catch (e) { console.warn('[Install] prompt failed:', e); return false; }
@@ -968,7 +968,7 @@ function startRetryLoop() {
 // Strategie F: Puls-Animation + Toast wenn Browser installierbar meldet
 function pulseButton() {
   installBtn.classList.add('ready');
-  installBtn.textContent = '📲 App installieren ✓';
+  installBtn.textContent = '⬇ Download ✓';
   // Nach 6 Pulsen (~8.4s) Animation stoppen, Button bleibt klickbar
   clearTimeout(pulseButton._t);
   pulseButton._t = setTimeout(() => installBtn.classList.remove('ready'), 8400);
