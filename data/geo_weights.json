@@ -432,7 +432,7 @@
     },
     {
       "region": "Europa",
-      "pct_gesamt": 16.77,
+      "pct_gesamt": 16.65,
       "länder": [
         "Deutschland",
         "UK",
@@ -445,7 +445,6 @@
         "Italien",
         "Spanien",
         "Griechenland",
-        "Polen",
         "Tschechien",
         "Österreich",
         "Portugal",
@@ -463,7 +462,6 @@
         "Frankreich",
         "Belgien",
         "Schweden",
-        "Polen",
         "Niederlande",
         "Griechenland",
         "Italien"
@@ -471,42 +469,28 @@
     },
     {
       "region": "Asien-Pazifik",
-      "pct_gesamt": 35.04,
+      "pct_gesamt": 24.1,
       "länder": [
         "Japan",
         "Südkorea",
-        "Taiwan",
         "Hongkong",
-        "China",
         "Singapur",
-        "Indien",
         "Australien",
         "Neuseeland",
-        "Malaysia",
-        "Thailand",
-        "Indonesien",
-        "Philippinen",
         "Vietnam"
       ],
       "aktuelle_länder": [
         "Australien",
         "Südkorea",
-        "China",
-        "Taiwan",
         "Japan",
         "Hongkong",
         "Singapur",
-        "Indien",
-        "Neuseeland",
-        "Malaysia",
-        "Thailand",
-        "Indonesien",
-        "Philippinen"
+        "Neuseeland"
       ]
     },
     {
       "region": "Emerging Mkts",
-      "pct_gesamt": 1.52,
+      "pct_gesamt": 12.58,
       "länder": [
         "Brasilien",
         "Argentinien",
@@ -525,16 +509,32 @@
         "Pakistan",
         "Simbabwe",
         "DRK",
-        "Sambia"
+        "Sambia",
+        "China",
+        "Taiwan",
+        "Indien",
+        "Malaysia",
+        "Thailand",
+        "Polen",
+        "Indonesien",
+        "Philippinen"
       ],
       "aktuelle_länder": [
+        "China",
+        "Taiwan",
+        "Indien",
         "Brasilien",
         "Saudi-Arabien",
+        "Malaysia",
+        "Thailand",
         "Israel",
         "Ver. Arabische Emirate",
+        "Polen",
         "Türkei",
         "Kuwait",
-        "Qatar"
+        "Qatar",
+        "Indonesien",
+        "Philippinen"
       ]
     },
     {
