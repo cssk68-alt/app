@@ -2,9 +2,9 @@
   "_meta": {
     "last_updated": "2026-05-19",
     "total_positions": 12,
-    "total_countries": 34,
+    "total_countries": 37,
     "source": "iShares-DE AJAX tab=all (Laender aus Holdings aggregiert + COUNTRY_MAP konsolidiert)",
-    "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100. Physische Rohstoffe (PHAG/PHPT/COPA) sind eigene Region — nicht auf Mining-Länder verteilt."
+    "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100. Physische Rohstoffe = Top-Förderländer (USGS), gemerged mit Aktien-Anteilen."
   },
   "countries": [
     {
@@ -69,6 +69,40 @@
       "last_updated": "2026-05-19"
     },
     {
+      "land": "Südafrika",
+      "iso_numeric": 710,
+      "flag": "🇿🇦",
+      "pct_gesamt": 5.05,
+      "via": [
+        "PHPT",
+        "AGED",
+        "EIMI"
+      ],
+      "last_updated": "2026-05-19"
+    },
+    {
+      "land": "China",
+      "iso_numeric": 156,
+      "flag": "🇨🇳",
+      "pct_gesamt": 5.02,
+      "via": [
+        "AGED",
+        "EIMI",
+        "PHAG"
+      ],
+      "last_updated": "2026-05-19"
+    },
+    {
+      "land": "Mexiko",
+      "iso_numeric": 484,
+      "flag": "🇲🇽",
+      "pct_gesamt": 3.79,
+      "via": [
+        "PHAG"
+      ],
+      "last_updated": "2026-05-23"
+    },
+    {
       "land": "Taiwan",
       "iso_numeric": 158,
       "flag": "🇹🇼",
@@ -104,15 +138,14 @@
       "last_updated": "2026-05-19"
     },
     {
-      "land": "China",
-      "iso_numeric": 156,
-      "flag": "🇨🇳",
-      "pct_gesamt": 2.81,
+      "land": "Chile",
+      "iso_numeric": 152,
+      "flag": "🇨🇱",
+      "pct_gesamt": 2.9,
       "via": [
-        "AGED",
-        "EIMI"
+        "COPA"
       ],
-      "last_updated": "2026-05-19"
+      "last_updated": "2026-05-23"
     },
     {
       "land": "Singapur",
@@ -147,6 +180,16 @@
       "last_updated": "2026-05-19"
     },
     {
+      "land": "Peru",
+      "iso_numeric": 604,
+      "flag": "🇵🇪",
+      "pct_gesamt": 1.5,
+      "via": [
+        "COPA"
+      ],
+      "last_updated": "2026-05-23"
+    },
+    {
       "land": "Brasilien",
       "iso_numeric": 76,
       "flag": "🇧🇷",
@@ -165,17 +208,6 @@
       "via": [
         "WHCS",
         "AGED"
-      ],
-      "last_updated": "2026-05-19"
-    },
-    {
-      "land": "Südafrika",
-      "iso_numeric": 710,
-      "flag": "🇿🇦",
-      "pct_gesamt": 0.45,
-      "via": [
-        "AGED",
-        "EIMI"
       ],
       "last_updated": "2026-05-19"
     },
@@ -439,7 +471,7 @@
     },
     {
       "region": "Asien-Pazifik",
-      "pct_gesamt": 32.83,
+      "pct_gesamt": 35.04,
       "länder": [
         "Japan",
         "Südkorea",
@@ -459,10 +491,10 @@
       "aktuelle_länder": [
         "Australien",
         "Südkorea",
+        "China",
         "Taiwan",
         "Japan",
         "Hongkong",
-        "China",
         "Singapur",
         "Indien",
         "Neuseeland",
@@ -474,14 +506,11 @@
     },
     {
       "region": "Emerging Mkts",
-      "pct_gesamt": 1.97,
+      "pct_gesamt": 1.52,
       "länder": [
         "Brasilien",
         "Argentinien",
         "Bolivien",
-        "Peru",
-        "Chile",
-        "Mexiko",
         "Kolumbien",
         "Türkei",
         "Saudi-Arabien",
@@ -490,7 +519,6 @@
         "Kuwait",
         "Israel",
         "Russland",
-        "Südafrika",
         "Ägypten",
         "Marokko",
         "Nigeria",
@@ -501,7 +529,6 @@
       ],
       "aktuelle_länder": [
         "Brasilien",
-        "Südafrika",
         "Saudi-Arabien",
         "Israel",
         "Ver. Arabische Emirate",
@@ -512,13 +539,18 @@
     },
     {
       "region": "Physische Rohstoffe",
-      "pct_gesamt": 15.0,
-      "länder": [],
-      "aktuelle_länder": [],
-      "via": [
-        "PHAG",
-        "COPA",
-        "PHPT"
+      "pct_gesamt": 13.24,
+      "länder": [
+        "Südafrika",
+        "Mexiko",
+        "Chile",
+        "Peru"
+      ],
+      "aktuelle_länder": [
+        "Südafrika",
+        "Mexiko",
+        "Chile",
+        "Peru"
       ]
     },
     {

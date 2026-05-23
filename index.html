@@ -950,24 +950,6 @@ async function firePrompt() {
   } catch (e) { console.warn('[Install] prompt failed:', e); return false; }
 }
 
-// Strategie C: OS-eigene Teilen-Karte (enthaelt Add-to-Home auf iOS/Android)
-async function tryWebShare() {
-  if (!navigator.share) return false;
-  try {
-    await navigator.share({
-      title: 'Mein Sparplan',
-      text:  'Mein persönlicher Sparplan-Tracker',
-      url:   location.href
-    });
-    console.log('[Install] share sheet completed');
-    return true;
-  } catch (e) {
-    // AbortError = User-Cancel → still verschlucken
-    console.log('[Install] share cancelled or unavailable:', e.name);
-    return false;
-  }
-}
-
 // Strategie D: 5x retry alle 1s — fuer spaet feuerndes beforeinstallprompt
 function startRetryLoop() {
   let tries = 5;
@@ -1045,12 +1027,6 @@ installBtn.addEventListener('click', async () => {
   if (await firePrompt()) return;
   // Strategie B vormerken (greift wenn Event spaeter feuert)
   userWantsInstall = true;
-  // Strategie C: OS-Share-Karte versuchen — aber NICHT auf iOS:
-  // navigator.share oeffnet dort das generische Share-Sheet ohne
-  // "Zum Home-Bildschirm"-Eintrag. Der findet sich nur in Safaris
-  // Toolbar-Share (untere Leiste). User wuerde versehentlich teilen
-  // statt installieren. Auf iOS reicht der visuelle Hint.
-  if (!isIOS) tryWebShare();
   // Strategie E: garantierter Visual-Hint
   showHint(browserSpecificInstallHint());
   // Strategie D: Retry-Loop fuer spaet feuerndes Event
@@ -1144,19 +1120,26 @@ function regionOf(landName, regionsData) {
 }
 
 async function initGeo() {
+  // JSON-Load und Tabellen-Render trennen vom Karten-Render (d3/topojson-CDN).
+  // Wenn CDN ausfaellt, soll die Tabelle trotzdem stehen bleiben.
   try {
     const resp = await fetch('./data/geo_weights.json?t=' + Date.now());
     _geoData = await resp.json();
     _geoRegions = _geoData.regions || [];
     renderLegendAndTable();
+    updateGeoEUR();
+  } catch (e) {
+    console.warn('Geo data load failed:', e);
+    document.getElementById('geoTableBody').innerHTML =
+      '<div class="geo-loading">Daten konnten nicht geladen werden.</div>';
+    return;
+  }
+  try {
     await loadScript('https://d3js.org/d3.v7.min.js');
     await loadScript('https://unpkg.com/topojson-client@3');
     renderGeoMap();
-    updateGeoEUR();
   } catch (e) {
-    console.warn('Geo init failed:', e);
-    document.getElementById('geoTableBody').innerHTML =
-      '<div class="geo-loading">Daten konnten nicht geladen werden.</div>';
+    console.warn('Geo map (d3/topojson) failed, Tabelle bleibt:', e);
   }
 }
 
@@ -1213,20 +1196,23 @@ function renderLegendAndTable() {
       const sr = document.createElement('div');
       sr.className = 'geo-subrow';
       sr.style.display = 'block';
-      if (r.region === 'Physische Rohstoffe') {
-        sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
-          '<b style="color:#f3f4f6">🥇 Physisch hinterlegte Rohstoffe.</b><br>'+
-          'WisdomTree Silver (PHAG), Platinum (PHPT) und Copper (COPA). '+
-          'Echte Metallbarren/Lagerbestände &mdash; nicht an Firmen oder Länder gebunden, '+
-          'sondern der reine Materialwert. Deshalb keine Länder-Aufschlüsselung auf der Karte.</div>';
-      } else {
-        sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
-          '<b style="color:#f3f4f6">Liquiditätsreserven der ETFs.</b><br>'+
-          'Jeder ETF hält ~1% Cash für tägliche Liquidität '+
-          '(Ein-/Auszahlungen, Rebalancing). Plus Mikro-Anteile in Ländern unter 0,05% '+
-          'die nicht einzeln aufgeführt werden. '+
-          'Echtes Geld &mdash; nur nicht einem konkreten Land zuordenbar.</div>';
-      }
+      sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
+        '<b style="color:#f3f4f6">Liquiditätsreserven der ETFs.</b><br>'+
+        'Jeder ETF hält ~1% Cash für tägliche Liquidität '+
+        '(Ein-/Auszahlungen, Rebalancing). Plus Mikro-Anteile in Ländern unter 0,05% '+
+        'die nicht einzeln aufgeführt werden. '+
+        'Echtes Geld &mdash; nur nicht einem konkreten Land zuordenbar.</div>';
+      subrows.appendChild(sr);
+    }
+    // Hinweis für Phys. Rohstoffe (Länder = Top-Förderregion laut USGS, nicht ETC-Sitz)
+    if (r.region === 'Physische Rohstoffe' && countriesInRegion.length > 0) {
+      const sr = document.createElement('div');
+      sr.className = 'geo-subrow';
+      sr.style.display = 'block';
+      sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
+        '<b style="color:#f3f4f6">🥇 Länder = größte Förderregion weltweit (USGS),</b> '+
+        'nicht der ETC-Sitz (WisdomTree Issuer, Jersey).<br>'+
+        '<i>Hinweis: 11 € Silber-Anteil 🇨🇳 China sind unter Asien-Pazifik einsortiert.</i></div>';
       subrows.appendChild(sr);
     }
     tbody.appendChild(subrows);
