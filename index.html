@@ -128,6 +128,44 @@
   .footer { text-align: center; margin-top: 20px; font-size: 10px; color: var(--dimmer); }
   .footer-link { color: var(--muted); text-decoration: underline; text-decoration-color: rgba(255,255,255,0.2); }
 
+  /* App-Install-Button (oben links). Sichtbarkeit per JS gesteuert.
+     Liegt im DOM bewusst AUSSERHALB von #app-slider (Transform-Containing-Block). */
+  .install-tray {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    left: calc(env(safe-area-inset-left, 0px) + 12px);
+    z-index: 110;
+    display: none;            /* per JS auf flex gesetzt */
+    flex-direction: column; align-items: flex-start; gap: 6px;
+    max-width: min(80vw, 290px);
+    pointer-events: none;
+  }
+  .install-tray > * { pointer-events: auto; }
+  .install-btn {
+    padding: 8px 12px;
+    background: rgba(167,139,250,0.15);
+    border: 1px solid rgba(167,139,250,0.35);
+    border-radius: 12px;
+    color: #c4b5fd; font: inherit; font-size: 13px; font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    -webkit-tap-highlight-color: transparent;
+    transition: background .15s ease, transform .12s ease;
+  }
+  .install-btn:hover  { background: rgba(167,139,250,0.28); }
+  .install-btn:active { transform: scale(0.96); }
+  .install-hint {
+    padding: 9px 11px;
+    background: rgba(10,8,32,0.97);
+    border: 1px solid rgba(167,139,250,0.5);
+    border-radius: 10px;
+    color: #e2e8f0; font-size: 12px; line-height: 1.45;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+  }
+  .install-hint b { color: #c4b5fd; }
+  .install-hint-close { margin-left: 6px; color: #94a3b8; cursor: pointer; font-weight: 700; }
+
   /* MODAL OVERLAY */
   .overlay {
     display: none; position: fixed; inset: 0;
@@ -335,6 +373,12 @@ html, body { overflow-x: hidden; }
 </style>
 </head>
 <body>
+<!-- Install-Button: bewusst AUSSERHALB von #app-slider (dessen transform
+     wuerde position:fixed kapern → Button wuerde mitscrollen). -->
+<div class="install-tray" id="installTray">
+  <button id="installBtn" class="install-btn" type="button">📲 App installieren</button>
+  <div id="installHint" class="install-hint" role="status" style="display:none"></div>
+</div>
 <div id="app-slider">
 <div id="slide-sparplan">
 <div class="container">
@@ -353,7 +397,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v11</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v12</div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -849,6 +893,81 @@ function closeModal(){
     if (el.id !== 'overlay' && !el.closest('.modal-header')) el.onclick = null;
   });
 }
+
+// ── PWA INSTALL-BUTTON (oben links) ──────────────────────────
+(function () {
+  const tray = document.getElementById('installTray');
+  const btn  = document.getElementById('installBtn');
+  const hint = document.getElementById('installHint');
+  if (!tray || !btn) return;
+
+  const ua = navigator.userAgent;
+  const isIOS       = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  const isAndroid   = /Android/.test(ua);
+  const isFirefox   = /Firefox\//.test(ua);
+  const isEdge      = /Edg\//.test(ua);
+  const isSafariMac = /Macintosh/.test(ua) && /Safari/.test(ua) && !/Chrome|Edg|OPR/.test(ua);
+  const isStandalone = matchMedia('(display-mode: standalone)').matches
+                       || navigator.standalone === true;
+  const INSTALLED_KEY = 'sparplanInstalled';
+
+  let deferredPrompt = null;
+
+  // Schon installiert → Button bleibt aus.
+  if (isStandalone || localStorage.getItem(INSTALLED_KEY) === '1') return;
+
+  const show    = () => { tray.style.display = 'flex'; };
+  const hideAll = () => { tray.style.display = 'none'; hint.style.display = 'none'; };
+
+  function showHint(html) {
+    hint.innerHTML = html +
+      ' <span class="install-hint-close" role="button" aria-label="schliessen">✕</span>';
+    hint.style.display = 'block';
+    hint.querySelector('.install-hint-close')
+        .addEventListener('click', () => { hint.style.display = 'none'; });
+  }
+
+  function manualHint() {
+    if (isIOS)       return '📲 <b>iPhone/iPad:</b> unten auf <b>Teilen</b> ⬆️ tippen → <b>„Zum Home-Bildschirm".</b>';
+    if (isAndroid)   return '📲 <b>Android:</b> Browser-Menü <b>⋮</b> → <b>„App installieren"</b> bzw. <b>„Zum Startbildschirm".</b>';
+    if (isFirefox)   return '📲 <b>Firefox</b> kann am Laptop keine Apps installieren. Bitte Chrome/Edge nutzen — oder ein Lesezeichen anlegen.';
+    if (isSafariMac) return '📲 <b>Safari (Mac):</b> Menü <b>Ablage</b> → <b>„Zum Dock hinzufügen".</b>';
+    if (isEdge)      return '📲 <b>Edge:</b> Symbol ⊕ rechts in der Adressleiste, oder Menü <b>…</b> → <b>Apps</b> → <b>„Diese Website als App installieren".</b>';
+    return '📲 Klicke das <b>Installations-Symbol ⊕</b> in der Adressleiste, oder Browser-Menü → <b>„App installieren".</b>';
+  }
+
+  async function fireNative() {
+    if (!deferredPrompt) return false;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (outcome === 'accepted') hideAll();
+    return true;
+  }
+
+  btn.addEventListener('click', async () => {
+    if (await fireNative()) return;   // Chromium: echter System-Dialog (1 Klick)
+    showHint(manualHint());           // iPhone/Firefox/…: kurze Anleitung
+  });
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    show();                            // installierbar → Button zeigen
+  });
+
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem(INSTALLED_KEY, '1');
+    deferredPrompt = null;
+    hideAll();                         // installiert → Button verschwindet
+  });
+
+  // Browser ohne beforeinstallprompt (iOS/Firefox/Safari-Mac) bekommen den Button
+  // trotzdem (für die Anleitung). Chromium zeigt ihn via Event oben — der Timeout
+  // vermeidet einen „toten" Klick, falls das Event nur minimal verzögert feuert.
+  if (isIOS || isFirefox || isSafariMac) show();
+  else setTimeout(() => { if (!deferredPrompt) show(); }, 1500);
+})();
 
 // ── SERVICE WORKER REGISTRIERUNG ─────────────────────────────
 if ('serviceWorker' in navigator) {
