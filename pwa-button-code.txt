@@ -88,20 +88,16 @@
   installBtn.addEventListener('click', async () => {
     if (isIos()) { iosModal.style.display = 'block'; return; }
 
-    if ('install' in navigator) {
+    if (window.__bip) {
       try {
-        await navigator.install();
-        installBtn.style.display = 'none';
+        window.__bip.prompt();
+        const { outcome } = await window.__bip.userChoice;
+        if (outcome === 'accepted') installBtn.style.display = 'none';
       } catch (err) {
-        console.warn('navigator.install() fehlgeschlagen:', err);
-        if (fallbackDiv) fallbackDiv.style.display = 'block';
+        console.warn('Prompt fehlgeschlagen:', err);
+      } finally {
+        window.__bip = null; // Event ist nur einmal nutzbar
       }
-      return;
-    } else if (window.__bip) {
-      window.__bip.prompt();
-      const { outcome } = await window.__bip.userChoice;
-      if (outcome === 'accepted') installBtn.style.display = 'none';
-      window.__bip = null;
       return;
     }
 
@@ -121,7 +117,7 @@
 
   const updateVisibility = () => {
     if (isStandalone()) { installBtn.style.display = 'none'; return; }
-    if (isIos() || window.__bip || ('install' in navigator)) {
+    if (isIos() || window.__bip) {
       installBtn.style.display = 'block'; return;
     }
     installBtn.style.display = 'none';
@@ -131,7 +127,7 @@
   window.addEventListener('pwa-install-ready', updateVisibility);
 
   setTimeout(() => {
-    if (isStandalone() || isIos() || window.__bip || ('install' in navigator)) return;
+    if (isStandalone() || isIos() || window.__bip) return;
     const bt = getBrowserType();
     if (bt === 'chrome' || bt === 'edge') return;
     installBtn.style.display = 'block';

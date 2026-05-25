@@ -1411,22 +1411,17 @@ async function renderSectorSlide() {
   installBtn.addEventListener('click', async () => {
     if (isIos()) { iosModal.style.display = 'block'; return; }
 
-    // Fix 3: striktes if/else if — Transient Activation darf nur EINMAL verbraucht werden.
-    // Nach navigator.install()-Aufruf ist sie weg; nie auf __bip.prompt() zurückfallen.
-    if ('install' in navigator) {
+    // Nativer Installationsprompt über das abgefangene beforeinstallprompt-Event.
+    if (window.__bip) {
       try {
-        await navigator.install();
-        installBtn.style.display = 'none';
+        window.__bip.prompt();
+        const { outcome } = await window.__bip.userChoice;
+        if (outcome === 'accepted') installBtn.style.display = 'none';
       } catch (err) {
-        console.warn('navigator.install() fehlgeschlagen:', err);
-        if (fallbackDiv) fallbackDiv.style.display = 'block';
+        console.warn('Prompt fehlgeschlagen:', err);
+      } finally {
+        window.__bip = null; // Event ist nur einmal nutzbar
       }
-      return;
-    } else if (window.__bip) {
-      window.__bip.prompt();
-      const { outcome } = await window.__bip.userChoice;
-      if (outcome === 'accepted') installBtn.style.display = 'none';
-      window.__bip = null;
       return;
     }
 
@@ -1446,7 +1441,8 @@ async function renderSectorSlide() {
 
   const updateVisibility = () => {
     if (isStandalone()) { installBtn.style.display = 'none'; return; }
-    if (isIos() || window.__bip || ('install' in navigator)) {
+    // Button zeigen, sobald iOS erkannt wird oder das BIP-Event bereitsteht.
+    if (isIos() || window.__bip) {
       installBtn.style.display = 'block'; return;
     }
     installBtn.style.display = 'none';
@@ -1457,7 +1453,7 @@ async function renderSectorSlide() {
 
   // Fallback: nach 5 s für Firefox/Mobile zeigen – auf Chromium/Edge nur wenn __bip gesetzt
   setTimeout(() => {
-    if (isStandalone() || isIos() || window.__bip || ('install' in navigator)) return;
+    if (isStandalone() || isIos() || window.__bip) return;
     const bt = getBrowserType();
     // Chrome/Edge: wenn beforeinstallprompt nicht feuerte, ist kein Install möglich → kein Button
     if (bt === 'chrome' || bt === 'edge') return;
