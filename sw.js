@@ -2,7 +2,7 @@
 // Bug 4 Fix: Network-First für /data/* (frische ETF-Daten), Cache-First für statische Assets.
 // Zusatz: Truncation-Fix (originale Datei fehlte die letzten 5 schließenden Klammern).
 
-const CACHE_NAME = 'sparplan-v18-20260525-v14';
+const CACHE_NAME = 'sparplan-v19-20260525-v14';
 const FORCE_RELOAD = true;
 
 const STATIC_ASSETS = [
@@ -50,14 +50,22 @@ function isDataRequest(url) {
   return path.includes('/data/');
 }
 
+// Hilfsfunktion: ist das eine HTML-/Navigationsanfrage (index.html)?
+// Network-First, damit neue Builds ohne Cache-Bump sofort ankommen.
+function isHtmlRequest(request) {
+  if (request.mode === 'navigate') return true;
+  const accept = request.headers.get('accept') || '';
+  return accept.includes('text/html');
+}
+
 // Fetch-Handler:
-//   /data/*  → Network-First: frisch vom Server, Fallback auf Cache (Offline-Support)
-//   Alles andere → Cache-First: schnell aus Cache, Fallback auf Network
+//   /data/* + HTML  → Network-First: frisch vom Server, Fallback auf Cache (Offline-Support)
+//   Restliche Assets → Cache-First: schnell aus Cache, Fallback auf Network
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
-  if (isDataRequest(event.request.url)) {
-    // Network-First für ETF-Daten: Sonntags-Update sofort sichtbar
+  if (isDataRequest(event.request.url) || isHtmlRequest(event.request)) {
+    // Network-First für ETF-Daten und index.html: Updates sofort sichtbar
     event.respondWith(
       fetch(event.request)
         .then(response => {
@@ -69,9 +77,13 @@ self.addEventListener('fetch', event => {
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
           return response;
         })
-        .catch(() => {
-          // Netzwerk nicht erreichbar → gecachte Version ausliefern
-          return caches.match(event.request);
+        .catch(async () => {
+          // Netzwerk nicht erreichbar → gecachte Version ausliefern.
+          // Bei Navigationen ggf. auf gecachtes index.html zurückfallen.
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+          if (isHtmlRequest(event.request)) return caches.match('./index.html');
+          return cached;
         })
     );
   } else {
