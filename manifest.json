@@ -3,6 +3,7 @@
   "short_name": "Sparplan",
   "description": "Persönlicher monatlicher Sparplan – interaktiv",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f0c29",

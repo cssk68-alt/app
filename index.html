@@ -25,6 +25,7 @@
 <script>
   window.__bip = null;
   window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); // Pflicht laut MDN/web.dev: Event für Custom-Button reservieren
     window.__bip = e;
     window.dispatchEvent(new CustomEvent('pwa-install-ready', { detail: { method: 'bip' } }));
   });
@@ -1454,11 +1455,13 @@ async function renderSectorSlide() {
   updateVisibility();
   window.addEventListener('pwa-install-ready', updateVisibility);
 
-  // Fallback: nach 5 s trotzdem zeigen (für Browser ohne beforeinstallprompt-Support)
+  // Fallback: nach 5 s für Firefox/Mobile zeigen – auf Chromium/Edge nur wenn __bip gesetzt
   setTimeout(() => {
-    if (!isStandalone() && !isIos() && !window.__bip && !('install' in navigator)) {
-      installBtn.style.display = 'block';
-    }
+    if (isStandalone() || isIos() || window.__bip || ('install' in navigator)) return;
+    const bt = getBrowserType();
+    // Chrome/Edge: wenn beforeinstallprompt nicht feuerte, ist kein Install möglich → kein Button
+    if (bt === 'chrome' || bt === 'edge') return;
+    installBtn.style.display = 'block';
   }, 5000);
 
   window.addEventListener('appinstalled', () => {
