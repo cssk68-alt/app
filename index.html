@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-22T17:00:00 -->
+<!-- Cache-Buster: 2026-05-25T00:00:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -20,6 +20,15 @@
 
 <!-- Theme Color (Android Chrome) -->
 <meta name="theme-color" content="#a78bfa">
+
+<!-- PWA: beforeinstallprompt im <head> abfangen, BEVOR Cache-First SW den Body liefert -->
+<script>
+  window.__bip = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    window.__bip = e;
+    window.dispatchEvent(new CustomEvent('pwa-install-ready', { detail: { method: 'bip' } }));
+  });
+</script>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap');
@@ -128,40 +137,22 @@
   .footer { text-align: center; margin-top: 20px; font-size: 10px; color: var(--dimmer); }
   .footer-link { color: var(--muted); text-decoration: underline; text-decoration-color: rgba(255,255,255,0.2); }
 
-  /* App-Install-Tray (oben rechts, ueberlagert nicht den Header) */
-  .app-install-tray {
-    position: fixed;
-    top: env(safe-area-inset-top, 8px);
-    right: 8px;
-    left: auto;
-    display: flex; flex-direction: column; gap: 6px;
-    align-items: flex-end;
-    z-index: 90;
-    max-width: 240px;
-    pointer-events: none;
+  #pwa-install-btn {
+    display: block; margin: 14px auto 0;
+    background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.35);
+    color: #a78bfa; font-size: 13px; padding: 9px 22px; border-radius: 22px;
+    cursor: pointer; font-family: inherit; letter-spacing: 0.3px;
+    -webkit-tap-highlight-color: transparent; transition: background .15s;
   }
-  .app-install-tray > * { pointer-events: auto; }
-  .app-install-btn {
-    padding: 6px 10px; background: #a78bfa; color: #fff;
-    border: none; border-radius: 10px; font-size: 12px; font-weight: 700;
-    cursor: pointer; -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    transition: transform .12s ease, box-shadow .12s ease;
+  #pwa-install-btn:active { background: rgba(167,139,250,0.2); }
+  #pwa-fallback {
+    display: none; margin: 10px 16px 0;
+    padding: 10px 14px; background: rgba(251,191,36,0.08);
+    border: 1px solid rgba(251,191,36,0.25); border-radius: 10px;
+    font-size: 12px; color: #fbbf24; text-align: center; line-height: 1.5;
   }
-  .app-install-btn:active { transform: scale(0.96); }
-  .app-install-btn.ready { animation: pulse-install 1.4s ease-in-out infinite; }
-  @keyframes pulse-install {
-    0%, 100% { transform: scale(1);    box-shadow: 0 2px 8px rgba(0,0,0,0.4),   0 0 0 0 rgba(167,139,250,0.6); }
-    50%      { transform: scale(1.07); box-shadow: 0 4px 14px rgba(167,139,250,0.7), 0 0 0 8px rgba(167,139,250,0); }
-  }
-  .app-install-hint {
-    padding: 8px 10px; background: #1e293b; border: 1px solid #a78bfa;
-    color: #e2e8f0; border-radius: 10px; font-size: 12px; line-height: 1.4;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-  }
-  .app-install-hint-close {
-    display: block; margin-top: 4px; font-size: 10px; color: #94a3b8; cursor: pointer;
-  }
+  #pwa-fallback strong { color: #fde68a; }
+
 
   /* MODAL OVERLAY */
   .overlay {
@@ -370,12 +361,6 @@ html, body { overflow-x: hidden; }
 </style>
 </head>
 <body>
-<!-- App-Install-Tray MUSS ausserhalb von #app-slider stehen, weil dessen transform
-     den containing-block fuer position:fixed kapert (CSS Transform Spec). -->
-<div class="app-install-tray" aria-hidden="false">
-  <button id="installBtn" class="app-install-btn" style="display:none">📲 App installieren</button>
-  <div id="installHint" class="app-install-hint" style="display:none"></div>
-</div>
 <div id="app-slider">
 <div id="slide-sparplan">
 <div class="container">
@@ -394,7 +379,9 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v11</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v13</div>
+  <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
+  <div id="pwa-fallback"></div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -450,6 +437,17 @@ html, body { overflow-x: hidden; }
 </div><!-- /slide-geo -->
 </div><!-- /app-slider -->
 <button id="slide-arrow" aria-label="Slide wechseln">&rsaquo;</button>
+
+<!-- iOS PWA Install Modal -->
+<div id="ios-install-modal" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#1c1c40 0%,#13132d 100%);padding:18px 20px 16px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.7);z-index:9999;text-align:center;width:90%;max-width:320px;font-family:-apple-system,BlinkMacSystemFont,'DM Sans',sans-serif;border:1px solid rgba(167,139,250,0.3);">
+  <p style="margin:0 0 6px;font-size:16px;font-weight:700;color:#f3f4f6">App installieren</p>
+  <p style="margin:0 0 14px;font-size:13px;color:#9ca3af;line-height:1.5">
+    Tippe auf <strong style="color:#f3f4f6">Teilen</strong>
+    <svg style="width:18px;height:18px;vertical-align:middle;margin:0 2px" viewBox="0 0 50 50"><path d="M25,2 L25,32 M15,12 L25,2 L35,12 M10,22 L10,40 C10,44.4 13.6,48 18,48 L32,48 C36.4,48 40,44.4 40,40 L40,22" fill="none" stroke="#a78bfa" stroke-width="4"/></svg>
+    dann <strong style="color:#f3f4f6">„Zum Home-Bildschirm"</strong> ➕
+  </p>
+  <button onclick="this.parentElement.style.display='none'" style="background:#a78bfa;color:#fff;border:none;padding:9px 20px;border-radius:10px;font-weight:700;cursor:pointer;width:100%;font-size:14px;font-family:inherit;">Schließen</button>
+</div>
 
 <!-- MODAL -->
 <div class="overlay" id="overlay">
@@ -891,166 +889,6 @@ function closeModal(){
   });
 }
 
-// ── PWA INSTALL ENGINE (Multi-Strategy) ──────────────────────
-// Mehrere parallele Strategien beim Click, weil Browser-Heuristik
-// (Engagement, Origin/Scope) nicht ueberschrieben werden kann:
-//   A native deferredPrompt | B late-event auto-fire | C navigator.share
-//   D retry-loop            | E browser-hint         | F pulse+toast
-//   G already-installed detection
-let deferredPrompt = null;
-let userWantsInstall = false;
-const installBtn = document.getElementById('installBtn');
-const installHint = document.getElementById('installHint');
-
-const ua = navigator.userAgent;
-const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-const isAndroid = /Android/.test(ua);
-const isEdge = /Edg\//.test(ua);
-const isOpera = /OPR\//.test(ua);
-const isFirefox = /Firefox\//.test(ua);
-const isSafariMac = /Safari/.test(ua) && /Macintosh/.test(ua) && !/Chrome|Edg|OPR/.test(ua);
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-function showHint(html, autoDismissMs) {
-  installHint.innerHTML = html + ' <span class="app-install-hint-close" onclick="document.getElementById(\'installHint\').style.display=\'none\'">✕</span>';
-  installHint.style.display = 'block';
-  if (autoDismissMs) {
-    clearTimeout(showHint._t);
-    showHint._t = setTimeout(() => { installHint.style.display = 'none'; }, autoDismissMs);
-  }
-}
-
-function browserSpecificInstallHint() {
-  if (isIOS)       return '📲 <b>iPhone:</b> unten <b>Teilen</b> ⬆️ → <b>Zum Home-Bildschirm</b>';
-  if (isAndroid)   return '📲 <b>Android:</b> Browser-Menü <b>⋮</b> → <b>„App installieren"</b> oder <b>„Zum Startbildschirm"</b>';
-  if (isEdge)      return '📲 <b>Edge:</b> ⊕-Icon rechts in der Adressleiste, oder Menü <b>⋯</b> → <b>Apps</b> → <b>„Diese Site als App installieren"</b>';
-  if (isOpera)     return '📲 <b>Opera:</b> Adressleiste rechts → <b>Installieren</b>-Symbol, oder Menü → <b>Seite</b> → <b>„App installieren"</b>. Falls nicht da: Tab kurz benutzen, dann reload.';
-  if (isFirefox)   return '📲 <b>Firefox</b> (Desktop) hat keine native PWA-Installation. Chrome/Edge/Opera nutzen, oder Lesezeichen anlegen.';
-  if (isSafariMac) return '📲 <b>Safari Mac:</b> Menü <b>Datei</b> → <b>„Zum Dock hinzufügen"</b> (macOS Sonoma 14+).';
-  return '📲 Klick das <b>⊕ Install-Icon</b> in der Adressleiste, oder Browser-Menü → <b>„App installieren"</b>.';
-}
-
-// Strategie A: nativen Prompt feuern
-async function firePrompt() {
-  if (!deferredPrompt) return false;
-  try {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log('[Install] native prompt outcome:', outcome);
-    deferredPrompt = null;
-    userWantsInstall = false;
-    if (outcome === 'accepted') {
-      installBtn.style.display = 'none';
-      installHint.style.display = 'none';
-    } else {
-      installBtn.classList.remove('ready');
-    }
-    return true;
-  } catch (e) { console.warn('[Install] prompt failed:', e); return false; }
-}
-
-// Strategie C: OS-eigene Teilen-Karte (enthaelt Add-to-Home auf iOS/Android)
-async function tryWebShare() {
-  if (!navigator.share) return false;
-  try {
-    await navigator.share({
-      title: 'Mein Sparplan',
-      text:  'Mein persönlicher Sparplan-Tracker',
-      url:   location.href
-    });
-    console.log('[Install] share sheet completed');
-    return true;
-  } catch (e) {
-    // AbortError = User-Cancel → still verschlucken
-    console.log('[Install] share cancelled or unavailable:', e.name);
-    return false;
-  }
-}
-
-// Strategie D: 5x retry alle 1s — fuer spaet feuerndes beforeinstallprompt
-function startRetryLoop() {
-  let tries = 5;
-  clearInterval(startRetryLoop._iv);
-  startRetryLoop._iv = setInterval(() => {
-    if (deferredPrompt) {
-      clearInterval(startRetryLoop._iv);
-      console.log('[Install] retry-loop caught deferredPrompt');
-      firePrompt();
-    } else if (--tries <= 0) {
-      clearInterval(startRetryLoop._iv);
-    }
-  }, 1000);
-}
-
-// Strategie F: Puls-Animation + Toast wenn Browser installierbar meldet
-function pulseButton() {
-  installBtn.classList.add('ready');
-  installBtn.textContent = '📲 App installieren ✓';
-  // Nach 6 Pulsen (~8.4s) Animation stoppen, Button bleibt klickbar
-  clearTimeout(pulseButton._t);
-  pulseButton._t = setTimeout(() => installBtn.classList.remove('ready'), 8400);
-  showHint('✓ <b>App jetzt installierbar</b> — Button oben rechts klicken', 4000);
-}
-
-// Initial: Standalone-Detection (Strategie G)
-async function detectInstalled() {
-  if (isStandalone) return true;
-  if (navigator.getInstalledRelatedApps) {
-    try {
-      const apps = await navigator.getInstalledRelatedApps();
-      if (apps.length > 0) return true;
-    } catch(e) { /* ignore */ }
-  }
-  return false;
-}
-
-(async () => {
-  if (await detectInstalled()) {
-    installBtn.style.display = 'none';
-    installHint.style.display = 'none';
-    return;
-  }
-  if (isIOS) {
-    // iOS hat kein beforeinstallprompt — Button ist Trigger fuer Share-Sheet
-    installBtn.style.display = 'block';
-    showHint(browserSpecificInstallHint());
-  } else {
-    installBtn.style.display = 'block';
-  }
-})();
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // Strategie B: User hat schon geklickt → sofort Auto-Fire
-  if (userWantsInstall) {
-    firePrompt();
-  } else {
-    // Strategie F: visuelles Feedback dass jetzt installiert werden kann
-    pulseButton();
-  }
-});
-
-// Multi-Strategy Click-Choreo
-installBtn.addEventListener('click', async () => {
-  // Strategie A: Wenn nativer Prompt parat ist → direkt feuern
-  if (await firePrompt()) return;
-  // Strategie B vormerken (greift wenn Event spaeter feuert)
-  userWantsInstall = true;
-  // Strategie C: parallel die OS-Share-Karte versuchen (fire-and-forget)
-  tryWebShare();
-  // Strategie E: garantierter Visual-Hint
-  showHint(browserSpecificInstallHint());
-  // Strategie D: Retry-Loop fuer spaet feuerndes Event
-  startRetryLoop();
-});
-
-window.addEventListener('appinstalled', () => {
-  console.log('[Install] PWA installed');
-  installBtn.style.display = 'none';
-  installHint.style.display = 'none';
-  installBtn.classList.remove('ready');
-});
 
 // ── SERVICE WORKER REGISTRIERUNG ─────────────────────────────
 if ('serviceWorker' in navigator) {
@@ -1120,7 +958,7 @@ const REGION_META = {
   'Europa':         { color:'#EC4899', emoji:'🇪🇺' },
   'Asien-Pazifik':  { color:'#F59E0B', emoji:'🌏' },
   'Emerging Mkts':  { color:'#10B981', emoji:'🌍' },
-  'Edelmetalle-Länder': { color:'#F97316', emoji:'🥇' },
+  'Physische Rohstoffe': { color:'#F97316', emoji:'🥇' },
   'ETF-Cash & Reserven': { color:'#64748b', emoji:'💰' }
 };
 
@@ -1132,19 +970,26 @@ function regionOf(landName, regionsData) {
 }
 
 async function initGeo() {
+  // JSON-Load und Tabellen-Render trennen vom Karten-Render (d3/topojson-CDN).
+  // Wenn CDN ausfaellt, soll die Tabelle trotzdem stehen bleiben.
   try {
     const resp = await fetch('./data/geo_weights.json?t=' + Date.now());
     _geoData = await resp.json();
     _geoRegions = _geoData.regions || [];
     renderLegendAndTable();
+    updateGeoEUR();
+  } catch (e) {
+    console.warn('Geo data load failed:', e);
+    document.getElementById('geoTableBody').innerHTML =
+      '<div class="geo-loading">Daten konnten nicht geladen werden.</div>';
+    return;
+  }
+  try {
     await loadScript('https://d3js.org/d3.v7.min.js');
     await loadScript('https://unpkg.com/topojson-client@3');
     renderGeoMap();
-    updateGeoEUR();
   } catch (e) {
-    console.warn('Geo init failed:', e);
-    document.getElementById('geoTableBody').innerHTML =
-      '<div class="geo-loading">Daten konnten nicht geladen werden.</div>';
+    console.warn('Geo map (d3/topojson) failed, Tabelle bleibt:', e);
   }
 }
 
@@ -1207,6 +1052,17 @@ function renderLegendAndTable() {
         '(Ein-/Auszahlungen, Rebalancing). Plus Mikro-Anteile in Ländern unter 0,05% '+
         'die nicht einzeln aufgeführt werden. '+
         'Echtes Geld &mdash; nur nicht einem konkreten Land zuordenbar.</div>';
+      subrows.appendChild(sr);
+    }
+    // Hinweis für Phys. Rohstoffe (Länder = Top-Förderregion laut USGS, nicht ETC-Sitz)
+    if (r.region === 'Physische Rohstoffe' && countriesInRegion.length > 0) {
+      const sr = document.createElement('div');
+      sr.className = 'geo-subrow';
+      sr.style.display = 'block';
+      sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
+        '<b style="color:#f3f4f6">🥇 Länder = größte Förderregion weltweit (USGS),</b> '+
+        'nicht der ETC-Sitz (WisdomTree Issuer, Jersey).<br>'+
+        '<i>Hinweis: 11 € Silber-Anteil 🇨🇳 China sind unter Emerging Mkts einsortiert (dort hat China das meiste Gewicht).</i></div>';
       subrows.appendChild(sr);
     }
     tbody.appendChild(subrows);
@@ -1524,6 +1380,94 @@ async function renderSectorSlide() {
     }).join('');
   }
 }
+
+// ── PWA INSTALLATION ─────────────────────────────────────────
+(function() {
+  const isIos = () => {
+    const ua = navigator.userAgent.toLowerCase();
+    return /iphone|ipod/.test(ua) ||
+           /ipad/.test(ua) ||
+           (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+  };
+  const isStandalone = () =>
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (('standalone' in navigator) && navigator.standalone);
+  const getBrowserType = () => {
+    const ua = navigator.userAgent;
+    if (/Mobi|Android/i.test(ua)) return 'mobile';
+    if (/Firefox/i.test(ua))       return 'firefox';
+    if (/Edg/i.test(ua))           return 'edge';
+    if (/Chrome/i.test(ua) && !/OPR|Brave/i.test(ua)) return 'chrome';
+    if (/Safari/i.test(ua) && !/Chrome|CriOS/i.test(ua)) return 'safari';
+    return 'other';
+  };
+
+  const installBtn  = document.getElementById('pwa-install-btn');
+  const iosModal    = document.getElementById('ios-install-modal');
+  const fallbackDiv = document.getElementById('pwa-fallback');
+  if (!installBtn) return;
+
+  installBtn.addEventListener('click', async () => {
+    if (isIos()) { iosModal.style.display = 'block'; return; }
+
+    // Fix 3: striktes if/else if — Transient Activation darf nur EINMAL verbraucht werden.
+    // Nach navigator.install()-Aufruf ist sie weg; nie auf __bip.prompt() zurückfallen.
+    if ('install' in navigator) {
+      try {
+        await navigator.install();
+        installBtn.style.display = 'none';
+      } catch (err) {
+        console.warn('navigator.install() fehlgeschlagen:', err);
+        if (fallbackDiv) fallbackDiv.style.display = 'block';
+      }
+      return;
+    } else if (window.__bip) {
+      window.__bip.prompt();
+      const { outcome } = await window.__bip.userChoice;
+      if (outcome === 'accepted') installBtn.style.display = 'none';
+      window.__bip = null;
+      return;
+    }
+
+    if (fallbackDiv) {
+      const messages = {
+        chrome:  'Klicke auf das <strong>App-Symbol</strong> oben rechts in der Adressleiste.',
+        edge:    'Klicke auf das <strong>App-Symbol</strong> oben rechts in der Adressleiste.',
+        firefox: 'Öffne das <strong>Menü (≡)</strong> → <strong>»App installieren«</strong>.',
+        safari:  'Safari unterstützt keine PWA-Installation. Nutze Chrome oder Edge.',
+        mobile:  'Öffne das <strong>Browser-Menü</strong> → <strong>»Zum Startbildschirm«</strong>.',
+        other:   'Nutze das Menü deines Browsers, um die App zu installieren.'
+      };
+      fallbackDiv.innerHTML = messages[getBrowserType()] || messages.other;
+      fallbackDiv.style.display = 'block';
+    }
+  });
+
+  const updateVisibility = () => {
+    if (isStandalone()) { installBtn.style.display = 'none'; return; }
+    if (isIos() || window.__bip || ('install' in navigator)) {
+      installBtn.style.display = 'block'; return;
+    }
+    installBtn.style.display = 'none';
+  };
+
+  updateVisibility();
+  window.addEventListener('pwa-install-ready', updateVisibility);
+
+  // Fallback: nach 5 s trotzdem zeigen (für Browser ohne beforeinstallprompt-Support)
+  setTimeout(() => {
+    if (!isStandalone() && !isIos() && !window.__bip && !('install' in navigator)) {
+      installBtn.style.display = 'block';
+    }
+  }, 5000);
+
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem('pwaInstalled', 'true');
+    installBtn.style.display = 'none';
+    if (fallbackDiv) fallbackDiv.style.display = 'none';
+    if (iosModal)    iosModal.style.display   = 'none';
+  });
+})();
 
 </script>
 </body>

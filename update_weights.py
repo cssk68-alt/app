@@ -30,6 +30,32 @@ PORTFOLIO = {
     "ISF":  {"isin": "IE0005042456", "product_id": "251795", "pct": 0.050},
 }
 
+# Region-definierende Quell-ETFs. Pro Themen-Region die ETFs, die diese Region
+# "repräsentieren". Thematische ETFs (AGED, WHCS) und physische (PHAG/PHPT/COPA)
+# sind absichtlich NICHT dabei: sie zählen nicht als "Stimme" bei der Auflösung
+# von Länder-Überschneidungen, ihr Geld reist nur mit dem Gewinner-Land mit.
+REGION_SOURCE_TICKERS = {
+    "Nordamerika":   {"SXR8"},
+    "Europa":        {"ALV", "ISF"},
+    "Asien-Pazifik": {"CPXJ", "CSKR", "IJPA"},
+    "Emerging Mkts": {"EIMI"},
+}
+TICKER_REGION = {t: r for r, ts in REGION_SOURCE_TICKERS.items() for t in ts}
+
+# Physisch hinterlegte Rohstoffe (Silber, Platin, Kupfer) — keine Aktien, keine
+# Firmen, keine Länder. Werden den größten Förderländern zugeordnet (USGS Welt-
+# anteile), nicht dem ETC-Sitz (WisdomTree Issuer plc, Jersey).
+PHYSICAL_COMMODITY_TICKERS = {"PHAG", "PHPT", "COPA"}
+
+# Top-Förderländer pro Metall (USGS Mineral Commodity Summaries).
+# Format: [(canonical_country, welt_anteil_pct), ...] — relative Gewichte
+# innerhalb des Metalls. Werden auf 100% normalisiert.
+PHYSICAL_ATTRIBUTION = {
+    "PHAG": [("Mexiko", 24.0), ("China", 14.0)],     # Silber: Top 2 Förderländer
+    "PHPT": [("Südafrika", 73.0)],                   # Platin: dominiert Welt
+    "COPA": [("Chile", 27.0), ("Peru", 14.0)],       # Kupfer: Top 2 Förderländer
+}
+
 EDELMETALL_FALLBACK = {
     "PHAG": {"Mexiko": 24.0, "Peru": 15.0, "China": 13.0, "Russland": 8.0,
              "Chile": 5.0, "Australien": 5.0, "Polen": 5.0, "Bolivien": 5.0,
@@ -196,8 +222,8 @@ REGION_MAP = {
     "Emerging Mkts": ["Brasilien", "Argentinien", "Bolivien", "Peru", "Chile", "Mexiko",
                       "Kolumbien", "Türkei", "Saudi-Arabien", "Ver. Arabische Emirate",
                       "Qatar", "Kuwait", "Israel", "Russland", "Südafrika",
-                      "Ägypten", "Marokko", "Nigeria", "Pakistan"],
-    "Edelmetalle-Länder": ["Simbabwe", "DRK", "Sambia"],
+                      "Ägypten", "Marokko", "Nigeria", "Pakistan",
+                      "Simbabwe", "DRK", "Sambia"],
     "Offshore/Sonstige":  ["Bermuda", "Cayman Islands"],
 }
 
@@ -318,18 +344,30 @@ def fetch_country_weights(product_id, ticker, max_retries=3):
 
 def calculate_portfolio_weights():
     global_weights = {}
+    # Physische Rohstoffe: pro Land aufdröseln (statt eines einzigen Region-Topfs).
+    # {country: {"pct": float, "via": [tickers]}}
+    physical_by_country = {}
     for ticker, config in PORTFOLIO.items():
         portfolio_pct = config["pct"]
+        if ticker in PHYSICAL_COMMODITY_TICKERS:
+            # Auf Top-Förderländer (USGS) proportional zum Welt-Anteil verteilen.
+            attribution = PHYSICAL_ATTRIBUTION.get(ticker, [])
+            total_share = sum(s for _, s in attribution)
+            for country, share in attribution:
+                country_pct = portfolio_pct * (share / total_share) * 100
+                if country not in physical_by_country:
+                    physical_by_country[country] = {"pct": 0.0, "via": []}
+                physical_by_country[country]["pct"] += country_pct
+                physical_by_country[country]["via"].append(ticker)
+            print(f"  [{ticker}] Physisch → {', '.join(c for c, _ in attribution)}")
+            continue
         country_data = None
         if config.get("product_id"):
             print(f"Lade {ticker}...")
             country_data = fetch_country_weights(config["product_id"], ticker)
             time.sleep(1.5)
         if country_data is None:
-            if ticker in EDELMETALL_FALLBACK:
-                country_data = EDELMETALL_FALLBACK[ticker]
-                print(f"  [{ticker}] Fallback (USGS)")
-            elif ticker in EINZELPOSITIONEN_FALLBACK:
+            if ticker in EINZELPOSITIONEN_FALLBACK:
                 country_data = EINZELPOSITIONEN_FALLBACK[ticker]
                 print(f"  [{ticker}] Fallback")
             else: continue
@@ -340,25 +378,78 @@ def calculate_portfolio_weights():
             normalized = (etf_pct / total_pct) * 100 if total_pct > 0 else etf_pct
             weighted   = (normalized / 100) * portfolio_pct * 100
             if country not in global_weights:
-                global_weights[country] = {"pct_gesamt": 0.0, "via": []}
+                global_weights[country] = {"pct_gesamt": 0.0, "via": [], "src": {}}
             global_weights[country]["pct_gesamt"] += weighted
             if ticker not in global_weights[country]["via"]:
                 global_weights[country]["via"].append(ticker)
+            # Pro-Land-Herkunft je Region mitzählen (für Überschneidungs-Auflösung).
+            src_region = TICKER_REGION.get(ticker)
+            if src_region:
+                src = global_weights[country].setdefault("src", {})
+                src[src_region] = src.get(src_region, 0.0) + weighted
+
+    # Merge-Regel: für jedes Förderland, vergleiche Aktien-Anteil vs Metall-Anteil.
+    # Größerer Topf gewinnt — der kleinere wird absorbiert.
+    physical_countries = set()  # Länder die zu Phys. Rohstoffe wandern
+    for country, phys in physical_by_country.items():
+        existing = global_weights.get(country, {"pct_gesamt": 0.0, "via": []})
+        if existing["pct_gesamt"] > phys["pct"]:
+            # Aktien-Region gewinnt → Metall-Anteil drauf, Land bleibt in alter Region
+            global_weights.setdefault(country, {"pct_gesamt": 0.0, "via": []})
+            global_weights[country]["pct_gesamt"] += phys["pct"]
+            for t in phys["via"]:
+                if t not in global_weights[country]["via"]:
+                    global_weights[country]["via"].append(t)
+        else:
+            # Metall gewinnt → Aktien-Anteil ins Metall absorbieren, Land wandert
+            absorbed_pct = existing["pct_gesamt"]
+            absorbed_via = existing["via"]
+            global_weights.pop(country, None)
+            physical_by_country[country]["pct"] += absorbed_pct
+            for t in absorbed_via:
+                if t not in physical_by_country[country]["via"]:
+                    physical_by_country[country]["via"].append(t)
+            physical_countries.add(country)
+
+    # Überschneidungs-Auflösung: ein Land wandert zu "Emerging Mkts", wenn der
+    # EM-ETF (EIMI) dort mehr Geld beiträgt als der ETF seiner Heimat-Region
+    # (z.B. Asien-Pazifik via CPXJ/CSKR/IJPA oder Europa via ALV/ISF). Gleiche
+    # "größerer Topf gewinnt"-Logik wie beim physischen Merge oben.
+    country_home = {c: r for r, cs in REGION_MAP.items() for c in cs}
+    assigned = {}  # land -> region (nur Länder mit Aktien-Daten)
+    for country, d in global_weights.items():
+        home = country_home.get(country)
+        src = d.get("src", {})
+        em_money = src.get("Emerging Mkts", 0.0)
+        home_money = src.get(home, 0.0)
+        if em_money > 0 and em_money > home_money and home != "Emerging Mkts":
+            assigned[country] = "Emerging Mkts"
+        else:
+            assigned[country] = home
+
     today = datetime.now().strftime("%Y-%m-%d")
     output = []
     for c, d in global_weights.items():
         if d["pct_gesamt"] < 0.05: continue
         meta = COUNTRY_META.get(c, {})
         output.append({
-            "land": c,
-            "iso_numeric": meta.get("iso_numeric"),
+            "land": c, "iso_numeric": meta.get("iso_numeric"),
             "flag": meta.get("flag", "🏳"),
             "pct_gesamt": round(d["pct_gesamt"], 2),
-            "via": d["via"],
-            "last_updated": today,
+            "via": d["via"], "last_updated": today,
+        })
+    # Phys.-Rohstoffe-Länder dazu (sortiert mit eigener Flag-Markierung im via)
+    for c in physical_countries:
+        d = physical_by_country[c]
+        meta = COUNTRY_META.get(c, {})
+        output.append({
+            "land": c, "iso_numeric": meta.get("iso_numeric"),
+            "flag": meta.get("flag", "🏳"),
+            "pct_gesamt": round(d["pct"], 2),
+            "via": d["via"], "last_updated": today,
         })
     output.sort(key=lambda x: x["pct_gesamt"], reverse=True)
-    return output
+    return output, physical_countries, assigned
 
 
 def load_existing(path):
@@ -375,20 +466,42 @@ if __name__ == "__main__":
     validate_country_maps()
 
     existing = load_existing(OUTPUT)
-    new_weights = calculate_portfolio_weights()
+    new_weights, physical_countries, assigned = calculate_portfolio_weights()
     if not new_weights:
         print("WARNUNG: Keine Daten - behalte bestehende JSON.")
     else:
-        # regions automatisch aus countries berechnen (vorher waren sie statisch und drifteten weg)
+        # Finale Region je Land: dynamische Zuordnung (assigned) für Länder mit
+        # Daten, sonst geografische Heimat. So landet jedes Land in GENAU einer
+        # Region (regionOf() im Frontend nimmt die erste passende länder-Liste).
+        # Gewanderte Förderländer (physical_countries) werden ausgeschlossen.
+        country_home = {c: r for r, cs in REGION_MAP.items() for c in cs}
+        def final_region(c):
+            return assigned.get(c, country_home.get(c))
         regions_out = []
-        for region_name, country_list in REGION_MAP.items():
-            total = sum(c["pct_gesamt"] for c in new_weights if c["land"] in country_list)
-            actual_countries = [c["land"] for c in new_weights if c["land"] in country_list]
+        for region_name in REGION_MAP:
+            members = [c for c in COUNTRY_META
+                       if final_region(c) == region_name and c not in physical_countries]
+            total = sum(c["pct_gesamt"] for c in new_weights if c["land"] in members)
+            actual_countries = [c["land"] for c in new_weights if c["land"] in members]
             regions_out.append({
                 "region": region_name,
                 "pct_gesamt": round(total, 2),
-                "länder": country_list,
+                "länder": members,
                 "aktuelle_länder": actual_countries,
+            })
+        # Physische Rohstoffe: Länder die gewonnen haben (Metall > Aktien)
+        phys_countries_list = sorted(
+            [c["land"] for c in new_weights if c["land"] in physical_countries],
+            key=lambda land: next((c["pct_gesamt"] for c in new_weights if c["land"] == land), 0),
+            reverse=True,
+        )
+        phys_pct_total = sum(c["pct_gesamt"] for c in new_weights if c["land"] in physical_countries)
+        if phys_countries_list:
+            regions_out.append({
+                "region": "Physische Rohstoffe",
+                "pct_gesamt": round(phys_pct_total, 2),
+                "länder": phys_countries_list,
+                "aktuelle_länder": phys_countries_list,
             })
         # Cash-Reserve = Differenz zu 100%
         country_sum = sum(c["pct_gesamt"] for c in new_weights)
