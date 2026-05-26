@@ -3,7 +3,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -47,7 +47,7 @@
 
   body {
     background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 50%, var(--bg) 100%);
-    min-height: 100vh;
+    min-height: 100dvh;
     font-family: 'DM Sans', system-ui, sans-serif;
     color: var(--text);
     margin: 0;
@@ -262,9 +262,9 @@ html, body { overflow-x: hidden; }
 }
 #slide-sparplan, #slide-geo, #slide-sectors {
   width: 100vw;
-  min-height: 100vh;
+  height: 100dvh;
   flex-shrink: 0;
-  padding: 16px 16px 40px;
+  padding: 16px 16px max(40px, env(safe-area-inset-bottom));
   box-sizing: border-box;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -393,7 +393,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v16</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v17</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
   <div id="pwa-fallback"></div>
 </div>
