@@ -4,7 +4,7 @@
     "total_positions": 12,
     "total_countries": 37,
     "source": "iShares-DE AJAX tab=all (Laender aus Holdings aggregiert + COUNTRY_MAP konsolidiert)",
-    "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100"
+    "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100. Cash echt gemessen, Reiter nur ab >=1%."
   },
   "countries": [
     {
@@ -545,15 +545,6 @@
       ]
     },
     {
-      "region": "Offshore/Sonstige",
-      "pct_gesamt": 0,
-      "länder": [
-        "Bermuda",
-        "Cayman Islands"
-      ],
-      "aktuelle_länder": []
-    },
-    {
       "region": "Physische Rohstoffe",
       "pct_gesamt": 13.68,
       "länder": [
@@ -568,12 +559,6 @@
         "Chile",
         "Peru"
       ]
-    },
-    {
-      "region": "ETF-Cash & Reserven",
-      "pct_gesamt": 0.23,
-      "länder": [],
-      "aktuelle_länder": []
     }
   ]
 }

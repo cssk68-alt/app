@@ -380,7 +380,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v14</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v15</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
   <div id="pwa-fallback"></div>
 </div>
@@ -960,7 +960,7 @@ const REGION_META = {
   'Asien-Pazifik':  { color:'#F59E0B', emoji:'🌏' },
   'Emerging Mkts':  { color:'#10B981', emoji:'🌍' },
   'Physische Rohstoffe': { color:'#F97316', emoji:'🥇' },
-  'ETF-Cash & Reserven': { color:'#64748b', emoji:'💰' }
+  'Cash und Reserven': { color:'#64748b', emoji:'💰' }
 };
 
 function regionOf(landName, regionsData) {
@@ -1000,7 +1000,14 @@ function renderLegendAndTable() {
   legendEl.innerHTML = '';
   tbody.innerHTML = '';
   const rowMap = {};
-  const regions = [..._geoRegions].sort((a,b) => b.pct_gesamt - a.pct_gesamt);
+  const regions = [..._geoRegions]
+    .filter(r => {
+      // Cash und Reserven nur ab >= 1% (echtes gemessenes Cash) einblenden;
+      // sonstige 0%-Reste (z.B. Offshore/Sonstige) ausblenden.
+      if (r.region === 'Cash und Reserven') return r.pct_gesamt >= 1;
+      return r.pct_gesamt > 0 || (r['aktuelle_länder'] || []).length > 0;
+    })
+    .sort((a,b) => b.pct_gesamt - a.pct_gesamt);
   regions.forEach(r => {
     const meta = REGION_META[r.region] || { color:'#a78bfa', emoji:'🌐' };
     const pct  = r.pct_gesamt;
@@ -1048,11 +1055,10 @@ function renderLegendAndTable() {
       sr.className = 'geo-subrow';
       sr.style.display = 'block';
       sr.innerHTML = '<div style="font-size:11px;color:#9ca3af;line-height:1.5">'+
-        '<b style="color:#f3f4f6">Liquiditätsreserven der ETFs.</b><br>'+
-        'Jeder ETF hält ~1% Cash für tägliche Liquidität '+
-        '(Ein-/Auszahlungen, Rebalancing). Plus Mikro-Anteile in Ländern unter 0,05% '+
-        'die nicht einzeln aufgeführt werden. '+
-        'Echtes Geld &mdash; nur nicht einem konkreten Land zuordenbar.</div>';
+        '<b style="color:#f3f4f6">Cash- & Geldmarkt-Reserven der ETFs.</b><br>'+
+        'Echter, aus den Fonds-Holdings gemessener Cash-/Derivate-Anteil '+
+        '(kein Schätzwert). Dient der täglichen Liquidität: Ein-/Auszahlungen, '+
+        'Rebalancing, Absicherung. Echtes Geld &mdash; nur keinem Land zuordenbar.</div>';
       subrows.appendChild(sr);
     }
     // Hinweis für Phys. Rohstoffe (Länder = Top-Förderregion laut USGS, nicht ETC-Sitz)

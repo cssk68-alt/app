@@ -240,6 +240,10 @@ HEADERS = {
 ISIN_RX = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
 ASSET_CLASS_SKIP = {"geldmarkt", "cash und/oder derivate", "cash", "futures", "futures sell"}
 NAME_SKIP = ("CASH", "FUTURES", "DERIVATIVE", "MARGIN")
+# Cash/Geldmarkt-Klassen: werden als echte "Cash und Reserven" GEMESSEN (nicht
+# mehr als 100%-Residual geschätzt). Futures-Overlays bleiben in ASSET_CLASS_SKIP
+# und zählen weder als Land noch als Cash (sie netten sich praktisch raus).
+CASH_ASSET_CLASSES = {"geldmarkt", "cash und/oder derivate", "cash"}
 
 
 def validate_country_maps():
@@ -310,6 +314,7 @@ def fetch_country_weights(product_id, ticker, max_retries=3):
         return None
     try:
         country_sum = {}
+        cash_sum = 0.0
         for row in rows:
             if not isinstance(row, list) or len(row) < 6: continue
             name = str(row[1]).strip() if len(row) > 1 else ""
@@ -318,13 +323,22 @@ def fetch_country_weights(product_id, ticker, max_retries=3):
             for i in (3, 4):
                 if i < len(row) and isinstance(row[i], str):
                     asset_class = row[i].strip().lower(); break
-            if asset_class in ASSET_CLASS_SKIP: continue
-            if any(p in name.upper() for p in NAME_SKIP): continue
+            # Gewicht (Fonds-Anteil) – wird für Land UND Cash gebraucht.
             dicts = [v for v in row if isinstance(v, dict) and "raw" in v]
-            if len(dicts) < 2: continue
-            try: weight = float(dicts[1]["raw"])
-            except (TypeError, ValueError): continue
-            if weight <= 0 or weight > 100: continue
+            weight = None
+            if len(dicts) >= 2:
+                try: weight = float(dicts[1]["raw"])
+                except (TypeError, ValueError): weight = None
+            name_up = name.upper()
+            # Cash/Geldmarkt ECHT messen (statt wegzuwerfen).
+            if asset_class in CASH_ASSET_CLASSES or "CASH" in name_up:
+                if weight is not None and 0 < weight <= 100:
+                    cash_sum += weight
+                continue
+            # Futures-/Derivate-Overlays weiter überspringen (kein Land, kein Cash).
+            if asset_class in ASSET_CLASS_SKIP: continue
+            if any(p in name_up for p in NAME_SKIP): continue
+            if weight is None or weight <= 0 or weight > 100: continue
             country = None
             for i in range(9, min(len(row), 13)):
                 v = row[i]
@@ -336,14 +350,15 @@ def fetch_country_weights(product_id, ticker, max_retries=3):
             country = canon(country)
             country_sum[country] = country_sum.get(country, 0) + weight
         if not country_sum: return None
-        print(f"  [{ticker}] OK - {len(country_sum)} Laender")
-        return country_sum
+        print(f"  [{ticker}] OK - {len(country_sum)} Laender, Cash {cash_sum:.2f}%")
+        return country_sum, cash_sum
     except (KeyError, ValueError, TypeError) as e:
         print(f"  [{ticker}] Parse-Fehler: {e}")
         return None
 
 def calculate_portfolio_weights():
     global_weights = {}
+    cash_total = 0.0  # echtes, portfolio-gewichtetes Cash über alle ETFs
     # Physische Rohstoffe: pro Land aufdröseln (statt eines einzigen Region-Topfs).
     # {country: {"pct": float, "via": [tickers]}}
     physical_by_country = {}
@@ -362,16 +377,24 @@ def calculate_portfolio_weights():
             print(f"  [{ticker}] Physisch → {', '.join(c for c, _ in attribution)}")
             continue
         country_data = None
+        cash_raw = 0.0
         if config.get("product_id"):
             print(f"Lade {ticker}...")
-            country_data = fetch_country_weights(config["product_id"], ticker)
+            result = fetch_country_weights(config["product_id"], ticker)
+            if result is not None:
+                country_data, cash_raw = result
             time.sleep(1.5)
         if country_data is None:
             if ticker in EINZELPOSITIONEN_FALLBACK:
                 country_data = EINZELPOSITIONEN_FALLBACK[ticker]
                 print(f"  [{ticker}] Fallback")
             else: continue
-        total_pct = sum(v for v in country_data.values() if v > 0)
+        # Cash gehört mit in die Basis: Länder UND Cash zusammen auf den gemessenen
+        # Fonds-Anteil normieren. So bleibt die Länderverteilung echt und der
+        # Cash-Anteil ist real gemessen (kein Residual zu 100%).
+        total_pct = sum(v for v in country_data.values() if v > 0) + cash_raw
+        if total_pct > 0 and cash_raw > 0:
+            cash_total += (cash_raw / total_pct) * portfolio_pct * 100
         for country, etf_pct in country_data.items():
             if country.lower() in ("other", "sonstige", "-", ""): continue
             country = canon(country)
@@ -449,7 +472,7 @@ def calculate_portfolio_weights():
             "via": d["via"], "last_updated": today,
         })
     output.sort(key=lambda x: x["pct_gesamt"], reverse=True)
-    return output, physical_countries, assigned
+    return output, physical_countries, assigned, cash_total
 
 
 def load_existing(path):
@@ -466,7 +489,7 @@ if __name__ == "__main__":
     validate_country_maps()
 
     existing = load_existing(OUTPUT)
-    new_weights, physical_countries, assigned = calculate_portfolio_weights()
+    new_weights, physical_countries, assigned, cash_total = calculate_portfolio_weights()
     if not new_weights:
         print("WARNUNG: Keine Daten - behalte bestehende JSON.")
     else:
@@ -483,6 +506,10 @@ if __name__ == "__main__":
                        if final_region(c) == region_name and c not in physical_countries]
             total = sum(c["pct_gesamt"] for c in new_weights if c["land"] in members)
             actual_countries = [c["land"] for c in new_weights if c["land"] in members]
+            # Regionen ohne Anteil ausblenden (z.B. Offshore/Sonstige bei 0% –
+            # Logik bleibt erhalten, der leere Reiter wird nur nicht ausgegeben).
+            if not actual_countries and round(total, 2) <= 0:
+                continue
             regions_out.append({
                 "region": region_name,
                 "pct_gesamt": round(total, 2),
@@ -503,14 +530,15 @@ if __name__ == "__main__":
                 "länder": phys_countries_list,
                 "aktuelle_länder": phys_countries_list,
             })
-        # Cash-Reserve = Differenz zu 100%
-        country_sum = sum(c["pct_gesamt"] for c in new_weights)
-        regions_out.append({
-            "region": "ETF-Cash & Reserven",
-            "pct_gesamt": round(max(0, 100 - country_sum), 2),
-            "länder": [],
-            "aktuelle_länder": [],
-        })
+        # Cash und Reserven = ECHT aus den Produkt-APIs gemessen (Cash/Geldmarkt-
+        # Positionen der Holdings), kein Residual. Reiter nur ab >= 1% einblenden.
+        if round(cash_total, 2) >= 1.0:
+            regions_out.append({
+                "region": "Cash und Reserven",
+                "pct_gesamt": round(cash_total, 2),
+                "länder": [],
+                "aktuelle_länder": [],
+            })
 
         result = dict(existing) if existing else {}
         result["_meta"] = {
@@ -518,7 +546,8 @@ if __name__ == "__main__":
             "total_positions": len(PORTFOLIO),
             "total_countries": len(new_weights),
             "source": "iShares-DE AJAX tab=all (Laender aus Holdings aggregiert + COUNTRY_MAP konsolidiert)",
-            "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100",
+            "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100. Cash echt gemessen, Reiter nur ab >=1%.",
+            "cash_pct_measured": round(cash_total, 2),
         }
         result["countries"] = new_weights
         result["regions"] = regions_out
