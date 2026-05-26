@@ -300,16 +300,14 @@ html, body { overflow-x: hidden; }
 .risk-row-name b { color: #fff; font-weight: 600; display: block; font-size: 13px; }
 .risk-row-via { font-size: 10px; color: #6b7280; }
 .risk-row-eur { font-size: 12px; font-weight: 700; text-align: right; color: #d1d5db; font-variant-numeric: tabular-nums; }
-.risk-row-pct { font-size: 13px; font-weight: 700; color: #fca5a5; text-align: right; font-variant-numeric: tabular-nums; }
+.risk-row-pct { font-size: 13px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
 
-#slide-arrow {
+.slide-arrow-btn {
   position: fixed;
-  right: 0;
   top: 50%;
   transform: translateY(-50%);
   background: rgba(167,139,250,0.15);
   border: 1px solid rgba(167,139,250,0.3);
-  border-radius: 12px 0 0 12px;
   padding: 18px 10px;
   color: #a78bfa;
   font-size: 20px;
@@ -319,7 +317,9 @@ html, body { overflow-x: hidden; }
   font-weight: 700;
   -webkit-tap-highlight-color: transparent;
 }
-#slide-arrow:hover { background: rgba(167,139,250,0.25); }
+.slide-arrow-btn:hover { background: rgba(167,139,250,0.25); }
+#slide-arrow      { right: 0; border-radius: 12px 0 0 12px; }
+#slide-arrow-left { left:  0; border-radius: 0 12px 12px 0; }
 .slide-title { text-align: center; font-size: 22px; font-weight: 900; margin: 8px 0 18px; letter-spacing: 0.5px; }
 .slide-subtitle { text-align: center; font-size: 11px; color: #6b7280; margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
 
@@ -388,7 +388,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v15</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v16</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
   <div id="pwa-fallback"></div>
 </div>
@@ -445,7 +445,8 @@ html, body { overflow-x: hidden; }
   </div>
 </div><!-- /slide-geo -->
 </div><!-- /app-slider -->
-<button id="slide-arrow" aria-label="Slide wechseln">&rsaquo;</button>
+<button id="slide-arrow-left" class="slide-arrow-btn" aria-label="Vorherige Seite">&lsaquo;</button>
+<button id="slide-arrow" class="slide-arrow-btn" aria-label="Nächste Seite">&rsaquo;</button>
 
 <!-- iOS PWA Install Modal -->
 <div id="ios-install-modal" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#1c1c40 0%,#13132d 100%);padding:18px 20px 16px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.7);z-index:9999;text-align:center;width:90%;max-width:320px;font-family:-apple-system,BlinkMacSystemFont,'DM Sans',sans-serif;border:1px solid rgba(167,139,250,0.3);">
@@ -933,8 +934,9 @@ if ('serviceWorker' in navigator) {
 
 
 // 3-SLIDE NAVIGATION (Sparplan -> Sektoren -> Geo -> Sparplan)
-const _arrowBtn = document.getElementById('slide-arrow');
-const _slider   = document.getElementById('app-slider');
+const _arrowBtn     = document.getElementById('slide-arrow');
+const _arrowBtnLeft = document.getElementById('slide-arrow-left');
+const _slider       = document.getElementById('app-slider');
 let _slideIdx = 0;
 let _geoInitialized = false;
 let _sectorsInitialized = false;
@@ -944,15 +946,14 @@ const _SLIDE_CLASS = ['', 'show-sectors', 'show-geo'];
 function _setSlide(idx) {
   _slideIdx = ((idx % 3) + 3) % 3;
   _slider.className = _SLIDE_CLASS[_slideIdx];
-  _arrowBtn.innerHTML = _slideIdx === 2 ? '&lsaquo;' : '&rsaquo;';
   if (_slideIdx === 1 && !_sectorsInitialized) { _sectorsInitialized = true; initSectors(); }
   if (_slideIdx === 2 && !_geoInitialized)     { _geoInitialized = true; initGeo(); }
   if (_slideIdx === 1) renderSectorSlide();
   if (_slideIdx === 2) setTimeout(updateGeoEUR, 50);
 }
-function _toggleSlide() { _setSlide(_slideIdx + 1); }
 function goToSectorsSlide() { _setSlide(1); }
-_arrowBtn.addEventListener('click', _toggleSlide);
+_arrowBtn.addEventListener('click',     () => _setSlide(_slideIdx + 1));
+_arrowBtnLeft.addEventListener('click', () => _setSlide(_slideIdx - 1));
 
 function loadScript(src){
   return new Promise((res,rej)=>{
@@ -1241,6 +1242,10 @@ function _tickerName(ticker) {
   for (const g of GROUPS) for (const p of g.products) if (p.ticker === ticker) return p.name;
   return ticker;
 }
+function _tickerColor(ticker) {
+  for (const g of GROUPS) for (const p of g.products) if (p.ticker === ticker) return g.color;
+  return '#a78bfa';
+}
 function _allTickers() {
   const out = [];
   for (const g of GROUPS) for (const p of g.products) out.push(p.ticker);
@@ -1442,10 +1447,15 @@ async function renderSectorSlide() {
     riskList.innerHTML = risks.slice(0, 20).map(r => {
       const eur = (r.total_pct/100) * currentTotal;
       const viaTxt = r.via.map(v => v.ticker + ' (' + v.weight_in_etf.toFixed(1) + '%)').join(' · ');
+      const domTicker = r.via.reduce((best, v) => {
+        const w = v.weight_in_etf * _portfolioPct(v.ticker);
+        return w > best.w ? { ticker: v.ticker, w } : best;
+      }, { ticker: r.via[0] ? r.via[0].ticker : '', w: 0 }).ticker;
+      const riskCol = _tickerColor(domTicker);
       return '<div class="risk-row">' +
         '<div class="risk-row-name"><b>' + safeText(r.name) + '</b><div class="risk-row-via">via ' + safeText(viaTxt) + '</div></div>' + /* Bug 5 Fix */
         '<div class="risk-row-eur">' + _formatEur(eur) + '</div>' +
-        '<div class="risk-row-pct">' + r.total_pct.toFixed(2) + '%</div>' +
+        '<div class="risk-row-pct" style="color:' + riskCol + '">' + r.total_pct.toFixed(2) + '%</div>' +
       '</div>';
     }).join('');
   }
