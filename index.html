@@ -285,6 +285,14 @@ html, body { overflow-x: hidden; }
 .sector-bar-track { height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; }
 .sector-bar-fill { height: 100%; border-radius: 2px; opacity: 0.7; }
 .sector-loading { padding: 30px; text-align: center; color: #6b7280; font-size: 13px; }
+.sector-row.clickable { cursor: pointer; transition: background .15s; }
+.sector-row.clickable:hover { background: rgba(255,255,255,0.04); }
+.sector-detail-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px; border-top: 1px solid rgba(255,255,255,0.04); }
+.sector-detail-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.sector-detail-name { font-size: 12px; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sector-detail-right { text-align: right; flex-shrink: 0; margin-left: 8px; }
+.sector-detail-eur { font-size: 13px; font-weight: 700; color: #e5e7eb; font-variant-numeric: tabular-nums; }
+.sector-detail-sub { font-size: 10px; color: #6b7280; margin-top: 1px; }
 
 .risk-row { display: grid; grid-template-columns: 1fr 70px 50px; gap: 6px; align-items: center; padding: 10px 18px; border-top: 1px solid rgba(255,255,255,0.04); }
 .risk-row:first-of-type { border-top: none; }
@@ -1229,6 +1237,10 @@ function _portfolioPct(ticker) {
   for (const g of GROUPS) for (const p of g.products) if (p.ticker === ticker) return p.pct;
   return 0;
 }
+function _tickerName(ticker) {
+  for (const g of GROUPS) for (const p of g.products) if (p.ticker === ticker) return p.name;
+  return ticker;
+}
 function _allTickers() {
   const out = [];
   for (const g of GROUPS) for (const p of g.products) out.push(p.ticker);
@@ -1326,6 +1338,49 @@ function computeSectorBreakdown(data) {
     .sort((a,b) => b.pct - a.pct);
 }
 
+function computeSectorDetail(sectorName, data) {
+  const out = [];
+  for (const [ticker, block] of Object.entries((data.sectors && data.sectors.etfs) || {})) {
+    const pPct = _portfolioPct(ticker);
+    if (!pPct) continue;
+    const sec = (block.sectors || []).find(s => s.sector === sectorName);
+    if (!sec) continue;
+    out.push({ ticker, name: _tickerName(ticker), sectorPctInEtf: sec.weight_pct, portfolioPct: pPct * (sec.weight_pct / 100) * 100 });
+  }
+  if (sectorName === 'Rohstoffe' && data.staticMeta) {
+    for (const ticker of Object.keys(data.staticMeta.etcs || {})) {
+      const pPct = _portfolioPct(ticker);
+      if (!pPct) continue;
+      out.push({ ticker, name: _tickerName(ticker), sectorPctInEtf: 100, portfolioPct: pPct * 100 });
+    }
+  }
+  if (data.staticMeta) {
+    for (const [ticker, stk] of Object.entries(data.staticMeta.stocks || {})) {
+      if ((stk.sector || 'Sonstige') !== sectorName) continue;
+      const pPct = _portfolioPct(ticker);
+      if (!pPct) continue;
+      out.push({ ticker, name: _tickerName(ticker), sectorPctInEtf: 100, portfolioPct: pPct * 100 });
+    }
+  }
+  return out.sort((a, b) => b.portfolioPct - a.portfolioPct);
+}
+
+const SECTOR_EMOJI = {
+  'IT':'💻','Information Technology':'💻','Technology':'💻',
+  'Financials':'🏦','Finanzwesen':'🏦',
+  'Health Care':'⚕️','Gesundheitsversorgung':'⚕️',
+  'Kommunikation':'📡','Communication Services':'📡',
+  'Zyklische Konsumgüter':'🛍️','Consumer Discretionary':'🛍️',
+  'Nichtzyklische Konsumgüter':'🛒','Consumer Staples':'🛒',
+  'Industrie':'⚙️','Industrials':'⚙️',
+  'Energie':'⚡','Energy':'⚡',
+  'Materialien':'🏗️','Materials':'🏗️',
+  'Versorger':'🔌','Utilities':'🔌',
+  'Immobilien':'🏠','Real Estate':'🏠',
+  'Rohstoffe':'🥇',
+  'Sonstige':'📦','Cash und/oder Derivate':'💰'
+};
+
 const SECTOR_COLOR = {
   'IT':'#3B82F6', 'Information Technology':'#3B82F6', 'Technology':'#3B82F6',
   'Financials':'#F59E0B', 'Finanzwesen':'#F59E0B',
@@ -1343,7 +1398,14 @@ const SECTOR_COLOR = {
 };
 function _sectorColor(s) { return SECTOR_COLOR[s] || '#a78bfa'; }
 
-function initSectors() { renderSectorSlide(); }
+function initSectors() {
+  const sl = document.getElementById('sectorList');
+  if (sl) sl.addEventListener('click', e => {
+    const row = e.target.closest('[data-sector]');
+    if (row) openSectorModal(row.dataset.sector);
+  });
+  renderSectorSlide();
+}
 async function renderSectorSlide() {
   const sectorList = document.getElementById('sectorList');
   const riskList   = document.getElementById('riskList');
@@ -1363,9 +1425,10 @@ async function renderSectorSlide() {
     sectorList.innerHTML = sectors.map(s => {
       const eur = (s.pct/100) * currentTotal;
       const c = _sectorColor(s.sector);
-      return '<div class="sector-row">' +
+      const safeAttr = s.sector.replace(/"/g, '&quot;');
+      return '<div class="sector-row clickable" data-sector="' + safeAttr + '">' +
         '<div class="sector-dot" style="background:' + c + '"></div>' +
-        '<div class="sector-row-name">' + safeText(s.sector) + '</div>' + /* Bug 5 Fix */
+        '<div class="sector-row-name">' + safeText(s.sector) + '</div>' +
         '<div class="sector-row-eur">' + _formatEur(eur) + '</div>' +
         '<div class="sector-row-pct" style="color:' + c + '">' + s.pct.toFixed(1) + '%</div>' +
       '</div>' +
@@ -1386,6 +1449,54 @@ async function renderSectorSlide() {
       '</div>';
     }).join('');
   }
+}
+
+function openSectorModal(sectorName) {
+  const data = _analyticsData;
+  if (!data) return;
+  const detail = computeSectorDetail(sectorName, data);
+  const totalPct = detail.reduce((sum, x) => sum + x.portfolioPct, 0);
+  const totalEur = (totalPct / 100) * currentTotal;
+  const col = _sectorColor(sectorName);
+  const emoji = SECTOR_EMOJI[sectorName] || '📊';
+
+  document.getElementById('mEmoji').textContent = emoji;
+  document.getElementById('mName').style.color = col;
+  document.getElementById('mName').textContent = sectorName;
+  document.getElementById('mSub').innerHTML = '<b>' + _formatEur(totalEur) + '</b> / Mo · <b>' + totalPct.toFixed(1) + '%</b> Portfolio';
+  document.getElementById('modalHeader').style.borderBottomColor = col + '22';
+  document.getElementById('mShareBar').style.background = col + '12';
+  document.getElementById('mSharePct').style.color = col;
+  document.getElementById('mSharePct').textContent = totalPct.toFixed(1) + '%';
+  document.getElementById('mShareFill').style.width = Math.min(totalPct, 100) + '%';
+  document.getElementById('mShareFill').style.background = col;
+  document.getElementById('mShareNote').textContent = 'von ' + currentTotal + ' €/Monat gesamt';
+
+  const prod = document.getElementById('mProducts');
+  if (!detail.length) {
+    prod.innerHTML = '<div class="sector-loading">Keine Daten verfügbar</div>';
+  } else {
+    prod.innerHTML = '<div style="padding:14px 18px 6px;font-size:10px;color:#6b7280;letter-spacing:.06em;text-transform:uppercase">Positionen in diesem Sektor</div>' +
+      detail.map(d => {
+        const eur = (d.portfolioPct / 100) * currentTotal;
+        const shortName = d.name.length > 36 ? d.name.slice(0, 34) + '…' : d.name;
+        const subLine = d.sectorPctInEtf < 100 ? d.sectorPctInEtf.toFixed(0) + '% im ETF' : 'direkte Position';
+        return '<div class="sector-detail-row">' +
+          '<div class="sector-detail-left">' +
+            '<span class="ticker-badge" style="border-color:' + col + '44;color:' + col + '">' + safeText(d.ticker) + '</span>' +
+            '<div class="sector-detail-name">' + safeText(shortName) + '</div>' +
+          '</div>' +
+          '<div class="sector-detail-right">' +
+            '<div class="sector-detail-eur">' + _formatEur(eur) + '</div>' +
+            '<div class="sector-detail-sub">' + subLine + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+  }
+
+  window._openModalIndex = undefined;
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
 // ── PWA INSTALLATION ─────────────────────────────────────────
