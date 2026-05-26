@@ -162,6 +162,8 @@
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     z-index: 1100;
     align-items: flex-end; justify-content: center;
+    overscroll-behavior: contain;
+    touch-action: none;
   }
   .overlay.open { display: flex; }
 
@@ -172,6 +174,8 @@
     max-height: 82vh; overflow-y: auto;
     padding-bottom: 36px;
     animation: slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    touch-action: pan-y;
+    overscroll-behavior: contain;
   }
   @keyframes slideUp {
     from { transform: translateY(100%); opacity: 0; }
@@ -263,6 +267,7 @@ html, body { overflow-x: hidden; }
   padding: 16px 16px 40px;
   box-sizing: border-box;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 #slide-geo, #slide-sectors {
   padding: 24px 16px 60px;
@@ -879,13 +884,13 @@ function openModal(groupIndex){
   });
 
   document.getElementById('overlay').classList.add('open');
-  document.body.style.overflow='hidden';
+  _lockScroll();
 }
 
 function closeModal(){
   const overlay = document.getElementById('overlay');
   overlay.classList.remove('open');
-  document.body.style.overflow='';
+  _unlockScroll();
   window._openModalIndex = undefined;
 
   // Modal-Content komplett resetten -> verhindert akkumulierende inline-onclick-Handler
@@ -954,6 +959,19 @@ function _setSlide(idx) {
 function goToSectorsSlide() { _setSlide(1); }
 _arrowBtn.addEventListener('click',     () => _setSlide(_slideIdx + 1));
 _arrowBtnLeft.addEventListener('click', () => _setSlide(_slideIdx - 1));
+
+const _SLIDE_IDS = ['slide-sparplan', 'slide-sectors', 'slide-geo'];
+function _lockScroll() {
+  const slide = document.getElementById(_SLIDE_IDS[_slideIdx]);
+  if (slide) { slide.dataset.scrollTop = slide.scrollTop; slide.style.overflowY = 'hidden'; }
+}
+function _unlockScroll() {
+  const slide = document.getElementById(_SLIDE_IDS[_slideIdx]);
+  if (slide) {
+    slide.style.overflowY = '';
+    if (slide.dataset.scrollTop) slide.scrollTop = +slide.dataset.scrollTop;
+  }
+}
 
 function loadScript(src){
   return new Promise((res,rej)=>{
@@ -1506,7 +1524,7 @@ function openSectorModal(sectorName) {
 
   window._openModalIndex = undefined;
   document.getElementById('overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  _lockScroll();
 }
 
 // ── PWA INSTALLATION ─────────────────────────────────────────
