@@ -4,6 +4,13 @@ on:
     - cron: '0 2 * * 0'       # Jeden Sonntag 02:00 UTC -> Geo / Holdings / Sektoren
     - cron: '30 17 * * 1-5'   # Mo-Fr 17:30 UTC -> Performance (nach EU-Marktschluss)
   workflow_dispatch:          # Manuell ueber GitHub UI triggerbar
+  push:                       # Auto-Run bei Aenderungen an den Update-Scripts (Test/Trigger)
+    branches: [main]
+    paths:
+      - 'update_performance.py'
+      - 'update_weights.py'
+      - 'update_holdings_sectors.py'
+      - '.github/workflows/update_data.yml'
 
 jobs:
   update-data:
