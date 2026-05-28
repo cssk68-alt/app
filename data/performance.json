@@ -1,18 +1,64 @@
 {
   "_meta": {
-    "last_updated": null,
+    "last_updated": "2026-05-28",
     "baseline_date": "2026-05-18",
-    "update_success": false,
-    "tickers_ok": 0,
+    "update_success": true,
+    "tickers_ok": 11,
     "tickers_total": 12,
-    "failed_tickers": [],
-    "source": "Seed - wird beim ersten GitHub-Actions-Lauf ueberschrieben"
+    "failed_tickers": [
+      "WHCS"
+    ],
+    "source": "Yahoo Finance primaer, Stooq Fallback"
   },
-  "dates": [],
-  "portfolio": [],
-  "msci_world": [],
+  "dates": [
+    "2026-05-18",
+    "2026-05-19",
+    "2026-05-20",
+    "2026-05-21",
+    "2026-05-22",
+    "2026-05-23",
+    "2026-05-24",
+    "2026-05-25",
+    "2026-05-26",
+    "2026-05-27",
+    "2026-05-28"
+  ],
+  "portfolio": [
+    0.0,
+    -0.7889,
+    0.3875,
+    0.2719,
+    0.9168,
+    0.9168,
+    0.9168,
+    1.0664,
+    1.6397,
+    1.4312,
+    1.454
+  ],
+  "msci_world": [
+    0.0,
+    -0.0748,
+    0.8223,
+    0.9386,
+    2.0267,
+    2.0267,
+    2.0267,
+    2.6082,
+    2.2593,
+    2.0766,
+    2.3092
+  ],
   "weekly": {
-    "current":  { "start": null, "portfolio": null, "msci": null },
-    "previous": { "start": null, "portfolio": null, "msci": null }
+    "current": {
+      "start": "2026-05-25",
+      "portfolio": 0.5372,
+      "msci": 0.2825
+    },
+    "previous": {
+      "start": "2026-05-18",
+      "portfolio": 0.9168,
+      "msci": 2.0267
+    }
   }
 }
