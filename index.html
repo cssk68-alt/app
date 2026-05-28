@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-28T00:00:00 -->
+<!-- Cache-Buster: 2026-05-28T12:00:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<script>
+  // Chrome Mobile: dvh recalculates when address bar shows/hides → layout jumps.
+  // Pin --app-h once on load; update only on orientation change.
+  (function () {
+    function fixH() { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); }
+    window.addEventListener('orientationchange', function () { setTimeout(fixH, 300); }, { passive: true });
+    fixH();
+  }());
+</script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -48,6 +57,7 @@
   body {
     background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 50%, var(--bg) 100%);
     height: 100dvh;
+    height: var(--app-h, 100dvh);
     font-family: 'DM Sans', system-ui, sans-serif;
     color: var(--text);
     margin: 0;
@@ -261,6 +271,7 @@ html, body {
   width: 100%;
   max-width: 100vw;
   height: 100dvh;
+  height: var(--app-h, 100dvh);
   overflow: hidden;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
@@ -277,6 +288,7 @@ html, body {
   width: 100vw;
   max-width: 100vw;
   height: 100dvh;
+  height: var(--app-h, 100dvh);
   flex-shrink: 0;
   padding: 16px 16px max(40px, env(safe-area-inset-bottom));
   box-sizing: border-box;
