@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "last_updated": null,
+    "baseline_date": "2026-05-18",
+    "update_success": false,
+    "tickers_ok": 0,
+    "tickers_total": 12,
+    "failed_tickers": [],
+    "source": "Seed - wird beim ersten GitHub-Actions-Lauf ueberschrieben"
+  },
+  "dates": [],
+  "portfolio": [],
+  "msci_world": [],
+  "weekly": {
+    "current":  { "start": null, "portfolio": null, "msci": null },
+    "previous": { "start": null, "portfolio": null, "msci": null }
+  }
+}

@@ -252,15 +252,15 @@
   .tr-link:active { background: rgba(255,255,255,0.08); }
   .tr-logo { font-size: 13px; }
 
-/* === 3-SLIDE NAVIGATION === */
+/* === 4-SLIDE NAVIGATION === */
 html, body { overflow-x: hidden; }
 #app-slider {
   display: flex;
-  width: 300vw;
+  width: 400vw;
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
-#slide-sparplan, #slide-geo, #slide-sectors {
+#slide-sparplan, #slide-geo, #slide-sectors, #slide-performance {
   width: 100vw;
   height: 100dvh;
   flex-shrink: 0;
@@ -269,11 +269,46 @@ html, body { overflow-x: hidden; }
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-#slide-geo, #slide-sectors {
+#slide-geo, #slide-sectors, #slide-performance {
   padding: 24px 16px 60px;
 }
-#app-slider.show-sectors { transform: translateX(-100vw); }
-#app-slider.show-geo     { transform: translateX(-200vw); }
+#app-slider.show-sectors     { transform: translateX(-100vw); }
+#app-slider.show-geo         { transform: translateX(-200vw); }
+#app-slider.show-performance { transform: translateX(-300vw); }
+
+/* === PERFORMANCE SLIDE (Slide 4) === */
+.perf-wrap-outer { max-width: 480px; margin: 0 auto; }
+.perf-legend-row { display: flex; flex-direction: column; gap: 6px; margin: 4px 4px 14px; }
+.perf-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #e5e7eb; }
+.perf-legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.perf-legend-name { flex: 1; }
+.perf-score { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.perf-score.pos { color: #34d399; }
+.perf-score.neg { color: #f87171; }
+.perf-score.neutral { color: #9ca3af; }
+
+.perf-chart-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: 20px; padding: 14px 10px 10px; margin-bottom: 14px; }
+.perf-chart-card-inner { position: relative; height: 240px; }
+.perf-chart-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280; font-size: 13px; text-align: center; padding: 0 14px; }
+
+.perf-weekly-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.perf-week-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 13px 14px; }
+.perf-week-label { font-size: 10px; color: #6b7280; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; }
+.perf-week-pct { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.perf-week-pct.pos { color: #34d399; }
+.perf-week-pct.neg { color: #f87171; }
+.perf-week-pct.neutral { color: #9ca3af; }
+.perf-week-eur { font-size: 12px; color: #9ca3af; margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+.perf-last-update { font-size: 11px; color: #6b7280; text-align: center; padding-top: 4px; }
+.perf-status-wrap { display: inline-flex; align-items: center; gap: 5px; position: relative; }
+.perf-status-icon { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; font-size: 9px; font-weight: 700; line-height: 1; }
+.perf-status-icon.ok { background: rgba(52,211,153,0.18); color: #34d399; border: 1px solid rgba(52,211,153,0.45); }
+.perf-status-icon.warn { background: rgba(251,191,36,0.18); color: #fbbf24; border: 1px solid rgba(251,191,36,0.45); cursor: pointer; }
+.perf-status-info-btn { background: none; border: none; padding: 0; margin: 0; color: #fbbf24; font-size: 11px; cursor: pointer; text-decoration: underline dotted; font-family: inherit; }
+.perf-status-info-box { display: none; margin: 6px auto 0; max-width: 360px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3); border-radius: 10px; padding: 8px 12px; font-size: 11px; color: #fbbf24; text-align: left; line-height: 1.5; }
+.perf-status-info-box.open { display: block; }
+.perf-status-info-box b { color: #fde68a; }
 
 /* === SECTORS SLIDE (Slide 3) === */
 .sector-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
@@ -393,7 +428,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v17</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v18</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
   <div id="pwa-fallback"></div>
 </div>
@@ -449,6 +484,50 @@ html, body { overflow-x: hidden; }
     </div>
   </div>
 </div><!-- /slide-geo -->
+
+<div id="slide-performance">
+  <div class="perf-wrap-outer">
+    <p class="slide-subtitle">Portfolio vs. MSCI World</p>
+    <h1 class="slide-title">Performance</h1>
+    <div class="slide-subtitle" style="text-transform:none;letter-spacing:0;font-size:12px;color:#9ca3af;margin-top:-8px">seit 18. Mai 2026</div>
+
+    <div class="perf-legend-row">
+      <div class="perf-legend-item">
+        <div class="perf-legend-dot" style="background:#3B82F6"></div>
+        <span class="perf-legend-name">Mein Portfolio</span>
+        <span class="perf-score neutral" id="perf-val-portfolio">&mdash;</span>
+      </div>
+      <div class="perf-legend-item">
+        <div class="perf-legend-dot" style="background:#F59E0B"></div>
+        <span class="perf-legend-name">MSCI World</span>
+        <span class="perf-score neutral" id="perf-val-msci">&mdash;</span>
+      </div>
+    </div>
+
+    <div class="perf-chart-card">
+      <div class="perf-chart-card-inner">
+        <canvas id="perfChart"></canvas>
+        <div class="perf-chart-empty" id="perfChartEmpty" style="display:none">noch keine Kursdaten<br><span style="font-size:11px;opacity:0.7">wird Mo&ndash;Fr nach EU-Marktschluss aktualisiert</span></div>
+      </div>
+    </div>
+
+    <div class="perf-weekly-row">
+      <div class="perf-week-card">
+        <div class="perf-week-label">Diese Woche &middot; Portfolio</div>
+        <div class="perf-week-pct neutral" id="perf-week-cur-pct">&mdash;</div>
+        <div class="perf-week-eur" id="perf-week-cur-eur"></div>
+      </div>
+      <div class="perf-week-card">
+        <div class="perf-week-label">Letzte Woche &middot; Portfolio</div>
+        <div class="perf-week-pct neutral" id="perf-week-prev-pct">&mdash;</div>
+        <div class="perf-week-eur" id="perf-week-prev-eur"></div>
+      </div>
+    </div>
+
+    <div class="perf-last-update" id="perf-last-update" style="display:none"></div>
+    <div class="perf-status-info-box" id="perf-status-info"></div>
+  </div>
+</div><!-- /slide-performance -->
 </div><!-- /app-slider -->
 <button id="slide-arrow-left" class="slide-arrow-btn" aria-label="Vorherige Seite">&lsaquo;</button>
 <button id="slide-arrow" class="slide-arrow-btn" aria-label="Nächste Seite">&rsaquo;</button>
@@ -938,29 +1017,32 @@ if ('serviceWorker' in navigator) {
 }
 
 
-// 3-SLIDE NAVIGATION (Sparplan -> Sektoren -> Geo -> Sparplan)
+// 4-SLIDE NAVIGATION (Sparplan -> Sektoren -> Geo -> Performance -> Sparplan)
 const _arrowBtn     = document.getElementById('slide-arrow');
 const _arrowBtnLeft = document.getElementById('slide-arrow-left');
 const _slider       = document.getElementById('app-slider');
 let _slideIdx = 0;
 let _geoInitialized = false;
 let _sectorsInitialized = false;
+let _performanceInitialized = false;
 let _geoData = null;
 let _geoRegions = null;
-const _SLIDE_CLASS = ['', 'show-sectors', 'show-geo'];
+const _SLIDE_CLASS = ['', 'show-sectors', 'show-geo', 'show-performance'];
 function _setSlide(idx) {
-  _slideIdx = ((idx % 3) + 3) % 3;
+  _slideIdx = ((idx % 4) + 4) % 4;
   _slider.className = _SLIDE_CLASS[_slideIdx];
-  if (_slideIdx === 1 && !_sectorsInitialized) { _sectorsInitialized = true; initSectors(); }
-  if (_slideIdx === 2 && !_geoInitialized)     { _geoInitialized = true; initGeo(); }
+  if (_slideIdx === 1 && !_sectorsInitialized)     { _sectorsInitialized = true; initSectors(); }
+  if (_slideIdx === 2 && !_geoInitialized)         { _geoInitialized = true; initGeo(); }
+  if (_slideIdx === 3 && !_performanceInitialized) { _performanceInitialized = true; initPerformance(); }
   if (_slideIdx === 1) renderSectorSlide();
   if (_slideIdx === 2) setTimeout(updateGeoEUR, 50);
+  if (_slideIdx === 3) setTimeout(updatePerformanceEUR, 50);
 }
 function goToSectorsSlide() { _setSlide(1); }
 _arrowBtn.addEventListener('click',     () => _setSlide(_slideIdx + 1));
 _arrowBtnLeft.addEventListener('click', () => _setSlide(_slideIdx - 1));
 
-const _SLIDE_IDS = ['slide-sparplan', 'slide-sectors', 'slide-geo'];
+const _SLIDE_IDS = ['slide-sparplan', 'slide-sectors', 'slide-geo', 'slide-performance'];
 function _lockScroll() {
   const slide = document.getElementById(_SLIDE_IDS[_slideIdx]);
   if (slide) { slide.dataset.scrollTop = slide.scrollTop; slide.style.overflowY = 'hidden'; }
@@ -1239,8 +1321,250 @@ function deselectGeo(clearAll) {
     _origSave(v);
     try { updateGeoEUR(); } catch(e){}
     try { renderSectorSlide(); } catch(e){}
+    try { updatePerformanceEUR(); } catch(e){}
   };
 })();
+
+// ============================================================
+// PERFORMANCE SLIDE (Slide 4) - Portfolio vs MSCI World seit Baseline
+// ============================================================
+let _perfData = null;
+let _perfChart = null;
+
+function _formatPctSigned(v) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  const sign = v > 0 ? '+' : '';
+  return sign + v.toFixed(2) + ' %';
+}
+function _formatEurSigned(v) {
+  if (v === null || v === undefined || isNaN(v)) return '';
+  const sign = v > 0 ? '+' : v < 0 ? '-' : '';
+  const abs = Math.abs(v);
+  const txt = abs >= 10 ? Math.round(abs).toString() : abs.toFixed(2);
+  return '≈ ' + sign + txt + ' €';
+}
+function _pctClass(v) {
+  if (v === null || v === undefined || isNaN(v)) return 'neutral';
+  if (v > 0.005) return 'pos';
+  if (v < -0.005) return 'neg';
+  return 'neutral';
+}
+
+async function initPerformance() {
+  // Chart.js lazy laden (gleicher CDN-Stil wie d3 fuer Geo)
+  if (!window.Chart) {
+    try {
+      await loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js');
+    } catch (e) {
+      console.warn('Chart.js konnte nicht geladen werden:', e);
+    }
+  }
+  try {
+    const resp = await fetch('./data/performance.json?t=' + Date.now());
+    _perfData = await resp.json();
+  } catch (e) {
+    console.warn('performance.json konnte nicht geladen werden:', e);
+    _perfData = null;
+  }
+  renderPerformanceSlide();
+}
+
+function renderPerformanceSlide() {
+  const empty = document.getElementById('perfChartEmpty');
+  const canvas = document.getElementById('perfChart');
+  const valPort = document.getElementById('perf-val-portfolio');
+  const valMsci = document.getElementById('perf-val-msci');
+  const lastEl  = document.getElementById('perf-last-update');
+
+  const hasData = _perfData && Array.isArray(_perfData.dates) && _perfData.dates.length >= 2;
+
+  if (!hasData) {
+    if (empty) empty.style.display = '';
+    if (canvas) canvas.style.display = 'none';
+    if (valPort) { valPort.textContent = '—'; valPort.className = 'perf-score neutral'; }
+    if (valMsci) { valMsci.textContent = '—'; valMsci.className = 'perf-score neutral'; }
+    if (lastEl) lastEl.style.display = 'none';
+    updatePerformanceEUR();
+    return;
+  }
+
+  if (empty) empty.style.display = 'none';
+  if (canvas) canvas.style.display = '';
+
+  const dates = _perfData.dates;
+  const port  = _perfData.portfolio;
+  const msci  = _perfData.msci_world;
+
+  const lastPort = port[port.length - 1];
+  const lastMsci = msci[msci.length - 1];
+  valPort.textContent = _formatPctSigned(lastPort);
+  valPort.className = 'perf-score ' + _pctClass(lastPort);
+  valMsci.textContent = _formatPctSigned(lastMsci);
+  valMsci.className = 'perf-score ' + _pctClass(lastMsci);
+
+  // Datum + Status-Icon (gruener Haken bei 12/12, gelbes Warndreieck sonst)
+  const infoBox = document.getElementById('perf-status-info');
+  const meta = _perfData._meta || {};
+  if (meta.update_success && meta.last_updated) {
+    const d = new Date(meta.last_updated);
+    const txt = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+    const ok = meta.tickers_ok || 0;
+    const total = meta.tickers_total || 12;
+    const failed = Array.isArray(meta.failed_tickers) ? meta.failed_tickers : [];
+    const allOk = ok >= total && failed.length === 0;
+
+    lastEl.innerHTML = '';
+    const wrap = document.createElement('span');
+    wrap.className = 'perf-status-wrap';
+    wrap.appendChild(document.createTextNode('Stand: ' + txt + ' '));
+    const icon = document.createElement('span');
+    if (allOk) {
+      icon.className = 'perf-status-icon ok';
+      icon.textContent = '✓';
+      icon.title = 'Alle ' + total + ' Positionen aktualisiert';
+      wrap.appendChild(icon);
+    } else {
+      icon.className = 'perf-status-icon warn';
+      icon.textContent = '!';
+      icon.title = (total - ok) + ' Position(en) nicht aktualisiert';
+      wrap.appendChild(icon);
+      const btn = document.createElement('button');
+      btn.className = 'perf-status-info-btn';
+      btn.type = 'button';
+      btn.textContent = (total - ok) + ' fehlend';
+      btn.addEventListener('click', () => infoBox.classList.toggle('open'));
+      wrap.appendChild(btn);
+      const names = failed.length ? failed.join(', ') : '—';
+      infoBox.innerHTML = '<b>⚠️ Nicht aktualisiert:</b> ' + names +
+        '<br>Anzeige nutzt die zuletzt erfolgreichen Kurse dieser Ticker.';
+    }
+    lastEl.appendChild(wrap);
+    lastEl.style.display = '';
+    if (allOk) infoBox.classList.remove('open');
+  } else {
+    lastEl.style.display = 'none';
+    if (infoBox) infoBox.classList.remove('open');
+  }
+
+  renderPerformanceChart(dates, port, msci);
+  updatePerformanceEUR();
+}
+
+function renderPerformanceChart(dates, port, msci) {
+  const canvas = document.getElementById('perfChart');
+  if (!canvas || !window.Chart) return;
+
+  // X-Labels lesbar: jeder n-te Tag, sonst leerer String
+  const step = Math.max(1, Math.floor(dates.length / 6));
+  const labels = dates.map((d, i) => {
+    if (i !== dates.length - 1 && i % step !== 0) return '';
+    const [_, m, day] = d.split('-');
+    return parseInt(day, 10) + '.' + parseInt(m, 10) + '.';
+  });
+
+  if (_perfChart) { _perfChart.destroy(); _perfChart = null; }
+
+  const ctx = canvas.getContext('2d');
+  _perfChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Mein Portfolio',
+          data: port,
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59,130,246,0.08)',
+          borderWidth: 2.2,
+          tension: 0.35,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          fill: false,
+        },
+        {
+          label: 'MSCI World',
+          data: msci,
+          borderColor: '#F59E0B',
+          backgroundColor: 'rgba(245,158,11,0.08)',
+          borderWidth: 2.2,
+          tension: 0.35,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(10,8,32,0.97)',
+          borderColor: 'rgba(167,139,250,0.45)',
+          borderWidth: 1,
+          padding: 10,
+          titleColor: '#f3f4f6',
+          bodyColor: '#e5e7eb',
+          callbacks: {
+            title: (items) => {
+              if (!items || !items.length) return '';
+              const idx = items[0].dataIndex;
+              const raw = dates[idx];
+              if (!raw) return '';
+              const d = new Date(raw);
+              return d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short' });
+            },
+            label: (ctx) => {
+              const v = ctx.parsed.y;
+              if (v === null || v === undefined) return ctx.dataset.label + ': —';
+              const sign = v > 0 ? '+' : '';
+              return ctx.dataset.label + ': ' + sign + v.toFixed(2) + ' %';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+          ticks: { color: '#9ca3af', font: { size: 10 }, autoSkip: false, maxRotation: 0 }
+        },
+        y: {
+          grid: {
+            color: (c) => Math.abs(c.tick.value) < 0.001 ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)',
+            drawBorder: false
+          },
+          ticks: {
+            color: '#9ca3af',
+            font: { size: 10 },
+            callback: (v) => (v > 0 ? '+' : '') + v.toFixed(1) + ' %'
+          }
+        }
+      }
+    }
+  });
+}
+
+function updatePerformanceEUR() {
+  const curPctEl  = document.getElementById('perf-week-cur-pct');
+  const curEurEl  = document.getElementById('perf-week-cur-eur');
+  const prevPctEl = document.getElementById('perf-week-prev-pct');
+  const prevEurEl = document.getElementById('perf-week-prev-eur');
+  if (!curPctEl || !prevPctEl) return;
+
+  const wk = _perfData && _perfData.weekly;
+  const cur  = wk && wk.current  ? wk.current.portfolio  : null;
+  const prev = wk && wk.previous ? wk.previous.portfolio : null;
+
+  curPctEl.textContent = _formatPctSigned(cur);
+  curPctEl.className   = 'perf-week-pct ' + _pctClass(cur);
+  curEurEl.textContent = cur === null || cur === undefined ? '' : _formatEurSigned(cur / 100 * currentTotal);
+
+  prevPctEl.textContent = _formatPctSigned(prev);
+  prevPctEl.className   = 'perf-week-pct ' + _pctClass(prev);
+  prevEurEl.textContent = prev === null || prev === undefined ? '' : _formatEurSigned(prev / 100 * currentTotal);
+}
 
 // ============================================================
 // ANALYTICS (Features A, B, D) - lazy load aus data/*.json

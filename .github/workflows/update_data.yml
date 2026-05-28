@@ -1,8 +1,9 @@
-name: Update ETF Data (Geo + Holdings + Sectors)
+name: Update ETF Data (Geo + Holdings + Sectors + Performance)
 on:
   schedule:
-    - cron: '0 2 * * 0'   # Jeden Sonntag 02:00 UTC
-  workflow_dispatch:      # Manuell ueber GitHub UI triggerbar
+    - cron: '0 2 * * 0'       # Jeden Sonntag 02:00 UTC -> Geo / Holdings / Sektoren
+    - cron: '30 17 * * 1-5'   # Mo-Fr 17:30 UTC -> Performance (nach EU-Marktschluss)
+  workflow_dispatch:          # Manuell ueber GitHub UI triggerbar
 
 jobs:
   update-data:
@@ -31,27 +32,35 @@ jobs:
         run: python update_holdings_sectors.py
         continue-on-error: true
 
-      # Bug 7 Fix: Workflow failt explizit wenn BEIDE Scripts fehlschlagen.
-      # Einzelner Fehler ist tolerierbar (graceful degradation), beide = kritisch.
-      - name: Pruefe ob beide Scripts fehlgeschlagen sind
-        if: steps.step_geo.outcome == 'failure' && steps.step_holdings.outcome == 'failure'
-        run: |
-          echo "::error::BEIDE Update-Scripts fehlgeschlagen – keine Daten aktualisiert!"
-          echo "  update_weights.py:          ${{ steps.step_geo.outcome }}"
-          echo "  update_holdings_sectors.py: ${{ steps.step_holdings.outcome }}"
-          echo "Moegliche Ursachen: iShares-API down, Netzwerkfehler, Parsing-Fehler."
-          exit 1
+      - name: Update Performance (Portfolio vs MSCI World)
+        id: step_performance
+        run: python update_performance.py
+        continue-on-error: true
 
       - name: Zeige Update-Status
         if: always()
         run: |
           echo "update_weights.py:          ${{ steps.step_geo.outcome }}"
           echo "update_holdings_sectors.py: ${{ steps.step_holdings.outcome }}"
+          echo "update_performance.py:      ${{ steps.step_performance.outcome }}"
 
       - name: Commit and Push changes
+        if: always()
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data/geo_weights.json data/holdings.json data/sectors.json
+          git add data/geo_weights.json data/holdings.json data/sectors.json data/performance.json
           git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update ETF data $(date +%Y-%m-%d)"
           git push
+
+      # Bug 7 Fix: Workflow failt explizit wenn BEIDE Kern-Scripts (Geo+Holdings)
+      # fehlschlagen. Performance-Fehler werden toleriert. Commit laeuft vorher,
+      # damit Performance-Updates auch bei iShares-Ausfall gepusht werden.
+      - name: Pruefe ob beide Kern-Scripts fehlgeschlagen sind
+        if: steps.step_geo.outcome == 'failure' && steps.step_holdings.outcome == 'failure'
+        run: |
+          echo "::error::BEIDE Kern-Update-Scripts fehlgeschlagen - keine Geo/Holdings-Daten aktualisiert!"
+          echo "  update_weights.py:          ${{ steps.step_geo.outcome }}"
+          echo "  update_holdings_sectors.py: ${{ steps.step_holdings.outcome }}"
+          echo "Moegliche Ursachen: iShares-API down, Netzwerkfehler, Parsing-Fehler."
+          exit 1
