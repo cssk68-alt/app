@@ -312,6 +312,23 @@ html, body {
 .perf-week-pct.neutral { color: #9ca3af; }
 .perf-week-eur { font-size: 12px; color: #9ca3af; margin-top: 4px; font-variant-numeric: tabular-nums; }
 
+.perf-bucket-card { cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
+.perf-bucket-card:active { background: rgba(255,255,255,0.06); }
+.perf-bucket-card .perf-week-eur { display: flex; align-items: center; gap: 4px; color: #e5e7eb; font-weight: 500; }
+.perf-bucket-card .perf-week-eur .perf-bucket-chev { font-size: 9px; opacity: 0.45; margin-left: auto; transition: transform 0.2s; }
+.perf-bucket-card.open .perf-bucket-chev { transform: rotate(90deg); }
+
+.perf-bucket-detail { display: none; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 8px 12px; margin-bottom: 14px; }
+.perf-bucket-detail.open { display: block; }
+.perf-bucket-detail-row { display: grid; grid-template-columns: 16px 1fr auto; gap: 8px; align-items: center; padding: 7px 0; border-top: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+.perf-bucket-detail-row:first-child { border-top: none; }
+.perf-bucket-detail-emoji { font-size: 14px; line-height: 1; }
+.perf-bucket-detail-name { color: #e5e7eb; font-weight: 500; }
+.perf-bucket-detail-pct { font-variant-numeric: tabular-nums; font-weight: 700; }
+.perf-bucket-detail-pct.pos { color: #34d399; }
+.perf-bucket-detail-pct.neg { color: #f87171; }
+.perf-bucket-detail-pct.neutral { color: #9ca3af; }
+
 .perf-last-update { font-size: 11px; color: #6b7280; text-align: center; padding-top: 4px; }
 .perf-status-wrap { display: inline-flex; align-items: center; gap: 5px; position: relative; }
 .perf-status-icon { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; font-size: 9px; font-weight: 700; line-height: 1; }
@@ -440,7 +457,7 @@ html, body {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v19</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v20</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
   <div id="pwa-fallback"></div>
 </div>
@@ -528,16 +545,17 @@ html, body {
 
     <div class="perf-weekly-row">
       <div class="perf-week-card">
-        <div class="perf-week-label">Diese Woche &middot; Portfolio</div>
-        <div class="perf-week-pct neutral" id="perf-week-cur-pct">&mdash;</div>
-        <div class="perf-week-eur" id="perf-week-cur-eur"></div>
+        <div class="perf-week-label">vs MSCI World</div>
+        <div class="perf-week-pct neutral" id="perf-delta-pct">&mdash;</div>
+        <div class="perf-week-eur" id="perf-delta-sub"></div>
       </div>
-      <div class="perf-week-card">
-        <div class="perf-week-label">Letzte Woche &middot; Portfolio</div>
-        <div class="perf-week-pct neutral" id="perf-week-prev-pct">&mdash;</div>
-        <div class="perf-week-eur" id="perf-week-prev-eur"></div>
+      <div class="perf-week-card perf-bucket-card" id="perf-bucket-card">
+        <div class="perf-week-label">Top-Bucket</div>
+        <div class="perf-week-pct neutral" id="perf-bucket-pct">&mdash;</div>
+        <div class="perf-week-eur" id="perf-bucket-name"></div>
       </div>
     </div>
+    <div class="perf-bucket-detail" id="perf-bucket-detail"></div>
 
     <div class="perf-last-update" id="perf-last-update" style="display:none"></div>
     <div class="perf-status-info-box" id="perf-status-info"></div>
@@ -1381,6 +1399,15 @@ async function initPerformance() {
     console.warn('performance.json konnte nicht geladen werden:', e);
     _perfData = null;
   }
+  // Tap-to-expand fuer Top-Bucket-Karte
+  const bucketCard = document.getElementById('perf-bucket-card');
+  const bucketDetail = document.getElementById('perf-bucket-detail');
+  if (bucketCard && bucketDetail) {
+    bucketCard.addEventListener('click', () => {
+      bucketCard.classList.toggle('open');
+      bucketDetail.classList.toggle('open');
+    });
+  }
   renderPerformanceSlide();
 }
 
@@ -1561,24 +1588,88 @@ function renderPerformanceChart(dates, port, msci) {
   });
 }
 
+function _computeBuckets(tickerReturns) {
+  if (!tickerReturns || typeof tickerReturns !== 'object') return [];
+  return GROUPS.map(g => {
+    let wsum = 0, wtot = 0;
+    for (const p of g.products) {
+      const r = tickerReturns[p.ticker];
+      if (typeof r !== 'number') continue;
+      wsum += p.amount * r;
+      wtot += p.amount;
+    }
+    return {
+      name: g.name,
+      emoji: g.emoji,
+      color: g.color,
+      pct: wtot > 0 ? wsum / wtot : null,
+    };
+  }).filter(b => b.pct !== null);
+}
+
 function updatePerformanceEUR() {
-  const curPctEl  = document.getElementById('perf-week-cur-pct');
-  const curEurEl  = document.getElementById('perf-week-cur-eur');
-  const prevPctEl = document.getElementById('perf-week-prev-pct');
-  const prevEurEl = document.getElementById('perf-week-prev-eur');
-  if (!curPctEl || !prevPctEl) return;
+  if (!_perfData) return;
 
-  const wk = _perfData && _perfData.weekly;
-  const cur  = wk && wk.current  ? wk.current.portfolio  : null;
-  const prev = wk && wk.previous ? wk.previous.portfolio : null;
+  // Card 1: Delta vs MSCI World (Outperformance in Prozentpunkten)
+  const port = _perfData.portfolio || [];
+  const msci = _perfData.msci_world || [];
+  const lastP = port.length ? port[port.length - 1] : null;
+  const lastM = msci.length ? msci[msci.length - 1] : null;
+  const delta = (typeof lastP === 'number' && typeof lastM === 'number') ? (lastP - lastM) : null;
 
-  curPctEl.textContent = _formatPctSigned(cur);
-  curPctEl.className   = 'perf-week-pct ' + _pctClass(cur);
-  curEurEl.textContent = cur === null || cur === undefined ? '' : _formatEurSigned(cur / 100 * currentTotal);
+  const deltaPctEl = document.getElementById('perf-delta-pct');
+  const deltaSubEl = document.getElementById('perf-delta-sub');
+  if (deltaPctEl && deltaSubEl) {
+    if (delta === null) {
+      deltaPctEl.textContent = '—';
+      deltaPctEl.className = 'perf-week-pct neutral';
+      deltaSubEl.textContent = '';
+    } else {
+      const sign = delta > 0 ? '+' : '';
+      deltaPctEl.textContent = sign + delta.toFixed(2) + ' %';
+      deltaPctEl.className = 'perf-week-pct ' + _pctClass(delta);
+      const eur = (delta / 100) * currentTotal;
+      const eurAbs = Math.abs(eur);
+      const eurTxt = eurAbs >= 10 ? Math.round(eurAbs).toString() : eurAbs.toFixed(2);
+      const eurSigned = (eur > 0 ? '+' : eur < 0 ? '−' : '') + eurTxt;
+      deltaSubEl.textContent = '≈ ' + eurSigned + ' € auf ' + currentTotal + ' €';
+    }
+  }
 
-  prevPctEl.textContent = _formatPctSigned(prev);
-  prevPctEl.className   = 'perf-week-pct ' + _pctClass(prev);
-  prevEurEl.textContent = prev === null || prev === undefined ? '' : _formatEurSigned(prev / 100 * currentTotal);
+  // Card 2: Top-Bucket (beste der 6 Sparplan-Kategorien)
+  const buckets = _computeBuckets(_perfData.ticker_returns).sort((a, b) => b.pct - a.pct);
+  const bucketPctEl = document.getElementById('perf-bucket-pct');
+  const bucketNameEl = document.getElementById('perf-bucket-name');
+  const bucketDetail = document.getElementById('perf-bucket-detail');
+  if (!bucketPctEl || !bucketNameEl) return;
+
+  if (!buckets.length) {
+    bucketPctEl.textContent = '—';
+    bucketPctEl.className = 'perf-week-pct neutral';
+    bucketPctEl.style.color = '';
+    bucketNameEl.innerHTML = '';
+    if (bucketDetail) bucketDetail.innerHTML = '';
+  } else {
+    const top = buckets[0];
+    const sign = top.pct > 0 ? '+' : '';
+    bucketPctEl.textContent = sign + top.pct.toFixed(2) + ' %';
+    bucketPctEl.className = 'perf-week-pct';
+    bucketPctEl.style.color = top.color;
+    bucketNameEl.innerHTML =
+      '<span>' + top.emoji + ' ' + top.name + '</span>' +
+      '<span class="perf-bucket-chev">▶</span>';
+
+    if (bucketDetail) {
+      bucketDetail.innerHTML = buckets.map(b => {
+        const bSign = b.pct > 0 ? '+' : '';
+        return '<div class="perf-bucket-detail-row">' +
+          '<span class="perf-bucket-detail-emoji">' + b.emoji + '</span>' +
+          '<span class="perf-bucket-detail-name" style="color:' + b.color + '">' + b.name + '</span>' +
+          '<span class="perf-bucket-detail-pct ' + _pctClass(b.pct) + '">' + bSign + b.pct.toFixed(2) + ' %</span>' +
+        '</div>';
+      }).join('');
+    }
+  }
 }
 
 // ============================================================

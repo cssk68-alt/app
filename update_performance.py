@@ -340,6 +340,14 @@ def main():
         m_px = msci_eur[i]
         msci_returns.append(round((m_px / msci_baseline_eur - 1) * 100, 4) if m_px else None)
 
+    # Per-Ticker kumulative EUR-Returns (fuer Bucket-Analyse im Frontend)
+    ticker_returns = {}
+    for ticker, series in ticker_series_eur.items():
+        last_px = next((p for p in reversed(series) if p is not None), None)
+        base_px = ticker_baselines_eur[ticker]
+        if last_px and base_px:
+            ticker_returns[ticker] = round((last_px / base_px - 1) * 100, 4)
+
     # 8) Fuehrende None-Tage trimmen
     first_valid = 0
     for i in range(len(all_dates)):
@@ -394,6 +402,7 @@ def main():
         "portfolio": portfolio_out,
         "msci_world": msci_out,
         "weekly": weekly,
+        "ticker_returns": ticker_returns,
     }
 
     with open("data/performance.json", "w", encoding="utf-8") as f:
