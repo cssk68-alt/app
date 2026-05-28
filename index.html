@@ -3,7 +3,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -253,15 +253,27 @@
   .tr-logo { font-size: 13px; }
 
 /* === 4-SLIDE NAVIGATION === */
-html, body { overflow-x: hidden; }
+/* Bug-Fix Chrome-Mobile: explizite Width/Overflow auf html+body verhindert
+   Auto-Zoom-out durch den 400vw-breiten Slider. Samsung Internet tolerierte
+   das, Chrome Mobile nicht. -webkit-text-size-adjust verhindert zusaetzlich
+   automatische Schriftgroessen-Anpassung. */
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 #app-slider {
   display: flex;
   width: 400vw;
+  max-width: 400vw;
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 #slide-sparplan, #slide-geo, #slide-sectors, #slide-performance {
   width: 100vw;
+  max-width: 100vw;
   height: 100dvh;
   flex-shrink: 0;
   padding: 16px 16px max(40px, env(safe-area-inset-bottom));
@@ -428,7 +440,7 @@ html, body { overflow-x: hidden; }
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v18</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v19</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
   <div id="pwa-fallback"></div>
 </div>
@@ -502,6 +514,9 @@ html, body { overflow-x: hidden; }
         <span class="perf-legend-name">MSCI World</span>
         <span class="perf-score neutral" id="perf-val-msci">&mdash;</span>
       </div>
+    </div>
+    <div style="font-size:10px;color:#6b7280;margin:-8px 4px 14px;line-height:1.4">
+      Alle Werte in EUR (tagesgenau via EURUSD&middot;X / EURGBP&middot;X umgerechnet). Benchmark: iShares Core MSCI World (IWDA.AS), EUR-notiert. Medien-Headlines zitieren oft den USD-Preisindex &ndash; weicht durch FX + Dividenden ab.
     </div>
 
     <div class="perf-chart-card">
