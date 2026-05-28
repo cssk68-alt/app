@@ -10,9 +10,9 @@
     "normalization": "Alle Ticker tagesgenau via EURUSD=X / EURGBP=X auf EUR umgerechnet",
     "fx_snapshot": {
       "USD_baseline": 1.1655147075653076,
-      "USD_latest": 1.1657729148864746,
+      "USD_latest": 1.1656370162963867,
       "GBP_baseline": 0.867680013179779,
-      "GBP_latest": 0.8667899966239929
+      "GBP_latest": 0.8667700290679932
     },
     "source": "Yahoo Finance primaer, Stooq Fallback"
   },
@@ -40,7 +40,7 @@
     1.7261,
     2.1339,
     1.9904,
-    1.963
+    1.9712
   ],
   "msci_world": [
     0.0,
@@ -58,7 +58,7 @@
   "weekly": {
     "current": {
       "start": "2026-05-25",
-      "portfolio": 0.5394,
+      "portfolio": 0.5476,
       "msci": 0.2825
     },
     "previous": {
@@ -66,5 +66,19 @@
       "portfolio": 1.5404,
       "msci": 2.0267
     }
+  },
+  "ticker_returns": {
+    "SXR8": 2.2991,
+    "CPXJ": 0.1029,
+    "CSKR": 13.5027,
+    "IJPA": 1.94,
+    "WHCS": 3.6974,
+    "AGED": 0.5019,
+    "PHAG": -2.5321,
+    "PHPT": -3.29,
+    "COPA": 1.4764,
+    "EIMI": 5.269,
+    "ALV": -0.1311,
+    "ISF": 1.3075
   }
 }
