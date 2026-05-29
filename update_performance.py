@@ -39,6 +39,23 @@ PORTFOLIO_TICKERS = {
     "ALV":  ("ALV.DE",  "alv.de",  "DE0008404005",  7.0),
     "ISF":  ("ISF.L",   "isf.uk",  "IE0005042456",  5.0),
 }
+# Lesbare Produktnamen pro Ticker (fuer die Warnanzeige auf Slide 4, falls
+# ein Wert nicht gezogen werden konnte).
+PORTFOLIO_NAMES = {
+    "SXR8": "iShares Core S&P 500",
+    "CPXJ": "iShares Core MSCI Pacific ex-Japan",
+    "CSKR": "iShares MSCI Korea",
+    "IJPA": "iShares Core MSCI Japan IMI",
+    "WHCS": "iShares MSCI World Health Care Sector",
+    "AGED": "iShares Ageing Population",
+    "PHAG": "WisdomTree Physical Silver",
+    "PHPT": "WisdomTree Physical Platinum",
+    "COPA": "WisdomTree Copper",
+    "EIMI": "iShares Core MSCI Emerging Markets IMI",
+    "ALV":  "Allianz SE",
+    "ISF":  "iShares Core FTSE 100",
+    "MSCI": "iShares Core MSCI World (Benchmark)",
+}
 # Wenn Yahoo komplett fehlschlaegt und nur Stooq Daten liefert: bekannte
 # Listing-Waehrung pro Ticker (Stooq exposes keine currency).
 TICKER_CURRENCY_FALLBACK = {
@@ -67,6 +84,21 @@ def _date_str(d):
     return d.strftime("%Y-%m-%d")
 
 
+def _get_with_retry(url, headers, timeout=15, retries=3, backoff=2.0):
+    """requests.get mit Wiederholung bei transienten Fehlern (429/Timeout/
+    Verbindungsfehler) und exponentiellem Backoff. Returns Response oder None."""
+    for attempt in range(retries):
+        try:
+            r = requests.get(url, headers=headers, timeout=timeout)
+            if r.status_code == 429:
+                time.sleep(backoff * (2 ** attempt) + random.random())
+                continue
+            return r
+        except requests.RequestException:
+            time.sleep(backoff * (2 ** attempt) + random.random())
+    return None
+
+
 def fetch_yahoo(symbol, start_d, end_d):
     """Yahoo Finance v8 chart API. Returns (prices_dict, currency_str) or (None, None)."""
     start_ts = calendar.timegm(start_d.timetuple())
@@ -74,8 +106,8 @@ def fetch_yahoo(symbol, start_d, end_d):
     url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
            f"?period1={start_ts}&period2={end_ts}&interval=1d")
     try:
-        r = requests.get(url, headers=HEADERS, timeout=15)
-        if r.status_code != 200:
+        r = _get_with_retry(url, HEADERS)
+        if r is None or r.status_code != 200:
             return None, None
         data = r.json()
         if data.get("chart", {}).get("error"):
@@ -104,8 +136,8 @@ def fetch_stooq(symbol, start_d, end_d):
     d2 = end_d.strftime("%Y%m%d")
     url = f"https://stooq.com/q/d/l/?s={symbol}&d1={d1}&d2={d2}&i=d"
     try:
-        r = requests.get(url, headers=HEADERS, timeout=15)
-        if r.status_code != 200:
+        r = _get_with_retry(url, HEADERS)
+        if r is None or r.status_code != 200:
             return None
         text = r.text.strip()
         if not text or "no data" in text.lower():
@@ -404,7 +436,10 @@ def main():
             "update_success": True,
             "tickers_ok": len(ticker_series_eur),
             "tickers_total": len(PORTFOLIO_TICKERS),
-            "failed_tickers": failed_tickers,
+            "failed_tickers": [
+                {"symbol": t, "name": PORTFOLIO_NAMES.get(t, t)}
+                for t in failed_tickers
+            ],
             "currency": "EUR",
             "normalization": "Alle Ticker tagesgenau via EURUSD=X / EURGBP=X auf EUR umgerechnet",
             "fx_snapshot": fx_snap,

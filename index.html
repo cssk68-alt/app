@@ -486,7 +486,7 @@ html, body {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v21</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v22</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
   <div id="pwa-fallback"></div>
 </div>
@@ -1505,18 +1505,22 @@ function renderPerformanceSlide() {
       btn.textContent = (total - ok) + ' fehlend';
       btn.addEventListener('click', () => infoBox.classList.toggle('open'));
       wrap.appendChild(btn);
-      const names = failed.length ? failed.join(', ') : '—';
+      const names = failed.length
+        ? failed.map(f => (f && typeof f === 'object') ? (f.name || f.symbol) : f).join(', ')
+        : '—';
       infoBox.innerHTML = '<b>⚠️ Nicht aktualisiert:</b> ' + names +
         '<br>Anzeige nutzt die zuletzt erfolgreichen Kurse dieser Ticker.';
     }
     const allOkTs = meta.last_all_ok_timestamp;
     if (allOkTs) {
       const tsDate = new Date(allOkTs);
-      const timeStr = tsDate.toLocaleTimeString('de-DE', {
+      const hourParts = new Intl.DateTimeFormat('de-DE', {
         timeZone: 'Europe/Berlin',
         hour: '2-digit',
-        minute: '2-digit'
-      }) + ' Uhr';
+        hour12: false
+      }).formatToParts(tsDate);
+      const hourStr = (hourParts.find(p => p.type === 'hour') || {}).value || '00';
+      const timeStr = hourStr + ':00 Uhr';
       const timeSpan = document.createElement('span');
       timeSpan.className = 'perf-time-small';
       timeSpan.textContent = timeStr;
