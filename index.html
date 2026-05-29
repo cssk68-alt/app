@@ -5,18 +5,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <script>
-  // Chrome Mobile: dvh recalculates when address bar shows/hides → layout jumps.
-  // Pin --app-h once on load; update only on orientation change.
+  // Pin --app-h to visible viewport height. Listens to resize (covers desktop Ctrl+/- zoom)
+  // and visualViewport.resize (covers mobile keyboard popup). Debounced 150ms.
   (function () {
-    function fixH() { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); }
+    function fixH() {
+      var h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+      document.documentElement.style.setProperty('--app-h', h + 'px');
+    }
+    var _t;
+    function debFixH() { clearTimeout(_t); _t = setTimeout(fixH, 150); }
     window.addEventListener('orientationchange', function () { setTimeout(fixH, 300); }, { passive: true });
+    window.addEventListener('resize', debFixH, { passive: true });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', debFixH, { passive: true });
     fixH();
   }());
 </script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v20260522t1700</title>
+<title>Mein Sparplan - v20260529t1700</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -471,7 +478,7 @@ html, body {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v20</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v21</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
   <div id="pwa-fallback"></div>
 </div>
@@ -1639,14 +1646,14 @@ function updatePerformanceEUR() {
       deltaPctEl.className = 'perf-week-pct neutral';
       deltaSubEl.textContent = '';
     } else {
-      const sign = delta > 0 ? '+' : '';
-      deltaPctEl.textContent = sign + delta.toFixed(2) + ' %';
-      deltaPctEl.className = 'perf-week-pct ' + _pctClass(delta);
       const eur = (delta / 100) * currentTotal;
       const eurAbs = Math.abs(eur);
       const eurTxt = eurAbs >= 10 ? Math.round(eurAbs).toString() : eurAbs.toFixed(2);
       const eurSigned = (eur > 0 ? '+' : eur < 0 ? '−' : '') + eurTxt;
-      deltaSubEl.textContent = '≈ ' + eurSigned + ' € auf ' + currentTotal + ' €';
+      deltaPctEl.textContent = eurSigned + ' €';
+      deltaPctEl.className = 'perf-week-pct ' + _pctClass(delta);
+      const pctSign = delta > 0 ? '+' : '';
+      deltaSubEl.textContent = 'bei ' + pctSign + delta.toFixed(2) + ' %';
     }
   }
 
