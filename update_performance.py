@@ -16,7 +16,7 @@ import json
 import os
 import random
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 import requests
 
 BASELINE_DATE = date(2026, 5, 18)
@@ -241,7 +241,16 @@ def main():
     os.makedirs("data", exist_ok=True)
     today = date.today()
     start = BASELINE_DATE
-    print(f"=== Performance Update gestartet ({datetime.now():%Y-%m-%d %H:%M}) ===", flush=True)
+    now_utc = datetime.now(timezone.utc)
+    print(f"=== Performance Update gestartet ({now_utc:%Y-%m-%d %H:%M} UTC) ===", flush=True)
+
+    existing_last_all_ok_ts = None
+    try:
+        if os.path.exists("data/performance.json"):
+            with open("data/performance.json", "r", encoding="utf-8") as f:
+                existing_last_all_ok_ts = json.load(f).get("_meta", {}).get("last_all_ok_timestamp")
+    except Exception:
+        pass
     print(f"Baseline: {_date_str(BASELINE_DATE)}  -> heute: {_date_str(today)}", flush=True)
 
     # 1) FX-Kurse holen (kritisch fuer EUR-Normalisierung)
@@ -385,9 +394,12 @@ def main():
         "GBP_latest":   next((v for v in reversed(fx_gbp_series) if v is not None), None),
     }
 
+    all_ok_now = len(ticker_series_eur) == len(PORTFOLIO_TICKERS)
+    ts_str = now_utc.strftime('%Y-%m-%dT%H:%M:%SZ')
     out = {
         "_meta": {
-            "last_updated": _date_str(today),
+            "last_updated": ts_str,
+            "last_all_ok_timestamp": ts_str if all_ok_now else existing_last_all_ok_ts,
             "baseline_date": _date_str(BASELINE_DATE),
             "update_success": True,
             "tickers_ok": len(ticker_series_eur),

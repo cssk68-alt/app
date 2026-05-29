@@ -2,7 +2,7 @@ name: Update ETF Data (Geo + Holdings + Sectors + Performance)
 on:
   schedule:
     - cron: '0 2 * * 0'       # Jeden Sonntag 02:00 UTC -> Geo / Holdings / Sektoren
-    - cron: '30 17 * * 1-5'   # Mo-Fr 17:30 UTC -> Performance (nach EU-Marktschluss)
+    - cron: '0 7-21 * * 1-5'  # Mo-Fr stündlich 07:00–21:00 UTC -> Performance
   workflow_dispatch:          # Manuell ueber GitHub UI triggerbar
   push:                       # Auto-Run bei Aenderungen an den Update-Scripts (Test/Trigger)
     branches: [main]
@@ -31,11 +31,13 @@ jobs:
 
       - name: Update Geo Weights (Laender pro Portfolio)
         id: step_geo
+        if: github.event.schedule == '0 2 * * 0' || github.event_name != 'schedule'
         run: python update_weights.py
         continue-on-error: true
 
       - name: Update Holdings + Sectors (Top-Positionen + Sektor-Splits)
         id: step_holdings
+        if: github.event.schedule == '0 2 * * 0' || github.event_name != 'schedule'
         run: python update_holdings_sectors.py
         continue-on-error: true
 
@@ -64,7 +66,7 @@ jobs:
       # fehlschlagen. Performance-Fehler werden toleriert. Commit laeuft vorher,
       # damit Performance-Updates auch bei iShares-Ausfall gepusht werden.
       - name: Pruefe ob beide Kern-Scripts fehlgeschlagen sind
-        if: steps.step_geo.outcome == 'failure' && steps.step_holdings.outcome == 'failure'
+        if: (github.event.schedule == '0 2 * * 0' || github.event_name != 'schedule') && steps.step_geo.outcome == 'failure' && steps.step_holdings.outcome == 'failure'
         run: |
           echo "::error::BEIDE Kern-Update-Scripts fehlgeschlagen - keine Geo/Holdings-Daten aktualisiert!"
           echo "  update_weights.py:          ${{ steps.step_geo.outcome }}"
