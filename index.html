@@ -161,13 +161,6 @@
     -webkit-tap-highlight-color: transparent; transition: background .15s;
   }
   #pwa-install-btn:active { background: rgba(167,139,250,0.2); }
-  #pwa-fallback {
-    display: none; margin: 10px 16px 0;
-    padding: 10px 14px; background: rgba(251,191,36,0.08);
-    border: 1px solid rgba(251,191,36,0.25); border-radius: 10px;
-    font-size: 12px; color: #fbbf24; text-align: center; line-height: 1.5;
-  }
-  #pwa-fallback strong { color: #fde68a; }
 
 
   /* MODAL OVERLAY */
@@ -488,7 +481,6 @@ html, body {
   <div class="cards" id="cards"></div>
   <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v22</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
-  <div id="pwa-fallback"></div>
 </div>
 
 </div><!-- /slide-sparplan -->
@@ -593,17 +585,6 @@ html, body {
 </div><!-- /app-slider -->
 <button id="slide-arrow-left" class="slide-arrow-btn" aria-label="Vorherige Seite">&lsaquo;</button>
 <button id="slide-arrow" class="slide-arrow-btn" aria-label="Nächste Seite">&rsaquo;</button>
-
-<!-- iOS PWA Install Modal -->
-<div id="ios-install-modal" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#1c1c40 0%,#13132d 100%);padding:18px 20px 16px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.7);z-index:9999;text-align:center;width:90%;max-width:320px;font-family:-apple-system,BlinkMacSystemFont,'DM Sans',sans-serif;border:1px solid rgba(167,139,250,0.3);">
-  <p style="margin:0 0 6px;font-size:16px;font-weight:700;color:#f3f4f6">App installieren</p>
-  <p style="margin:0 0 14px;font-size:13px;color:#9ca3af;line-height:1.5">
-    Tippe auf <strong style="color:#f3f4f6">Teilen</strong>
-    <svg style="width:18px;height:18px;vertical-align:middle;margin:0 2px" viewBox="0 0 50 50"><path d="M25,2 L25,32 M15,12 L25,2 L35,12 M10,22 L10,40 C10,44.4 13.6,48 18,48 L32,48 C36.4,48 40,44.4 40,40 L40,22" fill="none" stroke="#a78bfa" stroke-width="4"/></svg>
-    dann <strong style="color:#f3f4f6">„Zum Home-Bildschirm"</strong> ➕
-  </p>
-  <button onclick="this.parentElement.style.display='none'" style="background:#a78bfa;color:#fff;border:none;padding:9px 20px;border-radius:10px;font-weight:700;cursor:pointer;width:100%;font-size:14px;font-family:inherit;">Schließen</button>
-</div>
 
 <!-- MODAL -->
 <div class="overlay" id="overlay">
@@ -1062,16 +1043,10 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
       reg.update();
-      reg.addEventListener('updatefound', () => {
-        const newSW = reg.installing;
-        if (newSW) {
-          newSW.addEventListener('statechange', () => {
-            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-              window.location.reload();
-            }
-          });
-        }
-      });
+      // Kein page-seitiger Reload bei 'updatefound' mehr: Der Cache-Refresh läuft
+      // bereits über die 'force-reload'-Message des SW (mit sessionStorage-Dedup oben).
+      // Doppel-Reloads konnten sonst das frisch in window.__bip abgelegte
+      // beforeinstallprompt-Event verwerfen, bevor der Nutzer installieren kann.
     }).catch(err => {
       console.warn('Service Worker Fehler:', err);
     });
@@ -2005,88 +1980,56 @@ function openSectorModal(sectorName) {
 }
 
 // ── PWA INSTALLATION ─────────────────────────────────────────
+// Verhalten (bewusst gewählt):
+//  • iOS/Safari sicher erkennen → Button ganz ausblenden, kein visueller Hinweis.
+//  • Alles andere (inkl. Firefox) → Button immer zeigen, Klick versucht immer den
+//    nativen beforeinstallprompt. Feuert der nie (Firefox / Chrome-Cooldown nach
+//    Deinstallieren), passiert beim Klick bewusst nichts – kein Fallback, kein Pop-up.
 (function() {
-  const isIos = () => {
-    const ua = navigator.userAgent.toLowerCase();
-    return /iphone|ipod/.test(ua) ||
-           /ipad/.test(ua) ||
-           (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-  };
+  // iOS inkl. iPadOS, das sich als Mac ausgibt (maxTouchPoints > 1).
+  const isIos = () =>
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  // Safari (Desktop/macOS), aber nicht Chrome/Edge/Firefox-auf-iOS o. Ä.
+  const isSafari = () =>
+    /^((?!chrome|android|crios|fxios|edgios|edg).)*safari/i.test(navigator.userAgent);
   const isStandalone = () =>
     window.matchMedia('(display-mode: standalone)').matches ||
-    (('standalone' in navigator) && navigator.standalone);
-  const getBrowserType = () => {
-    const ua = navigator.userAgent;
-    if (/Mobi|Android/i.test(ua)) return 'mobile';
-    if (/Firefox/i.test(ua))       return 'firefox';
-    if (/Edg/i.test(ua))           return 'edge';
-    if (/Chrome/i.test(ua) && !/OPR|Brave/i.test(ua)) return 'chrome';
-    if (/Safari/i.test(ua) && !/Chrome|CriOS/i.test(ua)) return 'safari';
-    return 'other';
-  };
+    navigator.standalone === true;
 
-  const installBtn  = document.getElementById('pwa-install-btn');
-  const iosModal    = document.getElementById('ios-install-modal');
-  const fallbackDiv = document.getElementById('pwa-fallback');
+  const installBtn = document.getElementById('pwa-install-btn');
   if (!installBtn) return;
 
   installBtn.addEventListener('click', async () => {
-    if (isIos()) { iosModal.style.display = 'block'; return; }
-
-    // Nativer Installationsprompt über das abgefangene beforeinstallprompt-Event.
-    if (window.__bip) {
-      try {
-        window.__bip.prompt();
-        const { outcome } = await window.__bip.userChoice;
-        if (outcome === 'accepted') installBtn.style.display = 'none';
-      } catch (err) {
-        console.warn('Prompt fehlgeschlagen:', err);
-      } finally {
-        window.__bip = null; // Event ist nur einmal nutzbar
-      }
-      return;
-    }
-
-    if (fallbackDiv) {
-      const messages = {
-        chrome:  'Klicke auf das <strong>App-Symbol</strong> oben rechts in der Adressleiste.',
-        edge:    'Klicke auf das <strong>App-Symbol</strong> oben rechts in der Adressleiste.',
-        firefox: 'Öffne das <strong>Menü (≡)</strong> → <strong>»App installieren«</strong>.',
-        safari:  'Safari unterstützt keine PWA-Installation. Nutze Chrome oder Edge.',
-        mobile:  'Öffne das <strong>Browser-Menü</strong> → <strong>»Zum Startbildschirm«</strong>.',
-        other:   'Nutze das Menü deines Browsers, um die App zu installieren.'
-      };
-      fallbackDiv.innerHTML = messages[getBrowserType()] || messages.other;
-      fallbackDiv.style.display = 'block';
+    // Immer den nativen Prompt versuchen. Ist keiner verfügbar, passiert nichts.
+    if (!window.__bip) return;
+    try {
+      window.__bip.prompt();
+      const { outcome } = await window.__bip.userChoice;
+      if (outcome === 'accepted') installBtn.style.display = 'none';
+    } catch (err) {
+      console.warn('Prompt fehlgeschlagen:', err);
+    } finally {
+      window.__bip = null; // Event ist nur einmal nutzbar
     }
   });
 
   const updateVisibility = () => {
-    if (isStandalone()) { installBtn.style.display = 'none'; return; }
-    // Button zeigen, sobald iOS erkannt wird oder das BIP-Event bereitsteht.
-    if (isIos() || window.__bip) {
-      installBtn.style.display = 'block'; return;
+    // iOS/Safari oder bereits installiert → kein Button, kein Hinweis.
+    if (isStandalone() || isIos() || isSafari()) {
+      installBtn.style.display = 'none';
+      return;
     }
-    installBtn.style.display = 'none';
+    // Alle übrigen Browser (Chrome, Edge, Firefox, …): Button immer anzeigen.
+    installBtn.style.display = 'block';
   };
 
   updateVisibility();
   window.addEventListener('pwa-install-ready', updateVisibility);
 
-  // Fallback: nach 5 s für Firefox/Mobile zeigen – auf Chromium/Edge nur wenn __bip gesetzt
-  setTimeout(() => {
-    if (isStandalone() || isIos() || window.__bip) return;
-    const bt = getBrowserType();
-    // Chrome/Edge: wenn beforeinstallprompt nicht feuerte, ist kein Install möglich → kein Button
-    if (bt === 'chrome' || bt === 'edge') return;
-    installBtn.style.display = 'block';
-  }, 5000);
-
   window.addEventListener('appinstalled', () => {
     localStorage.setItem('pwaInstalled', 'true');
     installBtn.style.display = 'none';
-    if (fallbackDiv) fallbackDiv.style.display = 'none';
-    if (iosModal)    iosModal.style.display   = 'none';
   });
 })();
 
