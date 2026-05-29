@@ -1422,7 +1422,8 @@ async function initPerformance() {
     }
   }
   try {
-    const resp = await fetch('./data/performance.json?t=' + Date.now());
+    // Bei jedem Seitenaufruf frische Daten erzwingen (kein Browser-/SW-Cache).
+    const resp = await fetch('./data/performance.json?t=' + Date.now(), { cache: 'no-store' });
     _perfData = await resp.json();
   } catch (e) {
     console.warn('performance.json konnte nicht geladen werden:', e);
