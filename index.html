@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-28T12:00:00 -->
+<!-- Cache-Buster: 2026-05-29T12:00:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <script>
-  // Chrome Mobile: dvh recalculates when address bar shows/hides → layout jumps.
-  // Pin --app-h once on load; update only on orientation change.
+  // Stabile Höhe ohne Adressleisten-Jump kommt jetzt CSS-seitig via 100svh.
+  // Dieser JS-Fallback greift NUR auf alten Engines ohne svh (z. B. Samsung Internet <= 20):
+  // dort wird --app-h aus innerHeight gepinnt und bei resize/orientationchange aktualisiert.
   (function () {
-    function fixH() { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); }
-    window.addEventListener('orientationchange', function () { setTimeout(fixH, 300); }, { passive: true });
+    if (window.CSS && CSS.supports && CSS.supports('height', '100svh')) return;
+    var root = document.documentElement;
+    function fixH() { root.style.setProperty('--app-h', window.innerHeight + 'px'); }
     fixH();
+    window.addEventListener('resize', fixH, { passive: true });
+    window.addEventListener('orientationchange', function () { setTimeout(fixH, 300); }, { passive: true });
   }());
 </script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -56,8 +60,9 @@
 
   body {
     background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 50%, var(--bg) 100%);
-    height: 100dvh;
-    height: var(--app-h, 100dvh);
+    height: 100vh;                 /* Fallback: alte Engines, Samsung Internet <= 20 */
+    height: 100svh;                /* primär: stabil, kein Adressleisten-Jump, kein Overflow */
+    height: var(--app-h, 100svh);  /* JS-Fallback greift nur ohne svh-Support */
     font-family: 'DM Sans', system-ui, sans-serif;
     color: var(--text);
     margin: 0;
@@ -263,32 +268,41 @@
   .tr-logo { font-size: 13px; }
 
 /* === 4-SLIDE NAVIGATION === */
-/* Bug-Fix Chrome-Mobile: explizite Width/Overflow auf html+body verhindert
-   Auto-Zoom-out durch den 400vw-breiten Slider. Samsung Internet tolerierte
-   das, Chrome Mobile nicht. -webkit-text-size-adjust verhindert zusaetzlich
-   automatische Schriftgroessen-Anpassung. */
+/* Bug-Fix Chrome-Mobile (Zoom-out): Der 400vw-breite Slider blaehte als In-Flow-
+   Element den Layout-Viewport (ICB) auf -> Chrome zoomte die ganze Seite raus, um
+   die Breite einzupassen. overflow:hidden auf html/body wird von Chrome Mobile dabei
+   ignoriert. Loesung: Slider auf position:fixed -> er verlaesst den Layout-Flow und
+   kann die Dokumentbreite nicht mehr aufblaehen (translateX bleibt funktionsfaehig).
+   Hoehe via 100svh (stabil, kein Adressleisten-Jump, kein Overflow);
+   -webkit-text-size-adjust verhindert zusaetzlich automatische Schriftgroessen-Anpassung. */
 html, body {
   width: 100%;
-  max-width: 100vw;
-  height: 100dvh;
-  height: var(--app-h, 100dvh);
+  max-width: 100%;
+  height: 100vh;
+  height: 100svh;
+  height: var(--app-h, 100svh);
   overflow: hidden;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 #app-slider {
+  position: fixed;
+  inset: 0;
   display: flex;
   width: 400vw;
-  max-width: 400vw;
+  height: 100vh;
+  height: 100svh;
+  height: var(--app-h, 100svh);
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 #slide-sparplan, #slide-geo, #slide-sectors, #slide-performance {
   width: 100vw;
   max-width: 100vw;
-  height: 100dvh;
-  height: var(--app-h, 100dvh);
+  height: 100vh;
+  height: 100svh;
+  height: var(--app-h, 100svh);
   flex-shrink: 0;
   padding: 16px 16px max(40px, env(safe-area-inset-bottom));
   box-sizing: border-box;
