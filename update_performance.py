@@ -8,8 +8,11 @@ ueber tagesgenaue EUR-Kurse (EUR/USD, EUR/GBP) in EUR umgerechnet, bevor
 Returns berechnet werden -> faire Vergleichsbasis mit IWDA.AS in EUR
 (deine Sparplan-Wallet-Sicht).
 
-Yahoo Finance primaer, Stooq als Fallback.
-Wird Mo-Fr ~17:30 UTC (nach EU-Marktschluss) via GitHub Actions ausgefuehrt.
+Yahoo Finance primaer (Host-Fallback query1/query2), Stooq als Fallback.
+Wird Mo-Fr mehrmals pro Stunde (Cron 7,37 * 7-21 UTC) via GitHub Actions
+ausgefuehrt, damit die Werte mindestens stuendlich aktualisiert werden.
+Faellt die FX-/Kursabfrage aus, werden die letzten bekannten Kurse genutzt
+statt das Update komplett abzubrechen.
 """
 import calendar
 import json
@@ -84,7 +87,7 @@ def _date_str(d):
     return d.strftime("%Y-%m-%d")
 
 
-def _get_with_retry(url, headers, timeout=15, retries=3, backoff=2.0):
+def _get_with_retry(url, headers, timeout=15, retries=4, backoff=2.0):
     """requests.get mit Wiederholung bei transienten Fehlern (429/Timeout/
     Verbindungsfehler) und exponentiellem Backoff. Returns Response oder None."""
     for attempt in range(retries):
@@ -100,34 +103,39 @@ def _get_with_retry(url, headers, timeout=15, retries=3, backoff=2.0):
 
 
 def fetch_yahoo(symbol, start_d, end_d):
-    """Yahoo Finance v8 chart API. Returns (prices_dict, currency_str) or (None, None)."""
+    """Yahoo Finance v8 chart API. Returns (prices_dict, currency_str) or (None, None).
+    Versucht query1 und faellt bei Fehler/Block auf query2 zurueck (Yahoo verteilt
+    Last/Rate-Limits ueber mehrere Hosts)."""
     start_ts = calendar.timegm(start_d.timetuple())
     end_ts = calendar.timegm((end_d + timedelta(days=1)).timetuple())
-    url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-           f"?period1={start_ts}&period2={end_ts}&interval=1d")
-    try:
-        r = _get_with_retry(url, HEADERS)
-        if r is None or r.status_code != 200:
-            return None, None
-        data = r.json()
-        if data.get("chart", {}).get("error"):
-            return None, None
-        result = (data.get("chart", {}).get("result") or [None])[0]
-        if not result:
-            return None, None
-        currency = (result.get("meta") or {}).get("currency")
-        timestamps = result.get("timestamp") or []
-        quote = (result.get("indicators", {}).get("quote") or [{}])[0]
-        closes = quote.get("close") or []
-        prices = {}
-        for ts, c in zip(timestamps, closes):
-            if c is None:
+    path = (f"/v8/finance/chart/{symbol}"
+            f"?period1={start_ts}&period2={end_ts}&interval=1d")
+    for host in ("query1.finance.yahoo.com", "query2.finance.yahoo.com"):
+        try:
+            r = _get_with_retry(f"https://{host}{path}", HEADERS)
+            if r is None or r.status_code != 200:
                 continue
-            d = date.fromtimestamp(ts)
-            prices[_date_str(d)] = float(c)
-        return (prices if prices else None), currency
-    except (requests.RequestException, ValueError, KeyError, IndexError):
-        return None, None
+            data = r.json()
+            if data.get("chart", {}).get("error"):
+                continue
+            result = (data.get("chart", {}).get("result") or [None])[0]
+            if not result:
+                continue
+            currency = (result.get("meta") or {}).get("currency")
+            timestamps = result.get("timestamp") or []
+            quote = (result.get("indicators", {}).get("quote") or [{}])[0]
+            closes = quote.get("close") or []
+            prices = {}
+            for ts, c in zip(timestamps, closes):
+                if c is None:
+                    continue
+                d = date.fromtimestamp(ts)
+                prices[_date_str(d)] = float(c)
+            if prices:
+                return prices, currency
+        except (requests.RequestException, ValueError, KeyError, IndexError):
+            continue
+    return None, None
 
 
 def fetch_stooq(symbol, start_d, end_d):
@@ -277,10 +285,13 @@ def main():
     print(f"=== Performance Update gestartet ({now_utc:%Y-%m-%d %H:%M} UTC) ===", flush=True)
 
     existing_last_all_ok_ts = None
+    existing_fx_snapshot = {}
     try:
         if os.path.exists("data/performance.json"):
             with open("data/performance.json", "r", encoding="utf-8") as f:
-                existing_last_all_ok_ts = json.load(f).get("_meta", {}).get("last_all_ok_timestamp")
+                _existing_meta = json.load(f).get("_meta", {})
+                existing_last_all_ok_ts = _existing_meta.get("last_all_ok_timestamp")
+                existing_fx_snapshot = _existing_meta.get("fx_snapshot") or {}
     except Exception:
         pass
     print(f"Baseline: {_date_str(BASELINE_DATE)}  -> heute: {_date_str(today)}", flush=True)
@@ -291,9 +302,22 @@ def main():
     time.sleep(0.4)
     fx_gbp = fetch_fx("GBP", start, today)
 
+    # FX-Fallback: bewegt sich intraday nur minimal. Statt das ganze Update
+    # abzubrechen, den letzten bekannten Kurs aus der vorhandenen
+    # performance.json (fx_snapshot) wiederverwenden -> Update laeuft weiter.
+    if not fx_usd and existing_fx_snapshot.get("USD_latest"):
+        fx_usd = {_date_str(BASELINE_DATE): existing_fx_snapshot["USD_latest"]}
+        print(f"  [FX EURUSD] Fallback: letzter bekannter Kurs "
+              f"{existing_fx_snapshot['USD_latest']:.5f}", flush=True)
+    if not fx_gbp and existing_fx_snapshot.get("GBP_latest"):
+        fx_gbp = {_date_str(BASELINE_DATE): existing_fx_snapshot["GBP_latest"]}
+        print(f"  [FX EURGBP] Fallback: letzter bekannter Kurs "
+              f"{existing_fx_snapshot['GBP_latest']:.5f}", flush=True)
+
     if not fx_usd or not fx_gbp:
-        print("FX-Kurse unvollstaendig -> EUR-Normalisierung waere ungenau. "
-              "Bestehende performance.json bleibt unveraendert.", flush=True)
+        print("FX-Kurse unvollstaendig und kein Fallback vorhanden -> "
+              "EUR-Normalisierung waere ungenau. performance.json bleibt unveraendert.",
+              flush=True)
         return
 
     # 2) Portfolio-Ticker holen (native currency)

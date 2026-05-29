@@ -479,7 +479,7 @@ html, body {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v22</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v23</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
 </div>
 
@@ -1070,14 +1070,27 @@ function _setSlide(idx) {
   _slider.className = _SLIDE_CLASS[_slideIdx];
   if (_slideIdx === 1 && !_sectorsInitialized)     { _sectorsInitialized = true; initSectors(); }
   if (_slideIdx === 2 && !_geoInitialized)         { _geoInitialized = true; initGeo(); }
-  if (_slideIdx === 3 && !_performanceInitialized) { _performanceInitialized = true; initPerformance(); }
   if (_slideIdx === 1) renderSectorSlide();
   if (_slideIdx === 2) setTimeout(updateGeoEUR, 50);
-  if (_slideIdx === 3) setTimeout(updatePerformanceEUR, 50);
+  if (_slideIdx === 3) {
+    if (!_performanceInitialized) { _performanceInitialized = true; initPerformance(); }
+    else { refreshPerformance(); }  // erneuter Besuch -> frische Daten + Re-Render
+  }
 }
 function goToSectorsSlide() { _setSlide(1); }
 _arrowBtn.addEventListener('click',     () => _setSlide(_slideIdx + 1));
 _arrowBtnLeft.addEventListener('click', () => _setSlide(_slideIdx - 1));
+
+// PWA wieder im Vordergrund / Tab sichtbar -> Performance-Slide frisch laden,
+// damit Stundenzahl + Werte nicht auf dem Stand vom App-Start haengenbleiben.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && _slideIdx === 3 && _performanceInitialized) {
+    refreshPerformance();
+  }
+});
+window.addEventListener('focus', () => {
+  if (_slideIdx === 3 && _performanceInitialized) refreshPerformance();
+});
 
 const _SLIDE_IDS = ['slide-sparplan', 'slide-sectors', 'slide-geo', 'slide-performance'];
 function _lockScroll() {
@@ -1367,6 +1380,17 @@ function deselectGeo(clearAll) {
 // ============================================================
 let _perfData = null;
 let _perfChart = null;
+let _perfFetching = false;       // verhindert ueberlappende Fetches
+let _perfRefreshTimer = null;    // setInterval-Handle fuer periodischen Refresh
+
+// Erwartetes Update-Fenster des GitHub-Cron (Mo-Fr 07:00-21:00 UTC) + Deploy-Puffer.
+// Nur in diesem Fenster gilt veraltete Anzeige als "Aktualisierung steht aus";
+// nachts/am Wochenende kein Fehlalarm.
+function _isUpdateWindow(now) {
+  const day = now.getUTCDay();      // 0=So .. 6=Sa
+  const hour = now.getUTCHours();
+  return day >= 1 && day <= 5 && hour >= 7 && hour < 22;
+}
 
 function _formatPctSigned(v) {
   if (v === null || v === undefined || isNaN(v)) return '—';
@@ -1387,6 +1411,28 @@ function _pctClass(v) {
   return 'neutral';
 }
 
+// Holt performance.json frisch vom Server und re-rendert die Slide.
+// Mehrfach aufrufbar (bei Slide-Besuch, periodisch, bei Tab-Fokus).
+async function refreshPerformance() {
+  if (_perfFetching) return;        // laufenden Fetch nicht doppeln
+  _perfFetching = true;
+  try {
+    // Frische Daten erzwingen (kein Browser-/SW-Cache); SW ist Network-First fuer /data/*.
+    const resp = await fetch('./data/performance.json?t=' + Date.now(), { cache: 'no-store' });
+    const data = await resp.json();
+    if (data && Array.isArray(data.dates)) {
+      _perfData = data;             // nur bei gueltiger Antwort uebernehmen
+    }
+  } catch (e) {
+    // Netzwerk-/Parsing-Fehler: letzte gute _perfData behalten, UI nicht leeren.
+    console.warn('performance.json konnte nicht aktualisiert werden:', e);
+  } finally {
+    _perfFetching = false;
+  }
+  renderPerformanceSlide();
+}
+
+// Einmaliges Setup: Chart.js laden, Listener registrieren, periodischen Refresh starten.
 async function initPerformance() {
   // Chart.js lazy laden (gleicher CDN-Stil wie d3 fuer Geo)
   if (!window.Chart) {
@@ -1396,15 +1442,7 @@ async function initPerformance() {
       console.warn('Chart.js konnte nicht geladen werden:', e);
     }
   }
-  try {
-    // Bei jedem Seitenaufruf frische Daten erzwingen (kein Browser-/SW-Cache).
-    const resp = await fetch('./data/performance.json?t=' + Date.now(), { cache: 'no-store' });
-    _perfData = await resp.json();
-  } catch (e) {
-    console.warn('performance.json konnte nicht geladen werden:', e);
-    _perfData = null;
-  }
-  // Tap-to-expand fuer Top-Bucket-Karte
+  // Tap-to-expand fuer Top-Bucket-Karte (Listener nur einmal registrieren)
   const bucketCard = document.getElementById('perf-bucket-card');
   const bucketDetail = document.getElementById('perf-bucket-detail');
   if (bucketCard && bucketDetail) {
@@ -1413,7 +1451,14 @@ async function initPerformance() {
       bucketDetail.classList.toggle('open');
     });
   }
-  renderPerformanceSlide();
+  // Erste Daten laden + rendern
+  await refreshPerformance();
+  // Periodisch aktualisieren (alle 10 Min), solange App offen + Tab sichtbar.
+  if (!_perfRefreshTimer) {
+    _perfRefreshTimer = setInterval(() => {
+      if (document.visibilityState === 'visible') refreshPerformance();
+    }, 10 * 60 * 1000);
+  }
 }
 
 function renderPerformanceSlide() {
@@ -1458,7 +1503,11 @@ function renderPerformanceSlide() {
     const ok = meta.tickers_ok || 0;
     const total = meta.tickers_total || 12;
     const failed = Array.isArray(meta.failed_tickers) ? meta.failed_tickers : [];
-    const allOk = ok >= total && failed.length === 0;
+    const hasFailed = failed.length > 0;
+    // Veraltet? Nur im erwarteten Update-Fenster relevant (sonst kein Fehlalarm).
+    const ageMin = (Date.now() - d.getTime()) / 60000;
+    const stale = _isUpdateWindow(new Date()) && ageMin > 90;
+    const allOk = ok >= total && !hasFailed && !stale;
 
     lastEl.innerHTML = '';
     const wrap = document.createElement('span');
@@ -1470,7 +1519,7 @@ function renderPerformanceSlide() {
       icon.textContent = '✓';
       icon.title = 'Alle ' + total + ' Positionen aktualisiert';
       wrap.appendChild(icon);
-    } else {
+    } else if (hasFailed) {
       icon.className = 'perf-status-icon warn';
       icon.textContent = '!';
       icon.title = (total - ok) + ' Position(en) nicht aktualisiert';
@@ -1486,6 +1535,17 @@ function renderPerformanceSlide() {
         : '—';
       infoBox.innerHTML = '<b>⚠️ Nicht aktualisiert:</b> ' + names +
         '<br>Anzeige nutzt die zuletzt erfolgreichen Kurse dieser Ticker.';
+    } else {
+      // Daten veraltet: alle Ticker ok, aber im Update-Fenster zu alt.
+      // Auto-Refresh laeuft im Hintergrund weiter -> dezenter Hinweis statt gruenem Haken.
+      icon.className = 'perf-status-icon warn';
+      icon.textContent = '⟳';
+      icon.title = 'Daten veraltet – Aktualisierung steht aus';
+      wrap.appendChild(icon);
+      const note = document.createElement('span');
+      note.className = 'perf-time-small';
+      note.textContent = 'wird aktualisiert…';
+      wrap.appendChild(note);
     }
     const allOkTs = meta.last_all_ok_timestamp;
     if (allOkTs) {

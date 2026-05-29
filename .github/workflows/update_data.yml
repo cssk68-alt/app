@@ -2,7 +2,9 @@ name: Update ETF Data (Geo + Holdings + Sectors + Performance)
 on:
   schedule:
     - cron: '0 2 * * 0'       # Jeden Sonntag 02:00 UTC -> Geo / Holdings / Sektoren
-    - cron: '*/30 7-21 * * 1-5'  # Mo-Fr alle 30 Min 07:00–21:00 UTC -> Performance
+    - cron: '7,37 7-21 * * 1-5'  # Mo-Fr 2x/Std (:07/:37) 07:00–21:00 UTC -> Performance.
+                                 # Versatz von :00/:30, da GitHub geplante Laeufe zu vollen
+                                 # Stunden/Halbstunden unter Last haeufiger ueberspringt.
   workflow_dispatch:          # Manuell ueber GitHub UI triggerbar
   push:                       # Auto-Run bei Aenderungen an den Update-Scripts (Test/Trigger)
     branches: [main]
