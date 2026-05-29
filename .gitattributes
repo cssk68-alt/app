@@ -1,0 +1,8 @@
+# Binärdateien NIE als Text behandeln – verhindert PNG/Icon-Korruption
+# durch EOL- oder Encoding-Normalisierung (Ursache der defekten Icons).
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.ico  binary
+*.gif  binary
