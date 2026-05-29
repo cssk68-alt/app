@@ -5,16 +5,17 @@
     "total_countries": 36,
     "source": "iShares-DE AJAX tab=all (Laender aus Holdings aggregiert + COUNTRY_MAP konsolidiert)",
     "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100. Cash echt gemessen, Reiter nur ab >=1%.",
-    "cash_pct_measured": 0.48
+    "cash_pct_measured": 0.51
   },
   "countries": [
     {
       "land": "USA",
       "iso_numeric": 840,
       "flag": "🇺🇸",
-      "pct_gesamt": 32.04,
+      "pct_gesamt": 32.12,
       "via": [
         "SXR8",
+        "IJPA",
         "WHCS",
         "AGED",
         "EIMI"
@@ -50,7 +51,7 @@
       "land": "UK",
       "iso_numeric": 826,
       "flag": "🇬🇧",
-      "pct_gesamt": 5.88,
+      "pct_gesamt": 5.85,
       "via": [
         "WHCS",
         "AGED",
@@ -86,7 +87,7 @@
       "land": "China",
       "iso_numeric": 156,
       "flag": "🇨🇳",
-      "pct_gesamt": 5.03,
+      "pct_gesamt": 5.01,
       "via": [
         "AGED",
         "EIMI",
@@ -109,7 +110,7 @@
       "land": "Taiwan",
       "iso_numeric": 158,
       "flag": "🇹🇼",
-      "pct_gesamt": 3.78,
+      "pct_gesamt": 3.75,
       "via": [
         "AGED",
         "EIMI"
@@ -120,7 +121,7 @@
       "land": "Japan",
       "iso_numeric": 392,
       "flag": "🇯🇵",
-      "pct_gesamt": 3.19,
+      "pct_gesamt": 3.18,
       "via": [
         "IJPA",
         "WHCS",
@@ -143,7 +144,7 @@
       "land": "Hongkong",
       "iso_numeric": 344,
       "flag": "🇭🇰",
-      "pct_gesamt": 2.83,
+      "pct_gesamt": 2.81,
       "via": [
         "CPXJ",
         "AGED",
@@ -155,7 +156,7 @@
       "land": "Singapur",
       "iso_numeric": 702,
       "flag": "🇸🇬",
-      "pct_gesamt": 2.42,
+      "pct_gesamt": 2.43,
       "via": [
         "CPXJ",
         "AGED"
@@ -166,7 +167,7 @@
       "land": "Schweiz",
       "iso_numeric": 756,
       "flag": "🇨🇭",
-      "pct_gesamt": 1.98,
+      "pct_gesamt": 1.94,
       "via": [
         "WHCS",
         "AGED"
@@ -177,7 +178,7 @@
       "land": "Indien",
       "iso_numeric": 356,
       "flag": "🇮🇳",
-      "pct_gesamt": 1.68,
+      "pct_gesamt": 1.7,
       "via": [
         "EIMI"
       ],
@@ -198,7 +199,7 @@
       "land": "Brasilien",
       "iso_numeric": 76,
       "flag": "🇧🇷",
-      "pct_gesamt": 0.55,
+      "pct_gesamt": 0.56,
       "via": [
         "AGED",
         "EIMI"
@@ -261,17 +262,6 @@
       "last_updated": "2026-05-29"
     },
     {
-      "land": "Israel",
-      "iso_numeric": 376,
-      "flag": "🇮🇱",
-      "pct_gesamt": 0.2,
-      "via": [
-        "WHCS",
-        "AGED"
-      ],
-      "last_updated": "2026-05-29"
-    },
-    {
       "land": "Malaysia",
       "iso_numeric": 458,
       "flag": "🇲🇾",
@@ -290,6 +280,17 @@
       "via": [
         "AGED",
         "EIMI"
+      ],
+      "last_updated": "2026-05-29"
+    },
+    {
+      "land": "Israel",
+      "iso_numeric": 376,
+      "flag": "🇮🇱",
+      "pct_gesamt": 0.19,
+      "via": [
+        "WHCS",
+        "AGED"
       ],
       "last_updated": "2026-05-29"
     },
@@ -318,7 +319,7 @@
       "land": "Schweden",
       "iso_numeric": 752,
       "flag": "🇸🇪",
-      "pct_gesamt": 0.16,
+      "pct_gesamt": 0.15,
       "via": [
         "WHCS",
         "AGED"
@@ -415,7 +416,7 @@
   "regions": [
     {
       "region": "Nordamerika",
-      "pct_gesamt": 32.21,
+      "pct_gesamt": 32.29,
       "länder": [
         "USA",
         "Kanada"
@@ -427,7 +428,7 @@
     },
     {
       "region": "Europa",
-      "pct_gesamt": 16.54,
+      "pct_gesamt": 16.46,
       "länder": [
         "Deutschland",
         "UK",
@@ -459,7 +460,7 @@
     },
     {
       "region": "Asien-Pazifik",
-      "pct_gesamt": 18.44,
+      "pct_gesamt": 18.42,
       "länder": [
         "Japan",
         "Australien",
@@ -478,7 +479,7 @@
     },
     {
       "region": "Emerging Mkts",
-      "pct_gesamt": 18.4,
+      "pct_gesamt": 18.37,
       "länder": [
         "Griechenland",
         "Polen",
@@ -519,9 +520,9 @@
         "Indien",
         "Brasilien",
         "Saudi-Arabien",
-        "Israel",
         "Malaysia",
         "Thailand",
+        "Israel",
         "Polen",
         "Ver. Arabische Emirate",
         "Indonesien",

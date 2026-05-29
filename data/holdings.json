@@ -13,52 +13,52 @@
         {
           "name": "NVIDIA CORP",
           "isin": "US67066G1040",
-          "weight_pct": 8.0004
+          "weight_pct": 8.0165
         },
         {
           "name": "APPLE INC",
           "isin": "US0378331005",
-          "weight_pct": 7.0673
+          "weight_pct": 7.0645
         },
         {
           "name": "MICROSOFT CORP",
           "isin": "US5949181045",
-          "weight_pct": 4.7455
+          "weight_pct": 4.8821
         },
         {
           "name": "AMAZON.COM INC",
           "isin": "US0231351067",
-          "weight_pct": 4.1126
+          "weight_pct": 4.1214
         },
         {
           "name": "ALPHABET INC CLASS A",
           "isin": "US02079K3059",
-          "weight_pct": 3.5057
+          "weight_pct": 3.4973
         },
         {
           "name": "BROADCOM INC",
           "isin": "US11135F1012",
-          "weight_pct": 3.0975
+          "weight_pct": 3.1143
         },
         {
           "name": "ALPHABET INC CLASS C",
           "isin": "US02079K1079",
-          "weight_pct": 2.7871
+          "weight_pct": 2.7805
         },
         {
           "name": "META PLATFORMS INC CLASS A",
           "isin": "US30303M1027",
-          "weight_pct": 2.1516
+          "weight_pct": 2.1395
         },
         {
           "name": "TESLA INC",
           "isin": "US88160R1014",
-          "weight_pct": 1.9183
+          "weight_pct": 1.9149
         },
         {
           "name": "MICRON TECHNOLOGY INC",
           "isin": "US5951121038",
-          "weight_pct": 1.6182
+          "weight_pct": 1.6005
         }
       ]
     },
@@ -70,52 +70,52 @@
         {
           "name": "BHP GROUP LTD",
           "isin": "AU000000BHP4",
-          "weight_pct": 9.7951
+          "weight_pct": 9.8036
         },
         {
           "name": "COMMONWEALTH BANK OF AUSTRALIA",
           "isin": "AU000000CBA7",
-          "weight_pct": 8.6745
+          "weight_pct": 8.6055
         },
         {
           "name": "AIA GROUP LTD",
           "isin": "HK0000069689",
-          "weight_pct": 5.012
+          "weight_pct": 4.9161
         },
         {
           "name": "DBS GROUP HOLDINGS LTD",
           "isin": "SG1L01001701",
-          "weight_pct": 4.5716
+          "weight_pct": 4.6136
         },
         {
           "name": "WESTPAC BANKING CORPORATION",
           "isin": "AU000000WBC1",
-          "weight_pct": 3.9218
+          "weight_pct": 3.9212
         },
         {
           "name": "NATIONAL AUSTRALIA BANK LTD",
           "isin": "AU000000NAB4",
-          "weight_pct": 3.6447
+          "weight_pct": 3.6283
         },
         {
           "name": "ANZ GROUP HOLDINGS LTD",
           "isin": "AU000000ANZ3",
-          "weight_pct": 3.3812
+          "weight_pct": 3.3595
         },
         {
           "name": "WESFARMERS LTD",
           "isin": "AU000000WES1",
-          "weight_pct": 2.7675
+          "weight_pct": 2.8366
         },
         {
           "name": "OVERSEA-CHINESE BANKING LTD",
           "isin": "SG1S04926220",
-          "weight_pct": 2.7273
+          "weight_pct": 2.7318
         },
         {
           "name": "MACQUARIE GROUP LTD DEF",
           "isin": "AU000000MQG1",
-          "weight_pct": 2.6951
+          "weight_pct": 2.7282
         }
       ]
     },
@@ -127,109 +127,109 @@
         {
           "name": "SAMSUNG ELECTRONICS LTD",
           "isin": "KR7005930003",
-          "weight_pct": 28.3124
+          "weight_pct": 27.7714
         },
         {
           "name": "SK HYNIX INC",
           "isin": "KR7000660001",
-          "weight_pct": 20.0694
+          "weight_pct": 20.5927
         },
         {
           "name": "SK SQUARE LTD",
           "isin": "KR7402340004",
-          "weight_pct": 3.8186
-        },
-        {
-          "name": "SAMSUNG ELECTRONICS NON VOTING PRE",
-          "isin": "KR7005931001",
-          "weight_pct": 3.0567
+          "weight_pct": 3.7221
         },
         {
           "name": "SAMSUNG ELECTRO MECHANICS LTD",
           "isin": "KR7009150004",
-          "weight_pct": 2.9597
+          "weight_pct": 3.3757
+        },
+        {
+          "name": "SAMSUNG ELECTRONICS NON VOTING PRE",
+          "isin": "KR7005931001",
+          "weight_pct": 3.0558
         },
         {
           "name": "HYUNDAI MOTOR",
           "isin": "KR7005380001",
-          "weight_pct": 2.9383
+          "weight_pct": 2.937
         },
         {
           "name": "KB FINANCIAL GROUP INC",
           "isin": "KR7105560007",
-          "weight_pct": 1.8069
+          "weight_pct": 1.7684
         },
         {
           "name": "DOOSAN ENERBILITY LTD",
           "isin": "KR7034020008",
-          "weight_pct": 1.5773
+          "weight_pct": 1.5479
         },
         {
-          "name": "HANWHA AEROSPACE LTD",
-          "isin": "KR7012450003",
-          "weight_pct": 1.3512
+          "name": "SAMSUNG SDI LTD",
+          "isin": "KR7006400006",
+          "weight_pct": 1.3317
         },
         {
           "name": "SHINHAN FINANCIAL GROUP LTD",
           "isin": "KR7055550008",
-          "weight_pct": 1.3457
+          "weight_pct": 1.3217
         }
       ]
     },
     "IJPA": {
       "product_id": "251867",
       "last_updated": "2026-05-29",
-      "holdings_count": 957,
+      "holdings_count": 959,
       "top_holdings": [
         {
           "name": "MITSUBISHI UFJ FINANCIAL GROUP INC",
           "isin": "JP3902900004",
-          "weight_pct": 3.2694
+          "weight_pct": 3.23
         },
         {
           "name": "TOYOTA MOTOR CORP",
           "isin": "JP3633400001",
-          "weight_pct": 2.7274
+          "weight_pct": 2.7588
         },
         {
           "name": "SOFTBANK GROUP CORP",
           "isin": "JP3436100006",
-          "weight_pct": 2.5861
-        },
-        {
-          "name": "TOKYO ELECTRON LTD",
-          "isin": "JP3571400005",
-          "weight_pct": 2.2503
+          "weight_pct": 2.5443
         },
         {
           "name": "HITACHI LTD",
           "isin": "JP3788600009",
-          "weight_pct": 2.1742
+          "weight_pct": 2.2774
+        },
+        {
+          "name": "TOKYO ELECTRON LTD",
+          "isin": "JP3571400005",
+          "weight_pct": 2.2519
         },
         {
           "name": "SUMITOMO MITSUI FINANCIAL GROUP IN",
           "isin": "JP3890350006",
-          "weight_pct": 2.0889
+          "weight_pct": 2.062
         },
         {
           "name": "SONY GROUP CORP",
           "isin": "JP3435000009",
-          "weight_pct": 2.0715
+          "weight_pct": 2.0364
         },
         {
           "name": "ADVANTEST CORP",
           "isin": "JP3122400009",
-          "weight_pct": 1.992
+          "weight_pct": 1.9421
         },
         {
           "name": "MIZUHO FINANCIAL GROUP INC",
           "isin": "JP3885780001",
-          "weight_pct": 1.7216
+          "weight_pct": 1.6924
         },
         {
           "name": "MITSUBISHI CORP",
           "isin": "JP3898400001",
-          "weight_pct": 1.5801
+          "weight_pct": 1.5601
         }
       ]
     },
@@ -241,52 +241,52 @@
         {
           "name": "ELI LILLY",
           "isin": "US5324571083",
-          "weight_pct": 11.0945
+          "weight_pct": 11.4275
         },
         {
           "name": "NOVARTIS AG",
           "isin": "CH0012005267",
-          "weight_pct": 5.6256
+          "weight_pct": 5.5214
         },
         {
           "name": "JOHNSON & JOHNSON",
           "isin": "US4781601046",
-          "weight_pct": 5.4484
+          "weight_pct": 5.3819
         },
         {
           "name": "ABBVIE INC",
           "isin": "US00287Y1091",
-          "weight_pct": 5.0641
+          "weight_pct": 5.0882
         },
         {
           "name": "UNITEDHEALTH GROUP INC",
           "isin": "US91324P1021",
-          "weight_pct": 4.1052
-        },
-        {
-          "name": "ASTRAZENECA PLC",
-          "isin": "GB0009895292",
-          "weight_pct": 3.5249
+          "weight_pct": 4.0481
         },
         {
           "name": "MERCK & CO INC",
           "isin": "US58933Y1055",
-          "weight_pct": 3.5015
+          "weight_pct": 3.4561
+        },
+        {
+          "name": "ASTRAZENECA PLC",
+          "isin": "GB0009895292",
+          "weight_pct": 3.4244
         },
         {
           "name": "ROCHE PS PAR AG",
           "isin": "CH1499059983",
-          "weight_pct": 3.2968
+          "weight_pct": 3.252
         },
         {
           "name": "GILEAD SCIENCES INC",
           "isin": "US3755581036",
-          "weight_pct": 2.8722
+          "weight_pct": 2.8971
         },
         {
           "name": "AMGEN INC",
           "isin": "US0311621009",
-          "weight_pct": 2.0048
+          "weight_pct": 1.987
         }
       ]
     },
@@ -298,52 +298,52 @@
         {
           "name": "PHOENIX FINANCIAL LTD",
           "isin": "IL0007670123",
-          "weight_pct": 1.3986
+          "weight_pct": 1.34
         },
         {
           "name": "SAMSUNG LIFE LTD",
           "isin": "KR7032830002",
-          "weight_pct": 1.3119
+          "weight_pct": 1.329
         },
         {
           "name": "VIKING HOLDINGS",
           "isin": "BMG93A5A1010",
-          "weight_pct": 0.9018
+          "weight_pct": 0.905
         },
         {
           "name": "CYTOKINETICS INC",
           "isin": "US23282W6057",
-          "weight_pct": 0.8538
+          "weight_pct": 0.855
         },
         {
           "name": "AXSOME THERAPEUTICS INC",
           "isin": "US05464T1043",
-          "weight_pct": 0.8295
+          "weight_pct": 0.8283
         },
         {
           "name": "PHARMAESSENTIA CORP",
           "isin": "TW0006446008",
-          "weight_pct": 0.8139
+          "weight_pct": 0.8024
         },
         {
           "name": "AFFILIATED MANAGERS GROUP INC",
           "isin": "US0082521081",
-          "weight_pct": 0.7988
-        },
-        {
-          "name": "SWEDISH ORPHAN BIOVITRUM",
-          "isin": "SE0000872095",
-          "weight_pct": 0.7392
+          "weight_pct": 0.7906
         },
         {
           "name": "POWER CORPORATION OF CANADA",
           "isin": "CA7392391016",
-          "weight_pct": 0.7378
+          "weight_pct": 0.7492
         },
         {
           "name": "GREAT WEST LIFECO INC",
           "isin": "CA39138C1068",
-          "weight_pct": 0.7304
+          "weight_pct": 0.7375
+        },
+        {
+          "name": "SWEDISH ORPHAN BIOVITRUM",
+          "isin": "SE0000872095",
+          "weight_pct": 0.7345
         }
       ]
     },
@@ -355,52 +355,52 @@
         {
           "name": "TAIWAN SEMICONDUCTOR MANUFACTURING",
           "isin": "TW0002330008",
-          "weight_pct": 12.3774
+          "weight_pct": 12.4418
         },
         {
           "name": "SAMSUNG ELECTRONICS LTD",
           "isin": "KR7005930003",
-          "weight_pct": 6.6411
+          "weight_pct": 6.5242
         },
         {
           "name": "SK HYNIX INC",
           "isin": "KR7000660001",
-          "weight_pct": 5.5701
+          "weight_pct": 5.7242
         },
         {
           "name": "TENCENT HOLDINGS LTD",
           "isin": "KYG875721634",
-          "weight_pct": 2.4272
+          "weight_pct": 2.3939
         },
         {
           "name": "ALIBABA GROUP HOLDING LTD",
           "isin": "KYG017191142",
-          "weight_pct": 1.8658
+          "weight_pct": 1.8431
         },
         {
           "name": "MEDIATEK INC",
           "isin": "TW0002454006",
-          "weight_pct": 1.5452
+          "weight_pct": 1.4795
         },
         {
           "name": "DELTA ELECTRONICS INC",
           "isin": "TW0002308004",
-          "weight_pct": 1.0683
+          "weight_pct": 1.0207
         },
         {
           "name": "HON HAI PRECISION INDUSTRY LTD",
           "isin": "TW0002317005",
-          "weight_pct": 0.7279
+          "weight_pct": 0.7305
         },
         {
           "name": "CHINA CONSTRUCTION BANK CORP H",
           "isin": "CNE1000002H1",
-          "weight_pct": 0.7224
+          "weight_pct": 0.7197
         },
         {
           "name": "SAMSUNG ELECTRONICS NON VOTING PRE",
           "isin": "KR7005931001",
-          "weight_pct": 0.7178
+          "weight_pct": 0.7187
         }
       ]
     },
@@ -412,52 +412,52 @@
         {
           "name": "HSBC HOLDINGS PLC",
           "isin": "GB0005405286",
-          "weight_pct": 9.4883
+          "weight_pct": 9.3935
         },
         {
           "name": "ASTRAZENECA PLC",
           "isin": "GB0009895292",
-          "weight_pct": 8.2636
+          "weight_pct": 8.1557
         },
         {
           "name": "SHELL PLC",
           "isin": "GB00BP6MXD84",
-          "weight_pct": 6.9884
+          "weight_pct": 7.0834
         },
         {
           "name": "ROLLS-ROYCE HOLDINGS PLC",
           "isin": "GB00B63H8491",
-          "weight_pct": 4.3299
+          "weight_pct": 4.4165
         },
         {
           "name": "BRITISH AMERICAN TOBACCO",
           "isin": "GB0002875804",
-          "weight_pct": 3.954
+          "weight_pct": 3.9247
         },
         {
           "name": "UNILEVER PLC",
           "isin": "GB00BVZK7T90",
-          "weight_pct": 3.6503
+          "weight_pct": 3.6222
         },
         {
           "name": "RIO TINTO PLC",
           "isin": "GB0007188757",
-          "weight_pct": 3.2174
+          "weight_pct": 3.2453
         },
         {
           "name": "BP PLC",
           "isin": "GB0007980591",
-          "weight_pct": 3.1758
+          "weight_pct": 3.1989
         },
         {
           "name": "GLAXOSMITHKLINE",
           "isin": "GB00BN7SWP63",
-          "weight_pct": 3.05
+          "weight_pct": 3.0358
         },
         {
           "name": "BARCLAYS PLC",
           "isin": "GB0031348658",
-          "weight_pct": 2.4986
+          "weight_pct": 2.4939
         }
       ]
     }
