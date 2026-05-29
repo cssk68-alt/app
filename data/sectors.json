@@ -1,13 +1,13 @@
 {
   "_meta": {
-    "last_updated": "2026-05-28",
+    "last_updated": "2026-05-29",
     "source": "Aggregiert aus iShares Holdings",
     "note": "Sektor-Namen wie von iShares-DE geliefert (DE/EN gemischt)"
   },
   "etfs": {
     "SXR8": {
       "product_id": "253743",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-05-29",
       "sectors": [
         {
           "sector": "IT",
@@ -57,7 +57,7 @@
     },
     "CPXJ": {
       "product_id": "253735",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-05-29",
       "sectors": [
         {
           "sector": "Financials",
@@ -111,7 +111,7 @@
     },
     "CSKR": {
       "product_id": "253733",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-05-29",
       "sectors": [
         {
           "sector": "IT",
@@ -157,7 +157,7 @@
     },
     "IJPA": {
       "product_id": "251867",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-05-29",
       "sectors": [
         {
           "sector": "Industrie",
@@ -207,7 +207,7 @@
     },
     "WHCS": {
       "product_id": "308909",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-05-29",
       "sectors": [
         {
           "sector": "Gesundheitsversorgung",
@@ -217,7 +217,7 @@
     },
     "AGED": {
       "product_id": "284218",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-05-29",
       "sectors": [
         {
           "sector": "Gesundheitsversorgung",
@@ -255,7 +255,7 @@
     },
     "EIMI": {
       "product_id": "264659",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-05-29",
       "sectors": [
         {
           "sector": "IT",
@@ -313,7 +313,7 @@
     },
     "ISF": {
       "product_id": "251795",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-05-29",
       "sectors": [
         {
           "sector": "Financials",

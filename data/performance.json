@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "last_updated": "2026-05-28T17:30:00Z",
-    "last_all_ok_timestamp": "2026-05-28T17:30:00Z",
+    "last_updated": "2026-05-29T09:39:38Z",
+    "last_all_ok_timestamp": "2026-05-29T09:39:38Z",
     "baseline_date": "2026-05-18",
     "update_success": true,
     "tickers_ok": 12,
@@ -11,9 +11,9 @@
     "normalization": "Alle Ticker tagesgenau via EURUSD=X / EURGBP=X auf EUR umgerechnet",
     "fx_snapshot": {
       "USD_baseline": 1.1655147075653076,
-      "USD_latest": 1.1653653383255005,
+      "USD_latest": 1.1637378931045532,
       "GBP_baseline": 0.867680013179779,
-      "GBP_latest": 0.8666800260543823
+      "GBP_latest": 0.8674799799919128
     },
     "source": "Yahoo Finance primaer, Stooq Fallback"
   },
@@ -28,7 +28,8 @@
     "2026-05-25",
     "2026-05-26",
     "2026-05-27",
-    "2026-05-28"
+    "2026-05-28",
+    "2026-05-29"
   ],
   "portfolio": [
     0.0,
@@ -41,7 +42,8 @@
     1.7261,
     2.1339,
     2.0965,
-    1.9644
+    2.2061,
+    2.5498
   ],
   "msci_world": [
     0.0,
@@ -54,13 +56,14 @@
     2.6082,
     2.2593,
     2.0766,
-    2.0766
+    2.3092,
+    2.7992
   ],
   "weekly": {
     "current": {
       "start": "2026-05-25",
-      "portfolio": 0.5408,
-      "msci": 0.0499
+      "portfolio": 1.1262,
+      "msci": 0.7725
     },
     "previous": {
       "start": "2026-05-18",
@@ -69,17 +72,17 @@
     }
   },
   "ticker_returns": {
-    "SXR8": 1.8328,
-    "CPXJ": 0.1262,
-    "CSKR": 13.5292,
-    "IJPA": 1.9638,
-    "WHCS": 3.1057,
-    "AGED": 0.5253,
-    "PHAG": -2.5094,
-    "PHPT": -3.2674,
-    "COPA": 1.5001,
-    "EIMI": 5.2935,
-    "ALV": 2.0975,
-    "ISF": 1.318
+    "SXR8": 2.7185,
+    "CPXJ": 0.8424,
+    "CSKR": 15.3811,
+    "IJPA": 2.7619,
+    "WHCS": 4.1544,
+    "AGED": 1.0251,
+    "PHAG": -1.6698,
+    "PHPT": -2.8894,
+    "COPA": 1.8443,
+    "EIMI": 6.2217,
+    "ALV": -0.0787,
+    "ISF": 1.3428
   }
 }

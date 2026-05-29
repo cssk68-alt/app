@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "last_updated": "2026-05-28",
+    "last_updated": "2026-05-29",
     "total_positions": 12,
     "total_countries": 36,
     "source": "iShares-DE AJAX tab=all (Laender aus Holdings aggregiert + COUNTRY_MAP konsolidiert)",
@@ -19,7 +19,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Australien",
@@ -31,7 +31,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Deutschland",
@@ -44,7 +44,7 @@
         "EIMI",
         "ALV"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "UK",
@@ -56,7 +56,7 @@
         "AGED",
         "ISF"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Südkorea",
@@ -68,7 +68,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Südafrika",
@@ -80,7 +80,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "China",
@@ -92,7 +92,7 @@
         "EIMI",
         "PHAG"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Mexiko",
@@ -103,7 +103,7 @@
         "PHAG",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Taiwan",
@@ -114,7 +114,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Japan",
@@ -126,7 +126,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Chile",
@@ -137,7 +137,7 @@
         "COPA",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Hongkong",
@@ -149,7 +149,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Singapur",
@@ -160,7 +160,7 @@
         "CPXJ",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Schweiz",
@@ -171,7 +171,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Indien",
@@ -181,7 +181,7 @@
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Peru",
@@ -192,7 +192,7 @@
         "COPA",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Brasilien",
@@ -203,7 +203,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Dänemark",
@@ -214,7 +214,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Frankreich",
@@ -225,7 +225,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Saudi-Arabien",
@@ -235,7 +235,7 @@
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Neuseeland",
@@ -247,7 +247,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Belgien",
@@ -258,7 +258,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Israel",
@@ -269,7 +269,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Malaysia",
@@ -280,7 +280,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Thailand",
@@ -291,7 +291,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Kanada",
@@ -301,7 +301,7 @@
       "via": [
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Polen",
@@ -312,7 +312,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Schweden",
@@ -323,7 +323,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Ver. Arabische Emirate",
@@ -333,7 +333,7 @@
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Niederlande",
@@ -345,7 +345,7 @@
         "AGED",
         "ISF"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Indonesien",
@@ -356,7 +356,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Türkei",
@@ -367,7 +367,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Kuwait",
@@ -377,7 +377,7 @@
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Griechenland",
@@ -388,7 +388,7 @@
         "EIMI",
         "ISF"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Italien",
@@ -399,7 +399,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     },
     {
       "land": "Qatar",
@@ -409,7 +409,7 @@
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-29"
     }
   ],
   "regions": [
