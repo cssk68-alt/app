@@ -362,7 +362,13 @@ html, body {
   padding: 16px 16px max(40px, env(safe-area-inset-bottom));
   box-sizing: border-box;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+#slide-sparplan::-webkit-scrollbar, #slide-geo::-webkit-scrollbar, #slide-sectors::-webkit-scrollbar, #slide-performance::-webkit-scrollbar {
+  display: none;
 }
 #slide-geo, #slide-sectors, #slide-performance {
   padding: 24px 16px 60px;
