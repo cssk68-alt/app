@@ -538,7 +538,7 @@ html, body {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v23</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v24</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
 </div>
 
@@ -1556,10 +1556,11 @@ function renderPerformanceSlide() {
     const now = new Date();
     const d = new Date(meta.last_updated);
     const okTs = new Date(meta.last_all_ok_timestamp || meta.last_updated);
-    // Datum = letzter Lauf (zeigt: heute geprueft); Stunde = letzter FEHLERFREIER
-    // Lauf -> friert bei Teil-Ausfaellen auf dem 12/12-Stand ein. Europe/Berlin,
-    // bewusst nur volle Stunden ("0 Uhr").
-    const dateTxt = d.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: 'long', year: 'numeric' });
+    // Datum UND Stunde = letzter FEHLERFREIER 12/12-Lauf -> einheitlich. Bei
+    // Teil-Ausfaellen friert die Anzeige auf dem letzten kompletten Stand ein
+    // (am Wochenende: Freitag Abend). Europe/Berlin, nur volle Stunden ("0 Uhr").
+    // Hinweis: Stale/Cron-Ausfall wird weiter ueber 'd' (last_updated) erkannt.
+    const dateTxt = okTs.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: 'long', year: 'numeric' });
     const hourStr = ((new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: 'numeric', hour12: false })
       .formatToParts(okTs).find(p => p.type === 'hour') || {}).value || '?').replace(/^0(?=\d)/, '');
     const ok = meta.tickers_ok || 0;
@@ -1600,8 +1601,11 @@ function renderPerformanceSlide() {
       const weekend = (function(w){ return w === 0 || w === 6; })(_getBerlinWeekday(now));
       const resumeHour = ((new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: 'numeric', hour12: false })
         .formatToParts(_nextUpdateStart(now)).find(p => p.type === 'hour') || {}).value || '9').replace(/^0(?=\d)/, '');
+      // Wochentag des letzten kompletten Laufs (am Wochenende = Freitag).
+      const closeDay = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', weekday: 'long' }).format(okTs);
       infoBox.innerHTML = '🌙 <b>' + (weekend ? 'Wochenende' : 'Außerhalb der Handelszeiten') +
-        '</b> &ndash; Börse geschlossen. Nächste Aktualisierung' + (weekend ? ' am Montag' : '') + ' ab ' + resumeHour + ' Uhr.';
+        '</b> &ndash; Börse geschlossen.' + (weekend ? ' Angezeigt: Schlusskurse von ' + closeDay + '.' : '') +
+        ' Nächste Aktualisierung' + (weekend ? ' am Montag' : '') + ' ab ' + resumeHour + ' Uhr.';
       infoBox.classList.add('msg', 'show');
     } else if (stale) {
       infoBox.innerHTML = '⟳ Aktualisierung steht aus &ndash; läuft im Hintergrund.';
