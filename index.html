@@ -330,6 +330,7 @@
    Hoehe via 100svh (stabil, kein Adressleisten-Jump, kein Overflow);
    -webkit-text-size-adjust verhindert zusaetzlich automatische Schriftgroessen-Anpassung. */
 html, body {
+  background: var(--bg);          /* dunkler Fallback: verhindert weißes Aufblitzen beim Einklappen der URL-Leiste (Chrome Mobile) */
   width: 100%;
   max-width: 100%;
   height: 100vh;
