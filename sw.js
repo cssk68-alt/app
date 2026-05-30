@@ -2,7 +2,7 @@
 // Bug 4 Fix: Network-First für /data/* (frische ETF-Daten), Cache-First für statische Assets.
 // Zusatz: Truncation-Fix (originale Datei fehlte die letzten 5 schließenden Klammern).
 
-const CACHE_NAME = 'sparplan-v26-20260530-1830-scrollbar-global';
+const CACHE_NAME = 'sparplan-v27-20260530-2000-scrollbar-samsung';
 const FORCE_RELOAD = true;
 
 const STATIC_ASSETS = [

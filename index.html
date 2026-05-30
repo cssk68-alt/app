@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-30T18:30:00 -->
+<!-- Cache-Buster: 2026-05-30T20:00:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -20,7 +20,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v26</title>
+<title>Mein Sparplan - v27</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -344,15 +344,34 @@ html, body {
 /* Scrollbar GLOBAL ausblenden – Webseite, Handy & Web-App (PWA).
    Gilt für jeden Scroll-Container (Seite, Slides, Modal/Overlay, verschachtelte
    Listen). overflow bleibt unangetastet -> Scroll-Funktion erhalten, nur der
-   sichtbare Balken verschwindet überall. */
-* {
-  scrollbar-width: none;        /* Firefox */
-  -ms-overflow-style: none;     /* IE / alte Edge */
+   sichtbare Balken verschwindet überall.
+   Aggressiv (!important + Thumb/Track/Corner explizit) gegen die eigene
+   Overlay-Scrollbar von Samsung Internet, die display:none teils ignoriert. */
+*, *::before, *::after {
+  scrollbar-width: none !important;        /* Firefox */
+  -ms-overflow-style: none !important;     /* IE / alte Edge */
 }
-*::-webkit-scrollbar {          /* Chrome, Safari, neue Edge, iOS, Android */
-  width: 0;
-  height: 0;
-  display: none;
+html, body, * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+*::-webkit-scrollbar {                      /* Chrome, Safari, Edge, iOS, Samsung */
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track-piece,
+*::-webkit-scrollbar-corner,
+*::-webkit-resizer {
+  background: transparent !important;
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
 }
 #app-slider {
   position: fixed;
@@ -552,7 +571,7 @@ html, body {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v26</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v27</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
 </div>
 
