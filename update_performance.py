@@ -9,7 +9,7 @@ Returns berechnet werden -> faire Vergleichsbasis mit IWDA.AS in EUR
 (deine Sparplan-Wallet-Sicht).
 
 Yahoo Finance primaer (Host-Fallback query1/query2), Stooq als Fallback.
-Wird Mo-Fr mehrmals pro Stunde (Cron 7,37 * 7-21 UTC) via GitHub Actions
+Wird Mo-Fr mehrmals pro Stunde (Cron '7,37 7-21 * * 1-5' UTC) via GitHub Actions
 ausgefuehrt, damit die Werte mindestens stuendlich aktualisiert werden.
 Faellt die FX-/Kursabfrage aus, werden die letzten bekannten Kurse genutzt
 statt das Update komplett abzubrechen.
@@ -23,7 +23,7 @@ from datetime import date, datetime, timedelta, timezone
 import requests
 
 BASELINE_DATE = date(2026, 5, 18)
-MIN_SUCCESS_TICKERS = 10
+MIN_SUCCESS_TICKERS = 12  # strikt 12/12: bei weniger werden alte Kurse eingefroren, nie Teil-Updates geschrieben
 
 # ticker -> (Yahoo-Symbol, Stooq-Symbol, ISIN, Portfolio-Gewicht in %)
 # WHCS: WHCS.L existiert nicht auf LSE; WHCS ist Amsterdam/Swiss ticker,
@@ -129,7 +129,7 @@ def fetch_yahoo(symbol, start_d, end_d):
             for ts, c in zip(timestamps, closes):
                 if c is None:
                     continue
-                d = date.fromtimestamp(ts)
+                d = datetime.fromtimestamp(ts, tz=timezone.utc).date()
                 prices[_date_str(d)] = float(c)
             if prices:
                 return prices, currency
@@ -197,9 +197,32 @@ def fetch_ticker(name, yahoo_sym, stooq_sym, fallback_currency, start_d, end_d):
     return None, None
 
 
+def fetch_fx_frankfurter(pair_code, start_d, end_d):
+    """FX-Fallback ueber frankfurter.app (offizielle EZB-Referenzkurse, kein
+    API-Key, kein Scraping/Rate-Limit). Returns {YYYY-MM-DD: rate} (X pro 1 EUR)
+    oder None. EZB liefert nur Bankarbeitstage -> forward_fill schliesst Luecken."""
+    d1 = start_d.strftime("%Y-%m-%d")
+    d2 = end_d.strftime("%Y-%m-%d")
+    url = f"https://api.frankfurter.app/{d1}..{d2}?base=EUR&symbols={pair_code}"
+    try:
+        r = _get_with_retry(url, HEADERS)
+        if r is None or r.status_code != 200:
+            return None
+        rates = (r.json() or {}).get("rates") or {}
+        out = {}
+        for d_str, day in rates.items():
+            v = (day or {}).get(pair_code)
+            if v:
+                out[d_str] = float(v)
+        return out if out else None
+    except (requests.RequestException, ValueError, KeyError):
+        return None
+
+
 def fetch_fx(pair_code, start_d, end_d):
     """Holt EUR/X-Kurse (X = USD oder GBP). Returns dict {date: rate} oder None.
-    Rate = wieviel X pro 1 EUR (Standard-Quotation EURUSD=1.16 -> 1 EUR = 1.16 USD)."""
+    Rate = wieviel X pro 1 EUR (Standard-Quotation EURUSD=1.16 -> 1 EUR = 1.16 USD).
+    Reihenfolge: Yahoo -> Stooq -> Frankfurter/EZB."""
     yh, st = FX_SYMBOLS[pair_code]
     prices, _ = fetch_yahoo(yh, start_d, end_d)
     if prices and len(prices) >= 2:
@@ -210,6 +233,12 @@ def fetch_fx(pair_code, start_d, end_d):
     prices = fetch_stooq(st, start_d, end_d)
     if prices and len(prices) >= 2:
         print(f"  [FX EUR{pair_code}] Stooq OK ({len(prices)} Tage)", flush=True)
+        return prices
+    print(f"  [FX EUR{pair_code}] Stooq fehlgeschlagen, versuche Frankfurter (EZB)...", flush=True)
+    time.sleep(0.3)
+    prices = fetch_fx_frankfurter(pair_code, start_d, end_d)
+    if prices and len(prices) >= 1:
+        print(f"  [FX EUR{pair_code}] Frankfurter/EZB OK ({len(prices)} Tage)", flush=True)
         return prices
     print(f"  [FX EUR{pair_code}] FEHLGESCHLAGEN", flush=True)
     return None
@@ -277,6 +306,33 @@ def calc_week_return(monday, friday, dates, returns):
     return round(end_pct - start_pct, 4)
 
 
+def write_frozen(existing_obj, failed_tickers, now_utc):
+    """Strikt-12/12-Politik: Bei unvollstaendigem Update KEINE neuen Kurse
+    schreiben. Alte Kurs-Arrays (dates/portfolio/msci_world/weekly/ticker_returns)
+    1:1 behalten, nur _meta.last_updated + failed_tickers + tickers_ok
+    aktualisieren; last_all_ok_timestamp + alle Reihen bleiben eingefroren.
+    -> Datum zeigt 'heute geprueft', Uhrzeit/Werte frieren auf letztem 12/12-Stand.
+    Returns True wenn geschrieben."""
+    if not existing_obj or "dates" not in existing_obj:
+        print("  Kein bestehender Datensatz zum Einfrieren -> nichts geschrieben.", flush=True)
+        return False
+    meta = existing_obj.get("_meta") or {}
+    total = len(PORTFOLIO_TICKERS)
+    meta["last_updated"] = now_utc.strftime('%Y-%m-%dT%H:%M:%SZ')
+    meta["update_success"] = True
+    meta["tickers_total"] = total
+    meta["tickers_ok"] = max(0, total - len([t for t in failed_tickers if t != "MSCI"]))
+    meta["failed_tickers"] = [
+        {"symbol": t, "name": PORTFOLIO_NAMES.get(t, t)} for t in failed_tickers
+    ]
+    existing_obj["_meta"] = meta
+    with open("data/performance.json", "w", encoding="utf-8") as f:
+        json.dump(existing_obj, f, ensure_ascii=False, indent=2)
+    print(f"  Eingefroren: {meta['tickers_ok']}/{total} OK, alte Kurse beibehalten, "
+          f"last_updated={meta['last_updated']}.", flush=True)
+    return True
+
+
 def main():
     os.makedirs("data", exist_ok=True)
     today = date.today()
@@ -284,12 +340,14 @@ def main():
     now_utc = datetime.now(timezone.utc)
     print(f"=== Performance Update gestartet ({now_utc:%Y-%m-%d %H:%M} UTC) ===", flush=True)
 
+    existing_obj = None
     existing_last_all_ok_ts = None
     existing_fx_snapshot = {}
     try:
         if os.path.exists("data/performance.json"):
             with open("data/performance.json", "r", encoding="utf-8") as f:
-                _existing_meta = json.load(f).get("_meta", {})
+                existing_obj = json.load(f)
+                _existing_meta = existing_obj.get("_meta", {})
                 existing_last_all_ok_ts = _existing_meta.get("last_all_ok_timestamp")
                 existing_fx_snapshot = _existing_meta.get("fx_snapshot") or {}
     except Exception:
@@ -344,8 +402,16 @@ def main():
     print(f"\n=== Ergebnis: {n_ok}/{len(PORTFOLIO_TICKERS)} Portfolio, "
           f"MSCI: {'OK' if msci_prices else 'FAIL'} ===", flush=True)
 
+    # Strikt 12/12: bei <12 erfolgreich geholten Tickern (oder fehlendem MSCI)
+    # KEINE neuen Kurse schreiben. Alte Arrays einfrieren, nur last_updated +
+    # failed_tickers aktualisieren (last_all_ok_timestamp bleibt eingefroren).
     if n_ok < MIN_SUCCESS_TICKERS or not msci_prices:
-        print(f"Zu wenig Daten -> bestehende performance.json bleibt unveraendert.", flush=True)
+        frozen_failed = [t for t in PORTFOLIO_TICKERS if t not in portfolio_data]
+        if not msci_prices:
+            frozen_failed.append("MSCI")
+        print(f"Nur {n_ok}/{len(PORTFOLIO_TICKERS)} Ticker"
+              f"{' + MSCI fehlt' if not msci_prices else ''} -> alte Kurse einfrieren.", flush=True)
+        write_frozen(existing_obj, frozen_failed, now_utc)
         return
 
     # 3) Datums-Achse
@@ -379,12 +445,23 @@ def main():
         print(f"  [{ticker}] currency={currency}, baseline={baseline_eur:.4f} EUR, "
               f"latest={last:.4f} EUR, return={ret_total:+.3f}%", flush=True)
 
+    # Strikt 12/12 auch nach EUR-Konvertierung: wenn ein Ticker keine EUR-Reihe
+    # bekommen hat (z.B. unbekannte Waehrung / kein Baseline) -> einfrieren statt
+    # einen verzerrten (untergewichteten) Verlauf zu schreiben.
+    if len(ticker_series_eur) < len(PORTFOLIO_TICKERS):
+        eur_failed = [t for t in PORTFOLIO_TICKERS if t not in ticker_series_eur]
+        print(f"Nur {len(ticker_series_eur)}/{len(PORTFOLIO_TICKERS)} EUR-konvertierbar "
+              f"({', '.join(eur_failed)}) -> alte Kurse einfrieren.", flush=True)
+        write_frozen(existing_obj, eur_failed, now_utc)
+        return
+
     # 6) MSCI EUR-konvertieren (IWDA.AS ist typ. EUR -> identity)
     msci_native = forward_fill(msci_prices, all_dates)
     msci_eur = convert_series_to_eur(msci_native, msci_cur or "EUR", fx_usd_series, fx_gbp_series)
     msci_baseline_eur = next((p for p in msci_eur if p is not None), None)
     if not msci_baseline_eur or msci_baseline_eur <= 0:
-        print("MSCI: Kein EUR-Baseline -> Abbruch", flush=True)
+        print("MSCI: Kein EUR-Baseline -> alte Kurse einfrieren.", flush=True)
+        write_frozen(existing_obj, ["MSCI"], now_utc)
         return
     print(f"  [MSCI] currency={msci_cur}, baseline={msci_baseline_eur:.4f} EUR", flush=True)
 

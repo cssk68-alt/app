@@ -1425,7 +1425,11 @@ let _perfRefreshTimer = null;    // setInterval-Handle fuer periodischen Refresh
 function _isUpdateWindow(now) {
   const day = now.getUTCDay();      // 0=So .. 6=Sa
   const hour = now.getUTCHours();
-  return day >= 1 && day <= 5 && hour >= 7 && hour < 22;
+  const min = now.getUTCMinutes();
+  // Mo-Fr 07:10-22:00 UTC. Start erst 07:10, da der erste Cron-Lauf um 07:07 kommt
+  // (+Puffer) -> keine 7-Min-Fehlanzeige am Morgen.
+  if (day < 1 || day > 5) return false;
+  return ((hour > 7) || (hour === 7 && min >= 10)) && hour < 22;
 }
 
 // Berliner Wochentag (0=So .. 6=Sa), DST-sicher via Intl (kein UTC-Off-by-one am Tagesrand).
@@ -1551,11 +1555,13 @@ function renderPerformanceSlide() {
   if (meta.update_success && meta.last_updated) {
     const now = new Date();
     const d = new Date(meta.last_updated);
-    // Datum UND Stunde aus DERSELBEN Quelle (last_updated), konsequent Europe/Berlin.
-    // Bewusst nur volle Stunden ("0 Uhr").
+    const okTs = new Date(meta.last_all_ok_timestamp || meta.last_updated);
+    // Datum = letzter Lauf (zeigt: heute geprueft); Stunde = letzter FEHLERFREIER
+    // Lauf -> friert bei Teil-Ausfaellen auf dem 12/12-Stand ein. Europe/Berlin,
+    // bewusst nur volle Stunden ("0 Uhr").
     const dateTxt = d.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: 'long', year: 'numeric' });
     const hourStr = ((new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: 'numeric', hour12: false })
-      .formatToParts(d).find(p => p.type === 'hour') || {}).value || '?').replace(/^0(?=\d)/, '');
+      .formatToParts(okTs).find(p => p.type === 'hour') || {}).value || '?').replace(/^0(?=\d)/, '');
     const ok = meta.tickers_ok || 0;
     const total = (meta.tickers_total > 0) ? meta.tickers_total : (ok || 12);
     const failed = Array.isArray(meta.failed_tickers) ? meta.failed_tickers : [];
