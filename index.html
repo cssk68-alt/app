@@ -412,17 +412,18 @@ html, body {
 .perf-bucket-detail-pct.neutral { color: #9ca3af; }
 
 .perf-last-update { font-size: 11px; color: #6b7280; text-align: center; padding-top: 4px; }
-.perf-offhours { font-size: 11px; color: #9ca3af; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 9px 12px; margin: 0 2px 14px; line-height: 1.45; }
-.perf-offhours b { color: #e5e7eb; font-weight: 700; }
 .perf-status-wrap { display: inline-flex; align-items: center; gap: 5px; position: relative; }
 .perf-status-icon { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; font-size: 9px; font-weight: 700; line-height: 1; }
 .perf-status-icon.ok { background: rgba(52,211,153,0.18); color: #34d399; border: 1px solid rgba(52,211,153,0.45); }
 .perf-status-icon.warn { background: rgba(251,191,36,0.18); color: #fbbf24; border: 1px solid rgba(251,191,36,0.45); cursor: pointer; }
 .perf-status-info-btn { background: none; border: none; padding: 0; margin: 0; color: #fbbf24; font-size: 11px; cursor: pointer; text-decoration: underline dotted; font-family: inherit; }
 .perf-time-small { font-size: 10px; color: #6b7280; margin-left: 3px; font-variant-numeric: tabular-nums; }
-.perf-status-info-box { display: none; margin: 6px auto 0; max-width: 360px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3); border-radius: 10px; padding: 8px 12px; font-size: 11px; color: #fbbf24; text-align: left; line-height: 1.5; }
-.perf-status-info-box.open { display: block; }
-.perf-status-info-box b { color: #fde68a; }
+.perf-status-info-box { display: none; margin: 8px auto 0; max-width: 420px; border-radius: 12px; padding: 9px 12px; font-size: 11px; text-align: left; line-height: 1.5; }
+.perf-status-info-box.show { display: block; }
+.perf-status-info-box.warn { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; }
+.perf-status-info-box.warn b { color: #fde68a; }
+.perf-status-info-box.msg { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); color: #9ca3af; }
+.perf-status-info-box.msg b { color: #e5e7eb; }
 
 /* === SECTORS SLIDE (Slide 3) === */
 .sector-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: var(--radius-modal); overflow: hidden; margin-bottom: 14px; }
@@ -614,8 +615,6 @@ html, body {
     <div style="font-size:10px;color:#6b7280;margin:-8px 4px 14px;line-height:1.4">
       Alle Werte in EUR (tagesgenau via EURUSD&middot;X / EURGBP&middot;X umgerechnet). Benchmark: iShares Core MSCI World (IWDA.AS), EUR-notiert. Medien-Headlines zitieren oft den USD-Preisindex &ndash; weicht durch FX + Dividenden ab.
     </div>
-
-    <div class="perf-offhours" id="perf-offhours" style="display:none"></div>
 
     <div class="perf-chart-card">
       <div class="perf-chart-card-inner">
@@ -1429,6 +1428,21 @@ function _isUpdateWindow(now) {
   return day >= 1 && day <= 5 && hour >= 7 && hour < 22;
 }
 
+// Berliner Wochentag (0=So .. 6=Sa), DST-sicher via Intl (kein UTC-Off-by-one am Tagesrand).
+function _getBerlinWeekday(now) {
+  const wd = (new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Berlin', weekday: 'short' })
+    .formatToParts(now).find(p => p.type === 'weekday') || {}).value;
+  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(wd);
+}
+// Naechster Cron-Start: naechster Werktag (Mo-Fr) 07:00 UTC -> in Berlin 9 Uhr (Sommer) / 8 Uhr (Winter).
+function _nextUpdateStart(now) {
+  const d = new Date(now.getTime());
+  d.setUTCHours(7, 0, 0, 0);
+  if (d.getTime() <= now.getTime()) d.setUTCDate(d.getUTCDate() + 1);
+  while (d.getUTCDay() === 0 || d.getUTCDay() === 6) d.setUTCDate(d.getUTCDate() + 1);
+  return d;
+}
+
 function _formatPctSigned(v) {
   if (v === null || v === undefined || isNaN(v)) return '—';
   const sign = v > 0 ? '+' : '';
@@ -1505,22 +1519,6 @@ function renderPerformanceSlide() {
   const valMsci = document.getElementById('perf-val-msci');
   const lastEl  = document.getElementById('perf-last-update');
 
-  // Off-hours-Hinweis: ausserhalb des Update-Fensters (Wochenende/Nacht) zieht der
-  // Cron keine neuen Kurse (laeuft Mo-Fr tagsueber) und die Boersen sind ohnehin zu.
-  const offEl = document.getElementById('perf-offhours');
-  if (offEl) {
-    const _now = new Date();
-    if (_isUpdateWindow(_now)) {
-      offEl.style.display = 'none';
-    } else {
-      const _wd = _now.getUTCDay(); // 0=So .. 6=Sa
-      offEl.innerHTML = (_wd === 0 || _wd === 6)
-        ? '🌙 <b>Wochenende</b> &ndash; Börsen geschlossen. Die Kurse werden ab Montag wieder werktags aktualisiert.'
-        : '🌙 <b>Außerhalb der Handelszeiten</b> &ndash; die Kurse werden werktags tagsüber (Mo&ndash;Fr) aktualisiert.';
-      offEl.style.display = '';
-    }
-  }
-
   const hasData = _perfData && Array.isArray(_perfData.dates) && _perfData.dates.length >= 2;
 
   if (!hasData) {
@@ -1551,78 +1549,64 @@ function renderPerformanceSlide() {
   const infoBox = document.getElementById('perf-status-info');
   const meta = _perfData._meta || {};
   if (meta.update_success && meta.last_updated) {
+    const now = new Date();
     const d = new Date(meta.last_updated);
-    const txt = d.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: 'long', year: 'numeric' });
+    // Datum UND Stunde aus DERSELBEN Quelle (last_updated), konsequent Europe/Berlin.
+    // Bewusst nur volle Stunden ("0 Uhr").
+    const dateTxt = d.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: 'long', year: 'numeric' });
+    const hourStr = ((new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: 'numeric', hour12: false })
+      .formatToParts(d).find(p => p.type === 'hour') || {}).value || '?').replace(/^0(?=\d)/, '');
     const ok = meta.tickers_ok || 0;
-    const total = meta.tickers_total || 12;
+    const total = (meta.tickers_total > 0) ? meta.tickers_total : (ok || 12);
     const failed = Array.isArray(meta.failed_tickers) ? meta.failed_tickers : [];
     const hasFailed = failed.length > 0;
-    // Veraltet? Nur im erwarteten Update-Fenster relevant (sonst kein Fehlalarm).
-    const ageMin = (Date.now() - d.getTime()) / 60000;
-    const stale = _isUpdateWindow(new Date()) && ageMin > 90;
-    const allOk = ok >= total && !hasFailed && !stale;
+    const inWindow = _isUpdateWindow(now);
+    const ageMin = (now.getTime() - d.getTime()) / 60000;
+    const stale = inWindow && ageMin > 90;
 
+    // "Stand:"-Zeile: Datum + volle Stunde + Health-Icon.
     lastEl.innerHTML = '';
     const wrap = document.createElement('span');
     wrap.className = 'perf-status-wrap';
-    wrap.appendChild(document.createTextNode('Stand: ' + txt + ' '));
+    wrap.appendChild(document.createTextNode('Stand: ' + dateTxt + ', ' + hourStr + ' Uhr '));
     const icon = document.createElement('span');
-    if (allOk) {
-      icon.className = 'perf-status-icon ok';
-      icon.textContent = '✓';
-      icon.title = 'Alle ' + total + ' Positionen aktualisiert';
-      wrap.appendChild(icon);
-    } else if (hasFailed) {
+    if (hasFailed) {
       icon.className = 'perf-status-icon warn';
       icon.textContent = '!';
       icon.title = (total - ok) + ' Position(en) nicht aktualisiert';
-      wrap.appendChild(icon);
-      const btn = document.createElement('button');
-      btn.className = 'perf-status-info-btn';
-      btn.type = 'button';
-      btn.textContent = (total - ok) + ' fehlend';
-      btn.addEventListener('click', () => infoBox.classList.toggle('open'));
-      wrap.appendChild(btn);
-      const names = failed.length
-        ? failed.map(f => (f && typeof f === 'object') ? (f.name || f.symbol) : f).join(', ')
-        : '—';
-      infoBox.innerHTML = '<b>⚠️ Nicht aktualisiert:</b> ' + names +
-        '<br>Anzeige nutzt die zuletzt erfolgreichen Kurse dieser Ticker.';
     } else {
-      // Daten veraltet: alle Ticker ok, aber im Update-Fenster zu alt.
-      // Auto-Refresh laeuft im Hintergrund weiter -> dezenter Hinweis statt gruenem Haken.
-      icon.className = 'perf-status-icon warn';
-      icon.textContent = '⟳';
-      icon.title = 'Daten veraltet – Aktualisierung steht aus';
-      wrap.appendChild(icon);
-      const note = document.createElement('span');
-      note.className = 'perf-time-small';
-      note.textContent = 'wird aktualisiert…';
-      wrap.appendChild(note);
+      icon.className = 'perf-status-icon ok';
+      icon.textContent = '✓';
+      icon.title = 'Alle ' + total + ' Positionen aktualisiert';
     }
-    const allOkTs = meta.last_all_ok_timestamp;
-    if (allOkTs) {
-      const tsDate = new Date(allOkTs);
-      const timeParts = new Intl.DateTimeFormat('de-DE', {
-        timeZone: 'Europe/Berlin',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      }).formatToParts(tsDate);
-      const hourStr   = (timeParts.find(p => p.type === 'hour')   || {}).value || '00';
-      const minuteStr = (timeParts.find(p => p.type === 'minute') || {}).value || '00';
-      const timeStr = hourStr + ':' + minuteStr + ' Uhr';
-      const timeSpan = document.createElement('span');
-      timeSpan.className = 'perf-time-small';
-      timeSpan.textContent = timeStr;
-      wrap.appendChild(timeSpan);
-    }
+    wrap.appendChild(icon);
     lastEl.appendChild(wrap);
     lastEl.style.display = '';
-    if (allOk) infoBox.classList.remove('open');
+
+    // EIN Kaestchen unten neben der Uhrzeit: Fehler-Warnung ODER Off-hours-Nachricht (mit Mond).
+    infoBox.className = 'perf-status-info-box';
+    if (hasFailed) {
+      const names = failed.map(f => (f && typeof f === 'object') ? (f.name || f.symbol) : f).join(', ');
+      infoBox.innerHTML = '<b>⚠️ Nicht aktualisiert:</b> ' + names +
+        '<br>Anzeige nutzt die zuletzt erfolgreichen Kurse dieser Ticker.';
+      infoBox.classList.add('warn', 'show');
+    } else if (!inWindow) {
+      const weekend = (function(w){ return w === 0 || w === 6; })(_getBerlinWeekday(now));
+      const resumeHour = ((new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: 'numeric', hour12: false })
+        .formatToParts(_nextUpdateStart(now)).find(p => p.type === 'hour') || {}).value || '9').replace(/^0(?=\d)/, '');
+      infoBox.innerHTML = '🌙 <b>' + (weekend ? 'Wochenende' : 'Außerhalb der Handelszeiten') +
+        '</b> &ndash; Börse geschlossen. Nächste Aktualisierung' + (weekend ? ' am Montag' : '') + ' ab ' + resumeHour + ' Uhr.';
+      infoBox.classList.add('msg', 'show');
+    } else if (stale) {
+      infoBox.innerHTML = '⟳ Aktualisierung steht aus &ndash; läuft im Hintergrund.';
+      infoBox.classList.add('msg', 'show');
+    } else {
+      infoBox.innerHTML = '';
+    }
   } else {
     lastEl.style.display = 'none';
-    if (infoBox) infoBox.classList.remove('open');
+    infoBox.className = 'perf-status-info-box';
+    infoBox.innerHTML = '';
   }
 
   renderPerformanceChart(dates, port, msci);
