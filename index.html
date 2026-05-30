@@ -20,7 +20,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v27</title>
+<title>Mein Sparplan - v28</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -577,7 +577,7 @@ html, body, * {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v27</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v28</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
 </div>
 
@@ -1860,18 +1860,33 @@ function safeText(s) {
 }
 
 // Aktiengattungen (Stamm/Vorzug, Class A/C, ADR-Dubletten) desselben Emittenten zusammenfassen,
-// damit Konzentrationen nicht unterschätzt werden. Regelfall: Emittenten-Präfix der ISIN
-// (Land + 6-stelliger Emittenten-Code). ISIN_DEDUP_MAP nur noch als Override für Ausnahmen.
+// damit Konzentrationen nicht unterschätzt werden. ISIN_DEDUP_MAP als Override für Ausnahmen
+// (volle ISIN → fester Cluster-Key).
 const ISIN_DEDUP_MAP = {
-  // "XXxxxxxxxxxx": "YYyyyyyyyyyy",  // bei Bedarf manuelle Korrektur eintragen
+  // "XXxxxxxxxxxx": "FESTER_KEY",  // bei Bedarf manuelle Korrektur eintragen
 };
 
 // Gruppierungs-Schlüssel: gleicher Emittent → ein Klumpen.
+// Key = normalisierter Emittenten-NAME, NICHT der ISIN-Präfix: australische ISINs sind z.B.
+// AU+000000+Ticker, d.h. die ersten 8 Zeichen ("AU000000") sind bei JEDER AU-Aktie gleich
+// → ein ISIN-Präfix-Key würde BHP/Westpac/NAB/Macquarie fälschlich zu einem Klumpen verschmelzen.
 function _clusterKey(h) {
   const isin = h && h.isin;
   if (isin && ISIN_DEDUP_MAP[isin]) return ISIN_DEDUP_MAP[isin];
-  if (isin && isin.length >= 8) return isin.slice(0, 8); // Land(2) + Emittenten-Code(6)
-  return isin || (h && h.name) || '';
+  const norm = _normalizeIssuer(h && h.name);
+  return norm || isin || '';
+}
+
+// Emittenten-Name normalisieren: Gattungs-Suffix weg, Großschreibung, Satzzeichen/Whitespace
+// vereinheitlichen. So fallen Stamm/Vorzug & Mehrfach-Listings desselben Konzerns auf denselben
+// Key, während verschiedene Konzerne getrennt bleiben.
+function _normalizeIssuer(name) {
+  if (!name) return '';
+  return _cleanStockName(name)
+    .toUpperCase()
+    .replace(/[.,()'’\/-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 // Gattungs-Suffixe nur für die Anzeige entfernen (z.B. "ALPHABET INC CLASS A" → "ALPHABET INC").
@@ -1886,6 +1901,7 @@ function _cleanStockName(name) {
 function computeClusterRisk(data) {
   if (!data || !data.holdings) return [];
   const agg = {};
+  const isinToKey = {};   // volle ISIN → Cluster-Key, für den Direkt-Aktien-Abgleich unten
   // 1) ETF-Holdings auf Einzeltitel durchrechnen
   for (const [ticker, block] of Object.entries(data.holdings.etfs || {})) {
     const pPct = _portfolioPct(ticker);
@@ -1893,18 +1909,21 @@ function computeClusterRisk(data) {
     for (const h of block.top_holdings || []) {
       const key = _clusterKey(h);
       if (!key) continue;
-      if (!agg[key]) agg[key] = { nameRaw: h.name, bestW: 0, isin: key, total_pct: 0, viaMap: {} };
+      if (h.isin) isinToKey[h.isin] = key;
+      if (!agg[key]) agg[key] = { nameRaw: h.name, bestW: 0, isin: h.isin || key, total_pct: 0, viaMap: {} };
       agg[key].total_pct += pPct * (h.weight_pct / 100);
       agg[key].viaMap[ticker] = (agg[key].viaMap[ticker] || 0) + h.weight_pct; // pro ETF addieren
-      if (h.weight_pct > agg[key].bestW) { agg[key].bestW = h.weight_pct; agg[key].nameRaw = h.name; }
+      if (h.weight_pct > agg[key].bestW) { agg[key].bestW = h.weight_pct; agg[key].nameRaw = h.name; agg[key].isin = h.isin || agg[key].isin; }
     }
   }
   // 2) Direkte Einzelaktien NUR aufnehmen, wenn sie auch in ≥1 ETF vorkommen (= ≥2 Produkte).
-  //    Reine Einzelwetten ohne ETF-Überlappung (z.B. Allianz) sind kein Klumpen und bleiben draußen.
+  //    Match über die volle ISIN gegen die ETF-Holdings (nicht über den Namen, der im
+  //    Sparplan-Datensatz anders geschrieben sein kann). Reine Einzelwetten ohne ETF-
+  //    Überlappung (z.B. Allianz) sind kein Klumpen und bleiben draußen.
   for (const g of GROUPS) for (const p of g.products) {
     if (p.trType !== 'aktie' || !p.isin) continue;
-    const key = _clusterKey({ isin: p.isin });
-    if (!agg[key]) continue;
+    const key = isinToKey[p.isin];
+    if (!key || !agg[key]) continue;
     const pPct = _portfolioPct(p.ticker);
     agg[key].total_pct += pPct;                                       // 100% direkt gehalten
     agg[key].viaMap[p.ticker] = (agg[key].viaMap[p.ticker] || 0) + 100;
