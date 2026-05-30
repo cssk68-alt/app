@@ -228,13 +228,25 @@
   .modal .modal-group-name { font-weight: 900; font-size: 20px; line-height: 1.15; }  /* Sektor-Name: Sektorfarbe via JS */
   .modal .modal-group-sub { font-size: 12px; color: var(--label); margin-top: 3px; }
   .modal .modal-group-sub b { color: var(--val); font-weight: 700; }                   /* Betraege: reines Weiss */
+  /* Schliess-Button: bleibt beim Scrollen oben rechts INNERHALB des Modals sichtbar (sticky) */
+  .modal .modal-closebar {
+    position: sticky; top: 0; z-index: 20;
+    height: 0;                          /* nimmt keinen Platz ein -> Kopf startet ganz oben */
+    display: flex; justify-content: flex-end;
+    pointer-events: none;               /* nur der Button faengt Klicks, nicht die 0-hohe Leiste */
+  }
   .modal .modal-close {
-    background: rgba(255,255,255,0.07); border: none; border-radius: 50%;
+    pointer-events: auto;
+    margin: 12px 14px 0 0;              /* 12px von oben, 14px von rechts */
+    background: rgba(36,40,60,0.85);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 50%;
     width: 32px; height: 32px; color: var(--label); font-size: 16px;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
   }
-  .modal .modal-close:active { background: rgba(255,255,255,0.14); }
+  .modal .modal-close:active { background: rgba(60,66,92,0.95); }
 
   /* "Anteil am Gesamtplan"-Leiste – als dezente Gruppen-Box */
   .modal .modal-share-bar { margin-top: 16px; border-radius: var(--radius-box); padding: 12px 14px; background: var(--group-bg); }
@@ -400,6 +412,8 @@ html, body {
 .perf-bucket-detail-pct.neutral { color: #9ca3af; }
 
 .perf-last-update { font-size: 11px; color: #6b7280; text-align: center; padding-top: 4px; }
+.perf-offhours { font-size: 11px; color: #9ca3af; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 9px 12px; margin: 0 2px 14px; line-height: 1.45; }
+.perf-offhours b { color: #e5e7eb; font-weight: 700; }
 .perf-status-wrap { display: inline-flex; align-items: center; gap: 5px; position: relative; }
 .perf-status-icon { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; font-size: 9px; font-weight: 700; line-height: 1; }
 .perf-status-icon.ok { background: rgba(52,211,153,0.18); color: #34d399; border: 1px solid rgba(52,211,153,0.45); }
@@ -601,6 +615,8 @@ html, body {
       Alle Werte in EUR (tagesgenau via EURUSD&middot;X / EURGBP&middot;X umgerechnet). Benchmark: iShares Core MSCI World (IWDA.AS), EUR-notiert. Medien-Headlines zitieren oft den USD-Preisindex &ndash; weicht durch FX + Dividenden ab.
     </div>
 
+    <div class="perf-offhours" id="perf-offhours" style="display:none"></div>
+
     <div class="perf-chart-card">
       <div class="perf-chart-card-inner">
         <canvas id="perfChart"></canvas>
@@ -633,6 +649,7 @@ html, body {
 <!-- MODAL -->
 <div class="overlay" id="overlay">
   <div class="modal" id="modal">
+    <div class="modal-closebar"><button class="modal-close" onclick="closeModal()" aria-label="Schließen">✕</button></div>
     <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
     <div class="modal-header" id="modalHeader">
       <div class="modal-header-top">
@@ -643,7 +660,6 @@ html, body {
             <div class="modal-group-sub" id="mSub"></div>
           </div>
         </div>
-        <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-share-bar" id="mShareBar">
         <div class="modal-share-row">
@@ -1489,6 +1505,22 @@ function renderPerformanceSlide() {
   const valMsci = document.getElementById('perf-val-msci');
   const lastEl  = document.getElementById('perf-last-update');
 
+  // Off-hours-Hinweis: ausserhalb des Update-Fensters (Wochenende/Nacht) zieht der
+  // Cron keine neuen Kurse (laeuft Mo-Fr tagsueber) und die Boersen sind ohnehin zu.
+  const offEl = document.getElementById('perf-offhours');
+  if (offEl) {
+    const _now = new Date();
+    if (_isUpdateWindow(_now)) {
+      offEl.style.display = 'none';
+    } else {
+      const _wd = _now.getUTCDay(); // 0=So .. 6=Sa
+      offEl.innerHTML = (_wd === 0 || _wd === 6)
+        ? '🌙 <b>Wochenende</b> &ndash; Börsen geschlossen. Die Kurse werden ab Montag wieder werktags aktualisiert.'
+        : '🌙 <b>Außerhalb der Handelszeiten</b> &ndash; die Kurse werden werktags tagsüber (Mo&ndash;Fr) aktualisiert.';
+      offEl.style.display = '';
+    }
+  }
+
   const hasData = _perfData && Array.isArray(_perfData.dates) && _perfData.dates.length >= 2;
 
   if (!hasData) {
@@ -1520,7 +1552,7 @@ function renderPerformanceSlide() {
   const meta = _perfData._meta || {};
   if (meta.update_success && meta.last_updated) {
     const d = new Date(meta.last_updated);
-    const txt = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+    const txt = d.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: 'long', year: 'numeric' });
     const ok = meta.tickers_ok || 0;
     const total = meta.tickers_total || 12;
     const failed = Array.isArray(meta.failed_tickers) ? meta.failed_tickers : [];
@@ -1571,13 +1603,15 @@ function renderPerformanceSlide() {
     const allOkTs = meta.last_all_ok_timestamp;
     if (allOkTs) {
       const tsDate = new Date(allOkTs);
-      const hourParts = new Intl.DateTimeFormat('de-DE', {
+      const timeParts = new Intl.DateTimeFormat('de-DE', {
         timeZone: 'Europe/Berlin',
         hour: '2-digit',
+        minute: '2-digit',
         hour12: false
       }).formatToParts(tsDate);
-      const hourStr = (hourParts.find(p => p.type === 'hour') || {}).value || '00';
-      const timeStr = hourStr + ':00 Uhr';
+      const hourStr   = (timeParts.find(p => p.type === 'hour')   || {}).value || '00';
+      const minuteStr = (timeParts.find(p => p.type === 'minute') || {}).value || '00';
+      const timeStr = hourStr + ':' + minuteStr + ' Uhr';
       const timeSpan = document.createElement('span');
       timeSpan.className = 'perf-time-small';
       timeSpan.textContent = timeStr;
