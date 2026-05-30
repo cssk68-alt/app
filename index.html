@@ -475,36 +475,27 @@ html, body {
 .slide-subtitle { text-align: center; font-size: 11px; color: #6b7280; margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
 
 /* === GEO SECTION === */
-.geo-wrap-outer { max-width: 480px; margin: 0 auto; }
-.geo-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: var(--radius-modal); overflow: hidden; }
+.geo-wrap-outer { max-width: 480px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
+.geo-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.18); border-radius: var(--radius-modal); overflow: hidden; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .geo-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
 .geo-header-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
 .geo-header-badge { font-size: 10px; font-weight: 500; color: #6b7280; background: rgba(255,255,255,0.06); border-radius: 20px; padding: 2px 8px; }
-.geo-map-wrap { position: relative; background: rgba(0,0,0,0.3); padding: 10px 10px 4px; }
-#geoSvg { width: 100%; height: auto; display: block; border-radius: 10px; cursor: pointer; }
+.geo-map-wrap { position: relative; background: rgba(0,0,0,0.3); padding: 12px 12px 8px; flex-shrink: 0; }
+#geoSvg { width: 100%; height: auto; max-height: 46vh; display: block; border-radius: 10px; cursor: pointer; }
 .geo-ocean { fill: #0e2d4e; }
 .geo-country { stroke: rgba(255,255,255,0.1); stroke-width: 0.4px; cursor: pointer; transition: fill-opacity 0.15s; }
 .geo-country.hl { stroke: rgba(255,255,255,0.5); stroke-width: 0.8px; filter: brightness(1.6) drop-shadow(0 0 4px currentColor); }
 .geo-graticule { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 0.5px; }
-.geo-tip { position: absolute; background: rgba(10,8,32,0.97); border: 1px solid rgba(167,139,250,0.45); border-radius: 8px; padding: 5px 9px; font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 30; white-space: nowrap; box-shadow: 0 6px 24px rgba(0,0,0,0.6); top: 10px; left: 10px; }
-.geo-tip.vis { opacity: 1; }
-.geo-tip-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-.geo-tip-vals { display: flex; gap: 12px; font-size: 11px; color: #9ca3af; }
-.geo-tip-vals b { font-weight: 700; color: #f3f4f6; }
-.geo-legend { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px 12px; }
-.geo-pill { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s, border-color 0.15s; white-space: nowrap; }
-.geo-pill:hover { background: rgba(255,255,255,0.1); }
-.geo-pill.active { background: rgba(255,255,255,0.12); border-color: rgba(167,139,250,0.4); }
-.geo-pill-dot { width: 8px; height: 8px; border-radius: 50%; }
-.geo-divider { height: 1px; background: rgba(255,255,255,0.05); }
-.geo-table-head { display: grid; grid-template-columns: 1fr 80px 56px; gap: 4px; padding: 8px 18px; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+.geo-divider { height: 1px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+.geo-table-head { display: grid; grid-template-columns: 1fr 80px 56px; gap: 4px; padding: 10px 18px; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; flex-shrink: 0; }
 .geo-table-head span:not(:first-child) { text-align: right; }
-.geo-row { display: grid; grid-template-columns: 1fr 80px 56px; gap: 4px; align-items: center; padding: 11px 18px; border-top: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: background 0.15s; }
+#geoTableBody { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.geo-row { display: grid; grid-template-columns: 1fr 80px 56px; gap: 4px; align-items: center; padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: background 0.15s; }
 .geo-row.hl { background: rgba(167,139,250,0.07); }
-.geo-row-name { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 500; }
+.geo-row-name { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 500; }
 .geo-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.geo-row-eur { text-align: right; font-size: 13px; font-weight: 700; }
-.geo-row-pct { text-align: right; font-size: 13px; font-weight: 700; }
+.geo-row-eur { text-align: right; font-size: 14px; font-weight: 700; }
+.geo-row-pct { text-align: right; font-size: 14px; font-weight: 700; }
 
 .geo-subrows { padding: 0 18px 12px 36px; display: none; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.015); border-top: 1px solid rgba(255,255,255,0.03); }
 .geo-subrows.open { display: flex; }
@@ -577,15 +568,7 @@ html, body {
       </div>
       <div class="geo-map-wrap">
         <svg id="geoSvg" viewBox="0 0 960 460"></svg>
-        <div class="geo-tip" id="geoTip">
-          <div class="geo-tip-name" id="geoTipName"></div>
-          <div class="geo-tip-vals">
-            <span>EUR <b id="geoTipEur"></b></span>
-            <span>Anteil <b id="geoTipPct"></b></span>
-          </div>
-        </div>
       </div>
-      <div class="geo-legend" id="geoLegend"></div>
       <div class="geo-divider"></div>
       <div class="geo-table-head">
         <span>Region</span><span>in EUR</span><span>in %</span>
@@ -1191,10 +1174,7 @@ async function initGeo() {
 }
 
 function renderLegendAndTable() {
-  const legendEl = document.getElementById('geoLegend');
-  const tbody    = document.getElementById('geoTableBody');
-  legendEl.innerHTML = '';
-  tbody.innerHTML = '';
+  const tbody    = document.getElementById('geoTableBody');  tbody.innerHTML = '';
   const rowMap = {};
   const regions = [..._geoRegions]
     .filter(r => {
@@ -1207,14 +1187,6 @@ function renderLegendAndTable() {
   regions.forEach(r => {
     const meta = REGION_META[r.region] || { color:'#a78bfa', emoji:'🌐' };
     const pct  = r.pct_gesamt;
-    const pill = document.createElement('div');
-    pill.className = 'geo-pill';
-    pill.dataset.rid = r.region;
-    pill.innerHTML =
-      '<div class="geo-pill-dot" style="background:'+meta.color+'"></div>'+
-      meta.emoji+' '+r.region+' <span style="color:'+meta.color+';margin-left:2px">'+pct.toFixed(1)+'%</span>';
-    pill.addEventListener('click', () => selectGeoRegion(r.region));
-    legendEl.appendChild(pill);
     const row = document.createElement('div');
     row.className = 'geo-row';
     row.dataset.rid = r.region;
@@ -1316,8 +1288,6 @@ function renderGeoMap() {
 
   d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
     const countries = topojson.feature(world, world.objects.countries).features;
-    const tip   = document.getElementById('geoTip');
-    const wrap  = document.querySelector('.geo-map-wrap');
     svg.append('g').attr('clip-path','url(#mapClip)').selectAll('path')
       .data(countries).enter().append('path')
       .attr('class','geo-country')
@@ -1336,19 +1306,6 @@ function renderGeoMap() {
         event.stopPropagation();
         const rid = isoToRegion[+d.id];
         if (!rid) { deselectGeo(); return; }
-        const [x, y] = pathGen.centroid(d);
-        const rect = wrap.getBoundingClientRect();
-        const px = (x / W) * rect.width;
-        const py = (y / H) * rect.height;
-        const TW = 160, TH = 50, PAD = 10;
-        let left = (rect.width - px >= TW + PAD) ? px + PAD
-                 : (px >= TW + PAD ? px - TW - PAD
-                 : Math.max(4, Math.min(px - TW/2, rect.width - TW - 4)));
-        let top  = (py >= TH + PAD) ? py - TH - PAD
-                 : (rect.height - py >= TH + PAD ? py + PAD
-                 : Math.max(4, Math.min(py - TH/2, rect.height - TH - 4)));
-        tip.style.left = left + 'px';
-        tip.style.top  = top  + 'px';
         selectGeoRegion(rid);
       });
     svg.append('path')
@@ -1367,7 +1324,6 @@ function selectGeoRegion(rid) {
   _geoActive = rid;
   const r = _geoRegions.find(x => x.region === rid);
   if (!r) return;
-  const meta = REGION_META[rid] || { color:'#a78bfa', emoji:'🌐' };
   if (_geoSvg) {
     _geoSvg.selectAll('.geo-country').classed('hl', false);
     const isoSet = new Set();
@@ -1376,28 +1332,18 @@ function selectGeoRegion(rid) {
     });
     _geoSvg.selectAll('.geo-country').filter(d => isoSet.has(+d.id)).classed('hl', true);
   }
-  const eur = Math.round(currentTotal * r.pct_gesamt / 100);
-  document.getElementById('geoTipName').textContent = meta.emoji + ' ' + r.region;
-  document.getElementById('geoTipName').style.color = meta.color;
-  document.getElementById('geoTipEur').textContent = eur + ' €';
-  document.getElementById('geoTipPct').textContent = r.pct_gesamt.toFixed(1) + ' %';
-  document.getElementById('geoTip').classList.add('vis');
   if (window._geoRowMap && window._geoRowMap[rid]) {
     document.querySelectorAll('.geo-row').forEach(x => x.classList.remove('hl'));
     window._geoRowMap[rid].classList.add('hl');
     window._geoRowMap[rid].scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
-  document.querySelectorAll('.geo-pill').forEach(p =>
-    p.classList.toggle('active', p.dataset.rid === rid));
 }
 function deselectGeo(clearAll) {
   if (clearAll === undefined) clearAll = true;
   _geoActive = null;
   if (_geoSvg) _geoSvg.selectAll('.geo-country').classed('hl', false);
-  document.getElementById('geoTip').classList.remove('vis');
   if (clearAll) {
     document.querySelectorAll('.geo-row').forEach(x => x.classList.remove('hl'));
-    document.querySelectorAll('.geo-pill').forEach(p => p.classList.remove('active'));
   }
 }
 
