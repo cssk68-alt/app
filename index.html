@@ -491,6 +491,12 @@ html, body, * {
 .risk-row-eur { font-size: 12px; font-weight: 700; text-align: right; color: #d1d5db; font-variant-numeric: tabular-nums; }
 .risk-row-pct { font-size: 13px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
 
+.risk-expander { cursor: pointer; padding: 9px 18px; font-size: 11px; color: #9ca3af; border-top: 1px solid rgba(255,255,255,0.04); user-select: none; }
+.risk-expander .risk-chev { display: inline-block; font-size: 9px; opacity: 0.5; margin-right: 4px; transition: transform 0.2s; }
+.risk-expander.open .risk-chev { transform: rotate(90deg); }
+.risk-more { display: none; }
+.risk-more.open { display: block; }
+
 .slide-arrow-btn {
   position: fixed;
   top: 50%;
@@ -1853,30 +1859,64 @@ function safeText(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Bug 2 Fix: ADR/Pref-Duplikate auf Master-ISIN normalisieren.
-// Ohne Dedup wird Samsung zweimal gezählt (Regular + Non-Voting Pref → Klumpenrisiko unterschätzt).
+// Aktiengattungen (Stamm/Vorzug, Class A/C, ADR-Dubletten) desselben Emittenten zusammenfassen,
+// damit Konzentrationen nicht unterschätzt werden. Regelfall: Emittenten-Präfix der ISIN
+// (Land + 6-stelliger Emittenten-Code). ISIN_DEDUP_MAP nur noch als Override für Ausnahmen.
 const ISIN_DEDUP_MAP = {
-  "KR7005931001": "KR7005930003", // Samsung Non-Voting Pref → Regular
-  "KR7000660037": "KR7000660001", // SK Hynix Pref → Common
+  // "XXxxxxxxxxxx": "YYyyyyyyyyyy",  // bei Bedarf manuelle Korrektur eintragen
 };
+
+// Gruppierungs-Schlüssel: gleicher Emittent → ein Klumpen.
+function _clusterKey(h) {
+  const isin = h && h.isin;
+  if (isin && ISIN_DEDUP_MAP[isin]) return ISIN_DEDUP_MAP[isin];
+  if (isin && isin.length >= 8) return isin.slice(0, 8); // Land(2) + Emittenten-Code(6)
+  return isin || (h && h.name) || '';
+}
+
+// Gattungs-Suffixe nur für die Anzeige entfernen (z.B. "ALPHABET INC CLASS A" → "ALPHABET INC").
+function _cleanStockName(name) {
+  if (!name) return name;
+  const cleaned = name
+    .replace(/\s+(CLASS\s+[A-C]|NON\s+VOTING(\s+PRE[F]?)?|PREFERRED|PREF|PS\s+PAR|DEF)\b.*$/i, '')
+    .trim();
+  return cleaned || name;
+}
 
 function computeClusterRisk(data) {
   if (!data || !data.holdings) return [];
   const agg = {};
+  // 1) ETF-Holdings auf Einzeltitel durchrechnen
   for (const [ticker, block] of Object.entries(data.holdings.etfs || {})) {
     const pPct = _portfolioPct(ticker);
     if (!pPct) continue;
     for (const h of block.top_holdings || []) {
-      const rawKey = h.isin || h.name;
-      const key    = (h.isin && ISIN_DEDUP_MAP[h.isin]) || rawKey; // Bug 2 Fix
-      if (!agg[key]) agg[key] = { name: h.name, isin: key, total_pct: 0, via: [] };
+      const key = _clusterKey(h);
+      if (!key) continue;
+      if (!agg[key]) agg[key] = { nameRaw: h.name, bestW: 0, isin: key, total_pct: 0, viaMap: {} };
       agg[key].total_pct += pPct * (h.weight_pct / 100);
-      agg[key].via.push({ ticker, weight_in_etf: h.weight_pct });
+      agg[key].viaMap[ticker] = (agg[key].viaMap[ticker] || 0) + h.weight_pct; // pro ETF addieren
+      if (h.weight_pct > agg[key].bestW) { agg[key].bestW = h.weight_pct; agg[key].nameRaw = h.name; }
     }
   }
-  return Object.values(agg)
-    .map(x => ({ ...x, total_pct: x.total_pct * 100 }))
-    .sort((a,b) => b.total_pct - a.total_pct);
+  // 2) Direkte Einzelaktien NUR aufnehmen, wenn sie auch in ≥1 ETF vorkommen (= ≥2 Produkte).
+  //    Reine Einzelwetten ohne ETF-Überlappung (z.B. Allianz) sind kein Klumpen und bleiben draußen.
+  for (const g of GROUPS) for (const p of g.products) {
+    if (p.trType !== 'aktie' || !p.isin) continue;
+    const key = _clusterKey({ isin: p.isin });
+    if (!agg[key]) continue;
+    const pPct = _portfolioPct(p.ticker);
+    agg[key].total_pct += pPct;                                       // 100% direkt gehalten
+    agg[key].viaMap[p.ticker] = (agg[key].viaMap[p.ticker] || 0) + 100;
+  }
+  return Object.values(agg).map(x => ({
+    name: _cleanStockName(x.nameRaw),
+    isin: x.isin,
+    total_pct: x.total_pct * 100,
+    via: Object.entries(x.viaMap)
+      .map(([ticker, w]) => ({ ticker, weight_in_etf: w }))
+      .sort((a, b) => b.weight_in_etf - a.weight_in_etf),
+  })).sort((a, b) => b.total_pct - a.total_pct);
 }
 
 // Feature B: Sektor-Gewichtung
@@ -2007,11 +2047,14 @@ async function renderSectorSlide() {
       '<div class="sector-bar-wrap"><div class="sector-bar-track"><div class="sector-bar-fill" style="width:' + Math.min(s.pct*2.5,100) + '%;background:' + c + '"></div></div></div>';
     }).join('');
   }
-  const risks = computeClusterRisk(data).filter(r => r.total_pct >= 0.3);
-  if (!risks.length) {
+  const allRisks = computeClusterRisk(data);
+  const visible = allRisks.filter(r => r.total_pct >= 1.0);              // immer sichtbar
+  const more    = allRisks.filter(r => r.total_pct >= 0.5 && r.total_pct < 1.0); // hinter Pfeil
+  // < 0.5 % wird komplett ausgeblendet
+  if (!visible.length && !more.length) {
     riskList.innerHTML = '<div class="sector-loading">keine relevanten Konzentrationen</div>';
   } else {
-    riskList.innerHTML = risks.slice(0, 20).map(r => {
+    const rowHtml = r => {
       const eur = (r.total_pct/100) * currentTotal;
       const viaTxt = r.via.map(v => v.ticker + ' (' + v.weight_in_etf.toFixed(1) + '%)').join(' · ');
       const domTicker = r.via.reduce((best, v) => {
@@ -2020,11 +2063,25 @@ async function renderSectorSlide() {
       }, { ticker: r.via[0] ? r.via[0].ticker : '', w: 0 }).ticker;
       const riskCol = _tickerColor(domTicker);
       return '<div class="risk-row">' +
-        '<div class="risk-row-name"><b>' + safeText(r.name) + '</b><div class="risk-row-via">via ' + safeText(viaTxt) + '</div></div>' + /* Bug 5 Fix */
+        '<div class="risk-row-name"><b>' + safeText(r.name) + '</b><div class="risk-row-via">via ' + safeText(viaTxt) + '</div></div>' +
         '<div class="risk-row-eur">' + _formatEur(eur) + '</div>' +
         '<div class="risk-row-pct" style="color:' + riskCol + '">' + r.total_pct.toFixed(2) + '%</div>' +
       '</div>';
-    }).join('');
+    };
+    let html = visible.map(rowHtml).join('');
+    if (more.length) {
+      html += '<div class="risk-expander" id="riskExpander"><span class="risk-chev">▶</span>weitere Positionen (0,5–1 %)</div>' +
+              '<div class="risk-more" id="riskMore">' + more.map(rowHtml).join('') + '</div>';
+    }
+    riskList.innerHTML = html;
+    const exp = document.getElementById('riskExpander');
+    if (exp) {
+      const moreBox = document.getElementById('riskMore');
+      exp.addEventListener('click', () => {
+        exp.classList.toggle('open');
+        moreBox.classList.toggle('open');
+      });
+    }
   }
 }
 

@@ -31,7 +31,7 @@ PORTFOLIO_ETFS = {
     "ISF":  {"product_id": "251795", "isin": "IE0005042456"},
 }
 
-TOP_N_HOLDINGS = 10
+TOP_N_HOLDINGS = 15
 
 ENDPOINT_TMPL = (
     "https://www.ishares.com/de/privatanleger/de/produkte/{pid}/fund/"
