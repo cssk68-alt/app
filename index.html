@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Cache-Buster: 2026-05-30T15:45:00 -->
+<!-- Cache-Buster: 2026-05-30T18:30:00 -->
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -20,7 +20,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v20260522t1700</title>
+<title>Mein Sparplan - v26</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -341,6 +341,19 @@ html, body {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
+/* Scrollbar GLOBAL ausblenden – Webseite, Handy & Web-App (PWA).
+   Gilt für jeden Scroll-Container (Seite, Slides, Modal/Overlay, verschachtelte
+   Listen). overflow bleibt unangetastet -> Scroll-Funktion erhalten, nur der
+   sichtbare Balken verschwindet überall. */
+* {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / alte Edge */
+}
+*::-webkit-scrollbar {          /* Chrome, Safari, neue Edge, iOS, Android */
+  width: 0;
+  height: 0;
+  display: none;
+}
 #app-slider {
   position: fixed;
   inset: 0;
@@ -539,7 +552,7 @@ html, body {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v25</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v26</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
 </div>
 
