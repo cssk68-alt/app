@@ -25,6 +25,13 @@ import requests
 BASELINE_DATE = date(2026, 5, 18)
 MIN_SUCCESS_TICKERS = 12  # strikt 12/12: bei weniger werden alte Kurse eingefroren, nie Teil-Updates geschrieben
 
+# Optionale API-Keys via Env/GitHub-Secret. Ohne Key bleiben die jeweiligen
+# Fallbacks komplett inert (return None) -> kein Verhalten aendert sich, keine
+# Fehlversuche. Quell-Reihenfolge insgesamt:
+#   Ticker: Yahoo -> Stooq -> AlphaVantage(key)
+#   FX:     Yahoo -> Stooq -> Frankfurter/EZB -> open.er-api(keyless,nur aktuell) -> AlphaVantage(key)
+ALPHAVANTAGE_KEY = os.environ.get("ALPHAVANTAGE_KEY", "").strip()
+
 # ticker -> (Yahoo-Symbol, Stooq-Symbol, ISIN, Portfolio-Gewicht in %)
 # WHCS: WHCS.L existiert nicht auf LSE; WHCS ist Amsterdam/Swiss ticker,
 #       CBUF waere Xetra. WHCS.AS hat Yahoo-Coverage.
@@ -68,6 +75,17 @@ TICKER_CURRENCY_FALLBACK = {
 }
 BENCHMARK = ("IWDA.AS", "iwda.nl", "IE00B4L5Y983")  # iShares Core MSCI World EUR
 BENCHMARK_CURRENCY_FALLBACK = "EUR"
+
+# Alpha-Vantage-Symbole (nur genutzt, wenn ALPHAVANTAGE_KEY gesetzt ist).
+# AV nutzt teils andere Suffixe als Yahoo (.DEX/.LON) bzw. listet manche UCITS-
+# ETFs gar nicht -> nur eintragen, was AV wirklich kennt; fehlt ein Mapping,
+# wird der AV-Fallback fuer diesen Ticker einfach uebersprungen.
+ALPHAVANTAGE_SYMBOLS = {
+    "SXR8": "SXR8.DEX",
+    "ALV":  "ALV.DEX",
+    "ISF":  "ISF.LON",
+    # uebrige Ticker: AV-Coverage unsicher -> bewusst leer gelassen.
+}
 
 # FX-Paare die wir brauchen: EURUSD=X (Yahoo) bzw. eurusd (Stooq), EURGBP=X / eurgbp
 FX_SYMBOLS = {
@@ -193,7 +211,15 @@ def fetch_ticker(name, yahoo_sym, stooq_sym, fallback_currency, start_d, end_d):
     if prices and len(prices) >= 2:
         print(f"  [{name}] Stooq OK ({len(prices)} Tage, fallback currency={fallback_currency})", flush=True)
         return prices, fallback_currency
-    print(f"  [{name}] FEHLGESCHLAGEN (Yahoo+Stooq)", flush=True)
+    av_sym = ALPHAVANTAGE_SYMBOLS.get(name)
+    if ALPHAVANTAGE_KEY and av_sym:
+        print(f"  [{name}] Yahoo+Stooq fehlgeschlagen, versuche AlphaVantage ({av_sym})...", flush=True)
+        time.sleep(0.3)
+        av_prices, _ = fetch_av(av_sym, start_d, end_d)
+        if av_prices and len(av_prices) >= 2:
+            print(f"  [{name}] AlphaVantage OK ({len(av_prices)} Tage, fallback currency={fallback_currency})", flush=True)
+            return av_prices, fallback_currency
+    print(f"  [{name}] FEHLGESCHLAGEN (Yahoo+Stooq" + ("+AV" if (ALPHAVANTAGE_KEY and av_sym) else "") + ")", flush=True)
     return None, None
 
 
@@ -219,6 +245,72 @@ def fetch_fx_frankfurter(pair_code, start_d, end_d):
         return None
 
 
+def fetch_fx_erapi(pair_code, start_d, end_d):
+    """FX-Fallback ueber open.er-api.com (keyless). Liefert NUR den aktuellen
+    Kurs (keine Historie) -> als ein-Tages-Snapshot {today: rate}; forward_fill
+    breitet ihn auf die Achse aus. Returns {date: rate} (X pro 1 EUR) oder None."""
+    try:
+        r = _get_with_retry("https://open.er-api.com/v6/latest/EUR", HEADERS)
+        if r is None or r.status_code != 200:
+            return None
+        data = r.json() or {}
+        rate = (data.get("rates") or {}).get(pair_code)
+        if not rate:
+            return None
+        return {_date_str(BASELINE_DATE): float(rate)}
+    except (requests.RequestException, ValueError, KeyError):
+        return None
+
+
+def fetch_fx_alphavantage(pair_code, start_d, end_d):
+    """FX-Fallback ueber Alpha Vantage FX_DAILY (benoetigt ALPHAVANTAGE_KEY).
+    Ohne Key -> None (inert). Returns {YYYY-MM-DD: rate} (X pro 1 EUR) oder None."""
+    if not ALPHAVANTAGE_KEY:
+        return None
+    url = ("https://www.alphavantage.co/query?function=FX_DAILY"
+           f"&from_symbol=EUR&to_symbol={pair_code}&outputsize=full&apikey={ALPHAVANTAGE_KEY}")
+    try:
+        r = _get_with_retry(url, HEADERS)
+        if r is None or r.status_code != 200:
+            return None
+        series = (r.json() or {}).get("Time Series FX (Daily)") or {}
+        lo, hi = _date_str(start_d), _date_str(end_d)
+        out = {}
+        for d_str, row in series.items():
+            if lo <= d_str <= hi:
+                close = (row or {}).get("4. close")
+                if close:
+                    out[d_str] = float(close)
+        return out if out else None
+    except (requests.RequestException, ValueError, KeyError):
+        return None
+
+
+def fetch_av(symbol_av, start_d, end_d):
+    """Ticker-Fallback ueber Alpha Vantage TIME_SERIES_DAILY (benoetigt
+    ALPHAVANTAGE_KEY). Ohne Key -> (None, None). Returns (prices_dict, currency)
+    -> currency ist None (AV liefert keine), Aufrufer nutzt fallback_currency."""
+    if not ALPHAVANTAGE_KEY or not symbol_av:
+        return None, None
+    url = ("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY"
+           f"&symbol={symbol_av}&outputsize=full&apikey={ALPHAVANTAGE_KEY}")
+    try:
+        r = _get_with_retry(url, HEADERS)
+        if r is None or r.status_code != 200:
+            return None, None
+        series = (r.json() or {}).get("Time Series (Daily)") or {}
+        lo, hi = _date_str(start_d), _date_str(end_d)
+        out = {}
+        for d_str, row in series.items():
+            if lo <= d_str <= hi:
+                close = (row or {}).get("4. close")
+                if close:
+                    out[d_str] = float(close)
+        return (out, None) if out else (None, None)
+    except (requests.RequestException, ValueError, KeyError):
+        return None, None
+
+
 def fetch_fx(pair_code, start_d, end_d):
     """Holt EUR/X-Kurse (X = USD oder GBP). Returns dict {date: rate} oder None.
     Rate = wieviel X pro 1 EUR (Standard-Quotation EURUSD=1.16 -> 1 EUR = 1.16 USD).
@@ -240,6 +332,19 @@ def fetch_fx(pair_code, start_d, end_d):
     if prices and len(prices) >= 1:
         print(f"  [FX EUR{pair_code}] Frankfurter/EZB OK ({len(prices)} Tage)", flush=True)
         return prices
+    print(f"  [FX EUR{pair_code}] Frankfurter fehlgeschlagen, versuche open.er-api...", flush=True)
+    time.sleep(0.3)
+    prices = fetch_fx_erapi(pair_code, start_d, end_d)
+    if prices and len(prices) >= 1:
+        print(f"  [FX EUR{pair_code}] open.er-api OK (aktueller Kurs)", flush=True)
+        return prices
+    if ALPHAVANTAGE_KEY:
+        print(f"  [FX EUR{pair_code}] open.er-api fehlgeschlagen, versuche AlphaVantage...", flush=True)
+        time.sleep(0.3)
+        prices = fetch_fx_alphavantage(pair_code, start_d, end_d)
+        if prices and len(prices) >= 1:
+            print(f"  [FX EUR{pair_code}] AlphaVantage OK ({len(prices)} Tage)", flush=True)
+            return prices
     print(f"  [FX EUR{pair_code}] FEHLGESCHLAGEN", flush=True)
     return None
 

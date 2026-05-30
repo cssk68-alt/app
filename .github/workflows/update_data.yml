@@ -47,6 +47,11 @@ jobs:
         id: step_performance
         run: python update_performance.py
         continue-on-error: true
+        env:
+          # Optional: in Repo-Settings > Secrets and variables > Actions als
+          # ALPHAVANTAGE_KEY hinterlegen. Fehlt das Secret, bleibt der
+          # AlphaVantage-Fallback inert (kein Effekt).
+          ALPHAVANTAGE_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
 
       - name: Zeige Update-Status
         if: always()
