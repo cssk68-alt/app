@@ -1045,7 +1045,7 @@ function closeModal(){
 
   // Inline-Handler explizit nullen (Defensive, falls Browser sie haelt)
   overlay.querySelectorAll('[onclick]').forEach(el => {
-    if (el.id !== 'overlay' && !el.closest('.modal-header')) el.onclick = null;
+    if (el.id !== 'overlay' && !el.closest('.modal-header') && !el.classList.contains('modal-close')) el.onclick = null;
   });
 }
 
