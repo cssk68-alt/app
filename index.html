@@ -1420,10 +1420,12 @@ function _isUpdateWindow(now) {
   const day = now.getUTCDay();      // 0=So .. 6=Sa
   const hour = now.getUTCHours();
   const min = now.getUTCMinutes();
-  // Mo-Fr 07:10-22:00 UTC. Start erst 07:10, da der erste Cron-Lauf um 07:07 kommt
-  // (+Puffer) -> keine 7-Min-Fehlanzeige am Morgen.
+  // Mo-Fr 07:10-21:50 UTC, gekoppelt an den GitHub-Cron (07:07 ... 21:37 UTC).
+  // Start 07:10 (erster Lauf 07:07 +Puffer), Ende 21:50 (letzter Lauf 21:37 +Puffer):
+  // nach 21:50 kommt kein Lauf mehr, daher dort kein "Aktualisierung steht aus"-Hinweis,
+  // sondern der reguläre Off-hours-Text. Symmetrisch zum Morgen-Start.
   if (day < 1 || day > 5) return false;
-  return ((hour > 7) || (hour === 7 && min >= 10)) && hour < 22;
+  return ((hour > 7) || (hour === 7 && min >= 10)) && ((hour < 21) || (hour === 21 && min < 50));
 }
 
 // Berliner Wochentag (0=So .. 6=Sa), DST-sicher via Intl (kein UTC-Off-by-one am Tagesrand).
