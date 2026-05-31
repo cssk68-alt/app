@@ -1,13 +1,13 @@
 {
   "_meta": {
-    "last_updated": "2026-05-30",
+    "last_updated": "2026-05-31",
     "source": "iShares-DE AJAX tab=all",
     "endpoint": "https://www.ishares.com/de/privatanleger/de/produkte/{ID}/fund/1478358465952.ajax?fileType=json&tab=all"
   },
   "etfs": {
     "SXR8": {
       "product_id": "253743",
-      "last_updated": "2026-05-30",
+      "last_updated": "2026-05-31",
       "holdings_count": 503,
       "top_holdings": [
         {
@@ -89,7 +89,7 @@
     },
     "CPXJ": {
       "product_id": "253735",
-      "last_updated": "2026-05-30",
+      "last_updated": "2026-05-31",
       "holdings_count": 94,
       "top_holdings": [
         {
@@ -171,7 +171,7 @@
     },
     "CSKR": {
       "product_id": "253733",
-      "last_updated": "2026-05-30",
+      "last_updated": "2026-05-31",
       "holdings_count": 80,
       "top_holdings": [
         {
@@ -253,7 +253,7 @@
     },
     "IJPA": {
       "product_id": "251867",
-      "last_updated": "2026-05-30",
+      "last_updated": "2026-05-31",
       "holdings_count": 959,
       "top_holdings": [
         {
@@ -335,7 +335,7 @@
     },
     "WHCS": {
       "product_id": "308909",
-      "last_updated": "2026-05-30",
+      "last_updated": "2026-05-31",
       "holdings_count": 115,
       "top_holdings": [
         {
@@ -417,7 +417,7 @@
     },
     "AGED": {
       "product_id": "284218",
-      "last_updated": "2026-05-30",
+      "last_updated": "2026-05-31",
       "holdings_count": 338,
       "top_holdings": [
         {
@@ -499,7 +499,7 @@
     },
     "EIMI": {
       "product_id": "264659",
-      "last_updated": "2026-05-30",
+      "last_updated": "2026-05-31",
       "holdings_count": 3057,
       "top_holdings": [
         {
@@ -581,7 +581,7 @@
     },
     "ISF": {
       "product_id": "251795",
-      "last_updated": "2026-05-30",
+      "last_updated": "2026-05-31",
       "holdings_count": 102,
       "top_holdings": [
         {
