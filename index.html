@@ -1863,7 +1863,12 @@ function safeText(s) {
 // damit Konzentrationen nicht unterschätzt werden. ISIN_DEDUP_MAP als Override für Ausnahmen
 // (volle ISIN → fester Cluster-Key).
 const ISIN_DEDUP_MAP = {
-  // "XXxxxxxxxxxx": "FESTER_KEY",  // bei Bedarf manuelle Korrektur eintragen
+  // Dual-Listed Companies (zwei Rechtseinheiten, EIN Konzern) -> selber Klumpen.
+  // Der Name-Schlüssel verpasst diese, weil das Rechtsform-Suffix abweicht (plc vs Ltd).
+  'AU000000RIO1': 'RIO TINTO',  // Rio Tinto Ltd  (ASX, via CPXJ)
+  'GB0007188757': 'RIO TINTO',  // Rio Tinto plc  (LSE, via ISF)
+  // Weitere aktive DLCs (aktuell nicht in den ETFs, bei Bedarf ergänzen):
+  // Carnival Corp ⟷ Carnival plc, Investec plc ⟷ Investec Ltd.
 };
 
 // Gruppierungs-Schlüssel: gleicher Emittent → ein Klumpen.
@@ -1883,7 +1888,9 @@ function _clusterKey(h) {
 function _normalizeIssuer(name) {
   if (!name) return '';
   return _cleanStockName(name)
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')   // Akzente entfernen: Nestlé -> NESTLE
     .toUpperCase()
+    .replace(/&AMP;|&/g, ' AND ')
     .replace(/[.,()'’\/-]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -1893,7 +1900,7 @@ function _normalizeIssuer(name) {
 function _cleanStockName(name) {
   if (!name) return name;
   const cleaned = name
-    .replace(/\s+(CLASS\s+[A-C]|NON\s+VOTING(\s+PRE[F]?)?|PREFERRED|PREF|PS\s+PAR|DEF)\b.*$/i, '')
+    .replace(/\s+(CLASS\s+[A-C]|NON\s+VOTING(\s+PRE[F]?)?|PREFERRED|PREF|PFD|VORZUG|VZ|1P|SPON(?:S)?\s*ADR|ADR|GDR|PS\s+PAR|DEF)\b.*$/i, '')
     .trim();
   return cleaned || name;
 }
@@ -2009,7 +2016,7 @@ const SECTOR_EMOJI = {
   'Versorger':'🔌','Utilities':'🔌',
   'Immobilien':'🏠','Real Estate':'🏠',
   'Rohstoffe':'🥇',
-  'Sonstige':'📦','Cash und/oder Derivate':'💰'
+  'Sonstige':'📦','Cash und/oder Derivate':'💰','Money Market':'💰','FX':'💱'
 };
 
 const SECTOR_COLOR = {
@@ -2025,7 +2032,7 @@ const SECTOR_COLOR = {
   'Versorger':'#22D3EE', 'Utilities':'#22D3EE',
   'Immobilien':'#84CC16', 'Real Estate':'#84CC16',
   'Rohstoffe':'#F97316', 'Insurance':'#F59E0B',
-  'Sonstige':'#6b7280', 'Cash und/oder Derivate':'#6b7280'
+  'Sonstige':'#6b7280', 'Cash und/oder Derivate':'#6b7280', 'Money Market':'#6b7280', 'FX':'#6b7280'
 };
 function _sectorColor(s) { return SECTOR_COLOR[s] || '#a78bfa'; }
 
