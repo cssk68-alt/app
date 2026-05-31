@@ -20,7 +20,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v28</title>
+<title>Mein Sparplan - v29</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -305,6 +305,18 @@
   .modal .m-hsub { display: flex; gap: 12px; font-size: 11px; color: var(--label); }                          /* Hochrechnungen */
   .modal .m-hsub b { color: var(--val); font-weight: 700; }                                                   /* Betraege: weiss */
 
+  /* Feature A: Overlap-/Überschneidungs-Sektion (im Produkt-Modal) */
+  .modal .m-ov { margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.12); }
+  .modal .m-ov-label { font-size: 10px; color: var(--label-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .modal .m-ov-row { padding: 6px 0; border-top: 1px solid rgba(255,255,255,0.05); }
+  .modal .m-ov-row:first-of-type { border-top: none; }
+  .modal .m-ov-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .modal .m-ov-name { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text); min-width: 0; }
+  .modal .m-ov-dot { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
+  .modal .m-ov-pct { font-size: 13px; font-weight: 700; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .modal .m-ov-shared { font-size: 11px; color: var(--label); margin-top: 3px; padding-left: 15px; line-height: 1.4; }
+  .modal .m-ov-none { font-size: 11px; color: var(--label); font-style: italic; }
+
   /* Hinweis-/Warnzeile */
   .modal .m-warn { margin-top: 8px; font-size: 11px; color: #a78bfa; font-style: italic; line-height: 1.45; }
 
@@ -577,7 +589,7 @@ html, body, * {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v28</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v29</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
 </div>
 
@@ -1064,6 +1076,7 @@ function openModal(groupIndex){
       </div>
       <div class="m-meta">Kurs (09.05): <b>${p.price}</b></div>
       ${holdingsHTML}
+      ${p.trType === 'etf' ? `<div class="m-ov" data-ov-ticker="${p.ticker}"></div>` : ''}
       ${p.warning ? `<div class="m-warn">${p.warning}</div>` : ''}
       <button class="m-tr" onclick="openTR('${p.isin}')">
         <span>🟢</span> Trade Republic
@@ -1074,6 +1087,35 @@ function openModal(groupIndex){
 
   document.getElementById('overlay').classList.add('open');
   _lockScroll();
+
+  // Feature A: Overlap-Sektionen asynchron nachfüllen (Analytics lazy-loaded).
+  _fillOverlapSections(groupIndex);
+}
+
+// Befüllt alle .m-ov-Container des offenen Modals mit der Overlap-Analyse.
+// Läuft async nach loadAnalytics(); prüft via window._openModalIndex, dass das
+// Modal zwischenzeitlich nicht geschlossen/gewechselt wurde (Race vermeiden).
+async function _fillOverlapSections(groupIndex) {
+  let data;
+  try { data = await loadAnalytics(); }
+  catch { return; }                                  // Daten nicht erreichbar -> Sektion still weglassen
+  if (window._openModalIndex !== groupIndex) return; // Modal inzwischen geschlossen/gewechselt
+  document.querySelectorAll('#mProducts .m-ov[data-ov-ticker]').forEach(box => {
+    const ticker = box.getAttribute('data-ov-ticker');
+    const rows = computeOverlap(ticker, data);
+    if (!rows.length) { box.remove(); return; }      // keine Überschneidung -> Sektion entfernen
+    const body = rows.map(r => {
+      const names = r.shared.map(s => safeText(_cleanStockName(s.name))).join(', ');
+      return '<div class="m-ov-row">' +
+        '<div class="m-ov-top">' +
+          '<div class="m-ov-name"><span class="m-ov-dot" style="background:' + r.color + '"></span>' + safeText(r.name) + '</div>' +
+          '<div class="m-ov-pct" style="color:' + r.color + '">' + r.overlapPct.toFixed(1) + '%</div>' +
+        '</div>' +
+        '<div class="m-ov-shared">gemeinsam: ' + names + '</div>' +
+      '</div>';
+    }).join('');
+    box.innerHTML = '<div class="m-ov-label">Überschneidungen mit anderen ETFs</div>' + body;
+  });
 }
 
 function closeModal(){
@@ -1887,15 +1929,24 @@ function _clusterKey(h) {
 // Emittenten-Name normalisieren: Gattungs-Suffix weg, Großschreibung, Satzzeichen/Whitespace
 // vereinheitlichen. So fallen Stamm/Vorzug & Mehrfach-Listings desselben Konzerns auf denselben
 // Key, während verschiedene Konzerne getrennt bleiben.
+// Rechtsform-Suffixe, die am ENDE wiederholt abgeschnitten werden (nur für den Key).
+// Grund: Stamm- vs. Vorzugsaktie schreiben die Rechtsform oft unterschiedlich, z.B.
+// "SAMSUNG ELECTRONICS LTD" (Stamm) vs. "SAMSUNG ELECTRONICS" (Vorzug, nach Gattungs-
+// Strip) -> ohne LTD-Entfernung blieben sie zwei Klumpen und unterschätzten die Konzentration.
+const _LEGAL_SUFFIX = /\s+(LTD|LIMITED|INC|INCORPORATED|PLC|CORP|CORPORATION|CO|COMPANY|AG|SA|SE|NV|LLC|LP|OYJ|AB|ASA|SPA|HOLDINGS?)$/;
 function _normalizeIssuer(name) {
   if (!name) return '';
-  return _cleanStockName(name)
+  let s = _cleanStockName(name)
     .normalize('NFD').replace(/[̀-ͯ]/g, '')   // Akzente entfernen: Nestlé -> NESTLE
     .toUpperCase()
     .replace(/&AMP;|&/g, ' AND ')
     .replace(/[.,()'’\/-]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+  // Rechtsform mehrfach abschneiden ("MERCK AND CO INC" -> "MERCK AND CO" -> "MERCK AND").
+  let prev;
+  do { prev = s; s = s.replace(_LEGAL_SUFFIX, '').trim(); } while (s !== prev && s);
+  return s || _cleanStockName(name).toUpperCase().trim();
 }
 
 // Gattungs-Suffixe nur für die Anzeige entfernen (z.B. "ALPHABET INC CLASS A" → "ALPHABET INC").
@@ -1945,6 +1996,40 @@ function computeClusterRisk(data) {
       .map(([ticker, w]) => ({ ticker, weight_in_etf: w }))
       .sort((a, b) => b.weight_in_etf - a.weight_in_etf),
   })).sort((a, b) => b.total_pct - a.total_pct);
+}
+
+// Feature A: Overlap-Analyse für EIN Produkt (Modal-Sektion "Überschneidungen").
+// Vergleicht den fokussierten ETF paarweise mit allen ANDEREN ETFs im Sparplan und
+// misst den Anteil identischer Holdings über die volle ISIN: overlap = Σ min(w_a, w_b)
+// (untere Schranke der echten Überlappung, da nur Top-Holdings je ETF vorliegen).
+// ETCs/Einzelaktien haben keine Holdings-Liste -> kein Overlap, gibt [] zurück.
+function computeOverlap(focusTicker, data) {
+  if (!data || !data.holdings) return [];
+  const etfs = data.holdings.etfs || {};
+  const self = etfs[focusTicker];
+  if (!self || !Array.isArray(self.top_holdings)) return [];
+  // ISIN -> Gewicht im fokussierten ETF (nur Holdings mit ISIN sind matchbar).
+  const selfMap = {};
+  for (const h of self.top_holdings) if (h.isin) selfMap[h.isin] = h.weight_pct;
+
+  const out = [];
+  for (const ticker of _allTickers()) {
+    if (ticker === focusTicker) continue;
+    const other = etfs[ticker];
+    if (!other || !Array.isArray(other.top_holdings)) continue;   // ETC/Aktie -> überspringen
+    let overlapPct = 0;
+    const shared = [];
+    for (const h of other.top_holdings) {
+      if (!h.isin || !(h.isin in selfMap)) continue;
+      const w = Math.min(selfMap[h.isin], h.weight_pct);
+      overlapPct += w;
+      shared.push({ name: h.name, isin: h.isin, minWeight: w });
+    }
+    if (overlapPct <= 0) continue;
+    shared.sort((a, b) => b.minWeight - a.minWeight);
+    out.push({ ticker, name: _tickerName(ticker), color: _tickerColor(ticker), overlapPct, shared });
+  }
+  return out.sort((a, b) => b.overlapPct - a.overlapPct);
 }
 
 // Feature B: Sektor-Gewichtung
@@ -2058,7 +2143,11 @@ async function renderSectorSlide() {
     riskList.innerHTML   = '<div class="sector-loading">Daten konnten nicht geladen werden.</div>';
     return;
   }
-  const sectors = computeSectorBreakdown(data);
+  // Berechnung bleibt vollständig (computeSectorBreakdown unverändert) – für die ANZEIGE
+  // blenden wir Splitter < 1 % aus. Das entfernt die technischen Pseudo-Sektoren
+  // 'Money Market'/'FX' (~0 %) und sonstige Rundungsreste, ohne die Logik zu beschneiden.
+  const sectorsAll = computeSectorBreakdown(data);
+  const sectors = sectorsAll.filter(s => s.pct >= 1.0);
   if (!sectors.length) {
     sectorList.innerHTML = '<div class="sector-loading">keine Sektor-Daten</div>';
   } else {
