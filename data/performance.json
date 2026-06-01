@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "last_updated": "2026-05-31T10:24:24Z",
-    "last_all_ok_timestamp": "2026-05-31T10:24:24Z",
+    "last_updated": "2026-06-01T21:08:25Z",
+    "last_all_ok_timestamp": "2026-06-01T21:08:25Z",
     "baseline_date": "2026-05-18",
     "update_success": true,
     "tickers_ok": 12,
@@ -11,9 +11,9 @@
     "normalization": "Alle Ticker tagesgenau via EURUSD=X / EURGBP=X auf EUR umgerechnet",
     "fx_snapshot": {
       "USD_baseline": 1.1655147075653076,
-      "USD_latest": 1.1659088134765625,
+      "USD_latest": 1.1640088558197021,
       "GBP_baseline": 0.867680013179779,
-      "GBP_latest": 0.8668199777603149
+      "GBP_latest": 0.8637800216674805
     },
     "source": "Yahoo Finance primaer, Stooq Fallback"
   },
@@ -31,7 +31,8 @@
     "2026-05-28",
     "2026-05-29",
     "2026-05-30",
-    "2026-05-31"
+    "2026-05-31",
+    "2026-06-01"
   ],
   "portfolio": [
     0.0,
@@ -45,9 +46,10 @@
     2.1339,
     2.0965,
     1.9943,
-    2.4323,
-    2.4323,
-    2.4323
+    2.4722,
+    2.4722,
+    2.4985,
+    2.4374
   ],
   "msci_world": [
     0.0,
@@ -63,32 +65,33 @@
     2.3092,
     2.4836,
     2.4836,
-    2.4836
+    2.4836,
+    2.7743
   ],
   "weekly": {
     "current": {
-      "start": "2026-05-25",
-      "portfolio": 1.0087,
-      "msci": 0.4569
+      "start": "2026-06-01",
+      "portfolio": -0.0611,
+      "msci": 0.2907
     },
     "previous": {
-      "start": "2026-05-18",
-      "portfolio": 1.5404,
-      "msci": 2.0267
+      "start": "2026-05-25",
+      "portfolio": 1.0486,
+      "msci": 0.4569
     }
   },
   "ticker_returns": {
-    "SXR8": 2.478,
-    "CPXJ": 1.192,
-    "CSKR": 15.2681,
-    "IJPA": 2.2883,
-    "WHCS": 3.3723,
-    "AGED": 1.17,
-    "PHAG": -0.9792,
-    "PHPT": -2.279,
-    "COPA": 1.8014,
-    "EIMI": 5.7346,
-    "ALV": 0.0524,
-    "ISF": 1.0651
+    "SXR8": 2.9941,
+    "CPXJ": 0.6802,
+    "CSKR": 20.6774,
+    "IJPA": 2.0441,
+    "WHCS": 1.7187,
+    "AGED": -0.2298,
+    "PHAG": -2.4603,
+    "PHPT": -1.6452,
+    "COPA": 4.1919,
+    "EIMI": 7.4743,
+    "ALV": -1.7042,
+    "ISF": 0.6493
   }
 }
