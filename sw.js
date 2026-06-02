@@ -4,7 +4,7 @@
 //         Kopie. Pro Daten-Datei werden rollend max. DATA_CACHE_KEEP Kopien behalten,
 //         ältere werden automatisch gelöscht (kein unbegrenzter Stapel mehr).
 
-const CACHE_NAME = 'sparplan-v33-20260602-data-cache-rolling3';
+const CACHE_NAME = 'sparplan-v34-20260602-data-cache-rolling3';
 const FORCE_RELOAD = true;
 
 // Pro Daten-Datei (z. B. performance.json) maximal so viele Kopien behalten.
