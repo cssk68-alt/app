@@ -20,7 +20,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v31</title>
+<title>Mein Sparplan - v32</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -437,6 +437,17 @@ html, body, * {
 .chg-row-r { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .chg-empty { text-align: center; color: #6b7280; font-size: 13px; padding: 30px 10px; line-height: 1.6; }
 .chg-empty span { font-size: 11px; opacity: 0.7; }
+/* Veränderungs-Karten im Slide-1-Design + Pill-Chips */
+.chg2-card { cursor: default; }
+.chg2-card:active { transform: none; box-shadow: 0 2px 12px rgba(0,0,0,0.25); background: rgba(255,255,255,0.04); }
+.chg2-body { padding: 9px 16px 12px; display: flex; flex-direction: column; gap: 11px; }
+.chg2-prod-head { font-size: 12px; font-weight: 800; color: #e5e7eb; margin-bottom: 6px; }
+.chg2-prod-head span { font-weight: 500; color: #9ca3af; font-size: 10px; }
+.chg2-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chg2-chip { font-size: 11px; font-weight: 700; border-radius: 20px; padding: 3px 10px; border: 1px solid; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chg2-chip.pos { color: #34d399; background: rgba(52,211,153,0.10); border-color: rgba(52,211,153,0.35); }
+.chg2-chip.neg { color: #f87171; background: rgba(248,113,113,0.10); border-color: rgba(248,113,113,0.35); }
+.chg2-chip.neutral { color: #9ca3af; background: rgba(156,163,175,0.10); border-color: rgba(156,163,175,0.30); }
 
 /* === PERFORMANCE SLIDE (Slide 4) === */
 .perf-wrap-outer { max-width: 480px; margin: 0 auto; }
@@ -606,7 +617,7 @@ html, body, * {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v31</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v32</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
 </div>
 
@@ -1225,6 +1236,8 @@ function _setSlide(idx) {
 let _changesInitialized = false;
 let _chgHoldings = null;
 let _chgTickerRet = null;
+let _chgLatest = null;   // aktuelle Kurse je Ticker { native, ccy, eur }
+let _chgFx = null;       // { usd, gbp } = X pro 1 EUR (Fallback-Umrechnung)
 let _chgSelQ = null;
 const CHG_ENTRY = { y: 2026, q: 2 };   // Einstieg 09. Mai 2026 -> Q2 2026
 const CHG_THRESHOLD = 0.5;             // nur Änderungen ab 0,5 % anzeigen
@@ -1237,9 +1250,14 @@ async function initChanges() {
     ]);
     _chgHoldings  = (h && h.etfs) ? h.etfs : {};
     _chgTickerRet = (p && p.ticker_returns) ? p.ticker_returns : {};
+    _chgLatest    = (p && p.latest_prices) ? p.latest_prices : {};
+    const fxs = (p && p._meta && p._meta.fx_snapshot) ? p._meta.fx_snapshot : {};
+    _chgFx = { usd: fxs.USD_latest || null, gbp: fxs.GBP_latest || null };
   } catch (e) {
     _chgHoldings = _chgHoldings || {};
     _chgTickerRet = _chgTickerRet || {};
+    _chgLatest = _chgLatest || {};
+    _chgFx = _chgFx || { usd: null, gbp: null };
   }
 }
 
@@ -1279,6 +1297,51 @@ function _chgArrow(d) {
   return '<span style="color:#9ca3af">&ndash; 0,0%</span>';
 }
 
+// Anker-Kurs + Einheit aus dem hardcodierten Slide-1-Preis lesen ("370 €",
+// "8 $", "1007 GBp"). Das ist der Einstiegswert vom 09. Mai 2026.
+function _chgAnchor(prod) {
+  const m = (prod.price || '').match(/([\d.,]+)\s*(GBp|GBX|€|\$|£)?/);
+  if (!m) return null;
+  const val = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
+  if (!val || val <= 0) return null;
+  return { val, unit: m[2] || '€' };
+}
+
+// Aktueller Kurs in DERSELBEN Einheit wie der Anker, damit
+// (current - anker)/anker exakt rechnet. EUR direkt; $/GBp aus dem nativen
+// Kurs (gleiche Notierung) bzw. notfalls via FX aus dem EUR-Kurs.
+function _chgCurrent(ticker, unit) {
+  const lp = _chgLatest ? _chgLatest[ticker] : null;
+  if (!lp) return null;
+  const nat = (typeof lp.native === 'number') ? lp.native : null;
+  const eur = (typeof lp.eur === 'number') ? lp.eur : null;
+  if (unit === '€') return eur;
+  if (unit === '$') {
+    if (lp.ccy === 'USD' && nat != null) return nat;
+    if (eur != null && _chgFx && _chgFx.usd) return eur * _chgFx.usd;
+    return null;
+  }
+  if (unit === 'GBp' || unit === 'GBX') {
+    if ((lp.ccy === 'GBp' || lp.ccy === 'GBX') && nat != null) return nat;
+    if (eur != null && _chgFx && _chgFx.gbp) return eur * _chgFx.gbp * 100;
+    return null;
+  }
+  if (unit === '£') {
+    if (lp.ccy === 'GBP' && nat != null) return nat;
+    if (eur != null && _chgFx && _chgFx.gbp) return eur * _chgFx.gbp;
+    return null;
+  }
+  return null;
+}
+
+// Veränderungs-"Pill" im Stil von Folie 1 (gerundeter Chip, farbcodiert).
+function _chgChip(label, delta) {
+  const v = Math.abs(delta).toFixed(1).replace('.', ',');
+  if (delta > 0.05)  return '<span class="chg2-chip pos">' + label + ' &#9650; +' + v + '%</span>';
+  if (delta < -0.05) return '<span class="chg2-chip neg">' + label + ' &#9660; &minus;' + v + '%</span>';
+  return '<span class="chg2-chip neutral">' + label + ' &ndash; 0,0%</span>';
+}
+
 function renderChangesSlide() {
   const tabsEl = document.getElementById('chg-tabs');
   const bodyEl = document.getElementById('chg-body');
@@ -1297,21 +1360,26 @@ function renderChangesSlide() {
     return;
   }
 
-  const row = (l, r) => '<div class="chg-row"><span class="chg-row-l">' + l + '</span><span class="chg-row-r">' + r + '</span></div>';
-  let html = '<div class="chg-note">Live-Stand vs. Einstieg 09. Mai 2026 &middot; nur Änderungen ab 0,5&nbsp;%</div>';
   let anyChange = false;
+  let priceMissing = false;
+  let cardsHtml = '';
 
   GROUPS.forEach(g => {
-    g.products.forEach(prod => {
-      const ret  = _chgTickerRet ? _chgTickerRet[prod.ticker] : undefined;
-      const live = _chgHoldings ? _chgHoldings[prod.ticker] : null;
-      const rows = [];
+    let prodBlocks = '';
 
-      // 1) Kurs-Veränderung (Proxy: ticker_returns seit Mess-Baseline)
-      let priceLine = '';
-      if (typeof ret === 'number' && Math.abs(ret) >= CHG_THRESHOLD) {
-        priceLine = row('Kurs', _chgArrow(ret));
-        anyChange = true;
+    g.products.forEach(prod => {
+      const live  = _chgHoldings ? _chgHoldings[prod.ticker] : null;
+      const chips = [];
+
+      // 1) Kurs-Veränderung: anker-basiert (current - 09.-Mai-Anker)/Anker.
+      //    Nicht mehr ticker_returns (das misst seit 18. Mai -> falscher Anker).
+      const a   = _chgAnchor(prod);
+      const cur = a ? _chgCurrent(prod.ticker, a.unit) : null;
+      if (a && typeof cur === 'number') {
+        const kursDelta = (cur / a.val - 1) * 100;
+        if (Math.abs(kursDelta) >= CHG_THRESHOLD) chips.push(_chgChip('Kurs', kursDelta));
+      } else if (a) {
+        priceMissing = true;
       }
 
       // 2) Positions-Gewichte: nur ETFs, deren Anker echte Einzeltitel listet
@@ -1327,31 +1395,50 @@ function renderChangesSlide() {
             if (m) {
               usedLive.add(m.name);
               const delta = m.weight_pct - d.p;
-              if (Math.abs(delta) >= CHG_THRESHOLD) rows.push(row(d.n, _chgArrow(delta)));
+              if (Math.abs(delta) >= CHG_THRESHOLD) chips.push(_chgChip(d.n, delta));
             } else {
-              rows.push(row(d.n, '<span style="color:#f87171">&#10134; raus aus Top</span>'));
+              chips.push('<span class="chg2-chip neg">' + d.n + ' &#10134; raus</span>');
             }
           });
           liveList.slice(0, 3).forEach(h => {
             if (usedLive.has(h.name)) return;
             const inAnchor = prod.details.some(d => _chgNorm(h.name).includes(_chgNorm(d.n)) || _chgNorm(d.n).includes(_chgNorm(h.name)));
             if (!inAnchor && h.weight_pct >= CHG_THRESHOLD)
-              rows.push(row(_chgTitle(h.name), '<span style="color:#34d399">&#10133; neu in Top (' + h.weight_pct.toFixed(1).replace('.', ',') + '%)</span>'));
+              chips.push('<span class="chg2-chip pos">' + _chgTitle(h.name) + ' &#10133; neu ' + h.weight_pct.toFixed(1).replace('.', ',') + '%</span>');
           });
         }
       }
 
-      if (rows.length) anyChange = true;
-      if (!priceLine && !rows.length) return;
-
-      html += '<div class="chg-card" style="border-left:3px solid ' + g.color + '">'
-            + '<div class="chg-card-head">' + g.emoji + ' ' + prod.ticker + ' <span class="chg-card-sub">' + prod.name + '</span></div>'
-            + priceLine + rows.join('')
-            + '</div>';
+      if (!chips.length) return;
+      anyChange = true;
+      prodBlocks += '<div class="chg2-prod">'
+                  + '<div class="chg2-prod-head">' + prod.ticker + ' <span>' + prod.name + '</span></div>'
+                  + '<div class="chg2-chips">' + chips.join('') + '</div>'
+                  + '</div>';
     });
+
+    if (!prodBlocks) return;
+    // Karte im Slide-1-Design (gerundet, Kategorie-Farbe), eine pro Überkategorie.
+    cardsHtml += '<div class="card chg2-card" style="border-color:' + g.color + '33">'
+               + '<div class="card-top"><div class="card-left">'
+               +   '<span class="card-emoji">' + g.emoji + '</span>'
+               +   '<span class="card-name" style="color:' + g.color + '">' + g.name + '</span>'
+               +   '<span class="card-count">' + g.products.length + ' Pos.</span>'
+               + '</div></div>'
+               + '<div class="card-bar-wrap"><div class="card-bar" style="width:100%;background:' + g.color + '"></div></div>'
+               + '<div class="chg2-body">' + prodBlocks + '</div>'
+               + '</div>';
   });
 
-  if (!anyChange) html += '<div class="chg-empty">Noch keine wesentlichen Veränderungen seit Einstieg.</div>';
+  let html = '<div class="chg-note">Live-Stand vs. Einstieg 09. Mai 2026 &middot; nur Änderungen ab 0,5&nbsp;%</div>';
+  if (cardsHtml) html += '<div class="cards">' + cardsHtml + '</div>';
+  if (!anyChange) {
+    html += '<div class="chg-empty">Noch keine wesentlichen Veränderungen seit Einstieg.'
+          + (priceMissing ? '<br><span>Kurs-Änderungen erscheinen mit dem nächsten Datenupdate.</span>' : '')
+          + '</div>';
+  } else if (priceMissing) {
+    html += '<div class="chg-note" style="margin-top:4px">Einzelne Kurswerte folgen mit dem nächsten Datenupdate.</div>';
+  }
   bodyEl.innerHTML = html;
 }
 

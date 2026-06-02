@@ -603,6 +603,23 @@ def main():
         if last_px and base_px:
             ticker_returns[ticker] = round((last_px / base_px - 1) * 100, 4)
 
+    # Aktueller Kurs je Ticker (native Listing-Waehrung + EUR-normalisiert).
+    # ticker_returns ist die Rendite seit BASELINE_DATE (18. Mai) und taugt NICHT,
+    # um die Kurs-Veraenderung gegen einen anderen Anker (z.B. Einstieg 09. Mai,
+    # hardcodiert auf Slide 1) zu berechnen. Mit dem absoluten Live-Kurs kann das
+    # Frontend (current - anker)/anker exakt gegen den 09.-Mai-Anker rechnen.
+    latest_prices = {}
+    for ticker, (prices, currency) in portfolio_data.items():
+        native_series = forward_fill(prices, all_dates)
+        nat_last = next((p for p in reversed(native_series) if p is not None), None)
+        eur_series = ticker_series_eur.get(ticker)
+        eur_last = next((p for p in reversed(eur_series) if p is not None), None) if eur_series else None
+        latest_prices[ticker] = {
+            "native": round(nat_last, 6) if nat_last is not None else None,
+            "ccy": currency,
+            "eur": round(eur_last, 6) if eur_last is not None else None,
+        }
+
     # 8) Fuehrende None-Tage trimmen
     first_valid = 0
     for i in range(len(all_dates)):
@@ -654,6 +671,7 @@ def main():
         "portfolio": portfolio_out,
         "msci_world": msci_out,
         "ticker_returns": ticker_returns,
+        "latest_prices": latest_prices,
     }
 
     with open("data/performance.json", "w", encoding="utf-8") as f:

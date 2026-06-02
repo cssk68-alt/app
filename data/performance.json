@@ -112,5 +112,12 @@
     "EIMI": 7.8459,
     "ALV": -1.2585,
     "ISF": 0.8915
+  },
+  "latest_prices": {
+    "ALV": {
+      "native": 376.0,
+      "ccy": "EUR",
+      "eur": 376.0
+    }
   }
 }
