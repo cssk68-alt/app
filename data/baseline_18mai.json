@@ -1,0 +1,787 @@
+{
+  "_meta": {
+    "stand": "2026-05-18",
+    "quelle": "iShares-DE AJAX tab=all",
+    "note": "Aufteilungs-Anker (Holdings + Sektoren) vom 18. Mai 2026 = Performance-Baseline. Aus der Git-Historie wiederhergestellt (frueher ueberschriebener Stand). Geo separat (16./19. Mai, Portfolio-Ebene) und hier bewusst nicht enthalten."
+  },
+  "holdings": {
+    "SXR8": {
+      "top_holdings": [
+        {
+          "name": "NVIDIA CORP",
+          "isin": "US67066G1040",
+          "weight_pct": 8.6098
+        },
+        {
+          "name": "APPLE INC",
+          "isin": "US0378331005",
+          "weight_pct": 6.9311
+        },
+        {
+          "name": "MICROSOFT CORP",
+          "isin": "US5949181045",
+          "weight_pct": 4.9267
+        },
+        {
+          "name": "AMAZON.COM INC",
+          "isin": "US0231351067",
+          "weight_pct": 4.0575
+        },
+        {
+          "name": "ALPHABET INC CLASS A",
+          "isin": "US02079K3059",
+          "weight_pct": 3.6325
+        },
+        {
+          "name": "BROADCOM INC",
+          "isin": "US11135F1012",
+          "weight_pct": 3.17
+        },
+        {
+          "name": "ALPHABET INC CLASS C",
+          "isin": "US02079K1079",
+          "weight_pct": 2.8925
+        },
+        {
+          "name": "META PLATFORMS INC CLASS A",
+          "isin": "US30303M1027",
+          "weight_pct": 2.1125
+        },
+        {
+          "name": "TESLA INC",
+          "isin": "US88160R1014",
+          "weight_pct": 1.8677
+        },
+        {
+          "name": "BERKSHIRE HATHAWAY INC CLASS B",
+          "isin": "US0846707026",
+          "weight_pct": 1.3919
+        }
+      ]
+    },
+    "CPXJ": {
+      "top_holdings": [
+        {
+          "name": "BHP GROUP LTD",
+          "isin": "AU000000BHP4",
+          "weight_pct": 9.6929
+        },
+        {
+          "name": "COMMONWEALTH BANK OF AUSTRALIA",
+          "isin": "AU000000CBA7",
+          "weight_pct": 8.4218
+        },
+        {
+          "name": "AIA GROUP LTD",
+          "isin": "HK0000069689",
+          "weight_pct": 5.1955
+        },
+        {
+          "name": "DBS GROUP HOLDINGS LTD",
+          "isin": "SG1L01001701",
+          "weight_pct": 4.428
+        },
+        {
+          "name": "WESTPAC BANKING CORPORATION CORP",
+          "isin": "AU000000WBC1",
+          "weight_pct": 3.8775
+        },
+        {
+          "name": "NATIONAL AUSTRALIA BANK LTD",
+          "isin": "AU000000NAB4",
+          "weight_pct": 3.5397
+        },
+        {
+          "name": "ANZ GROUP HOLDINGS LTD",
+          "isin": "AU000000ANZ3",
+          "weight_pct": 3.36
+        },
+        {
+          "name": "MACQUARIE GROUP LTD DEF",
+          "isin": "AU000000MQG1",
+          "weight_pct": 2.783
+        },
+        {
+          "name": "HONG KONG EXCHANGES AND CLEARING L",
+          "isin": "HK0388045442",
+          "weight_pct": 2.7706
+        },
+        {
+          "name": "OVERSEA-CHINESE BANKING LTD",
+          "isin": "SG1S04926220",
+          "weight_pct": 2.6724
+        }
+      ]
+    },
+    "CSKR": {
+      "top_holdings": [
+        {
+          "name": "SAMSUNG ELECTRONICS LTD",
+          "isin": "KR7005930003",
+          "weight_pct": 27.492
+        },
+        {
+          "name": "SK HYNIX INC",
+          "isin": "KR7000660001",
+          "weight_pct": 17.9299
+        },
+        {
+          "name": "SK SQUARE LTD",
+          "isin": "KR7402340004",
+          "weight_pct": 3.6186
+        },
+        {
+          "name": "HYUNDAI MOTOR",
+          "isin": "KR7005380001",
+          "weight_pct": 3.3261
+        },
+        {
+          "name": "SAMSUNG ELECTRONICS NON VOTING PRE",
+          "isin": "KR7005931001",
+          "weight_pct": 3.1452
+        },
+        {
+          "name": "SAMSUNG ELECTRO MECHANICS LTD",
+          "isin": "KR7009150004",
+          "weight_pct": 2.02
+        },
+        {
+          "name": "KB FINANCIAL GROUP INC",
+          "isin": "KR7105560007",
+          "weight_pct": 2.0131
+        },
+        {
+          "name": "DOOSAN ENERBILITY LTD",
+          "isin": "KR7034020008",
+          "weight_pct": 1.7737
+        },
+        {
+          "name": "SHINHAN FINANCIAL GROUP LTD",
+          "isin": "KR7055550008",
+          "weight_pct": 1.4835
+        },
+        {
+          "name": "HANWHA AEROSPACE LTD",
+          "isin": "KR7012450003",
+          "weight_pct": 1.455
+        }
+      ]
+    },
+    "IJPA": {
+      "top_holdings": [
+        {
+          "name": "MITSUBISHI UFJ FINANCIAL GROUP INC",
+          "isin": "JP3902900004",
+          "weight_pct": 3.2128
+        },
+        {
+          "name": "TOYOTA MOTOR CORP",
+          "isin": "JP3633400001",
+          "weight_pct": 2.8444
+        },
+        {
+          "name": "TOKYO ELECTRON LTD",
+          "isin": "JP3571400005",
+          "weight_pct": 2.192
+        },
+        {
+          "name": "HITACHI LTD",
+          "isin": "JP3788600009",
+          "weight_pct": 2.1449
+        },
+        {
+          "name": "SONY GROUP CORP",
+          "isin": "JP3435000009",
+          "weight_pct": 2.1369
+        },
+        {
+          "name": "SOFTBANK GROUP CORP",
+          "isin": "JP3436100006",
+          "weight_pct": 2.0696
+        },
+        {
+          "name": "SUMITOMO MITSUI FINANCIAL GROUP IN",
+          "isin": "JP3890350006",
+          "weight_pct": 2.0356
+        },
+        {
+          "name": "ADVANTEST CORP",
+          "isin": "JP3122400009",
+          "weight_pct": 1.9682
+        },
+        {
+          "name": "MITSUBISHI CORP",
+          "isin": "JP3898400001",
+          "weight_pct": 1.8342
+        },
+        {
+          "name": "MIZUHO FINANCIAL GROUP INC",
+          "isin": "JP3885780001",
+          "weight_pct": 1.6767
+        }
+      ]
+    },
+    "WHCS": {
+      "top_holdings": [
+        {
+          "name": "ELI LILLY",
+          "isin": "US5324571083",
+          "weight_pct": 10.56
+        },
+        {
+          "name": "NOVARTIS AG",
+          "isin": "CH0012005267",
+          "weight_pct": 5.6338
+        },
+        {
+          "name": "JOHNSON & JOHNSON",
+          "isin": "US4781601046",
+          "weight_pct": 5.4778
+        },
+        {
+          "name": "ABBVIE INC",
+          "isin": "US00287Y1091",
+          "weight_pct": 5.0735
+        },
+        {
+          "name": "UNITEDHEALTH GROUP INC",
+          "isin": "US91324P1021",
+          "weight_pct": 4.3186
+        },
+        {
+          "name": "ASTRAZENECA PLC",
+          "isin": "GB0009895292",
+          "weight_pct": 3.4991
+        },
+        {
+          "name": "MERCK & CO INC",
+          "isin": "US58933Y1055",
+          "weight_pct": 3.3269
+        },
+        {
+          "name": "ROCHE PS PAR AG",
+          "isin": "CH1499059983",
+          "weight_pct": 3.3008
+        },
+        {
+          "name": "GILEAD SCIENCES INC",
+          "isin": "US3755581036",
+          "weight_pct": 2.8555
+        },
+        {
+          "name": "NOVO NORDISK CLASS B",
+          "isin": "DK0062498333",
+          "weight_pct": 2.0161
+        }
+      ]
+    },
+    "AGED": {
+      "top_holdings": [
+        {
+          "name": "PHOENIX FINANCIAL LTD",
+          "isin": "IL0007670123",
+          "weight_pct": 1.3244
+        },
+        {
+          "name": "SAMSUNG LIFE LTD",
+          "isin": "KR7032830002",
+          "weight_pct": 1.1576
+        },
+        {
+          "name": "CYTOKINETICS INC",
+          "isin": "US23282W6057",
+          "weight_pct": 0.8472
+        },
+        {
+          "name": "VIKING HOLDINGS",
+          "isin": "BMG93A5A1010",
+          "weight_pct": 0.8232
+        },
+        {
+          "name": "AXSOME THERAPEUTICS INC",
+          "isin": "US05464T1043",
+          "weight_pct": 0.813
+        },
+        {
+          "name": "AFFILIATED MANAGERS GROUP INC",
+          "isin": "US0082521081",
+          "weight_pct": 0.7697
+        },
+        {
+          "name": "PHARMAESSENTIA CORP",
+          "isin": "TW0006446008",
+          "weight_pct": 0.7442
+        },
+        {
+          "name": "POWER CORPORATION OF CANADA",
+          "isin": "CA7392391016",
+          "weight_pct": 0.7388
+        },
+        {
+          "name": "SWEDISH ORPHAN BIOVITRUM",
+          "isin": "SE0000872095",
+          "weight_pct": 0.7301
+        },
+        {
+          "name": "GREAT WEST LIFECO INC",
+          "isin": "CA39138C1068",
+          "weight_pct": 0.7248
+        }
+      ]
+    },
+    "EIMI": {
+      "top_holdings": [
+        {
+          "name": "TAIWAN SEMICONDUCTOR MANUFACTURING",
+          "isin": "TW0002330008",
+          "weight_pct": 12.63
+        },
+        {
+          "name": "SAMSUNG ELECTRONICS LTD",
+          "isin": "KR7005930003",
+          "weight_pct": 6.0894
+        },
+        {
+          "name": "SK HYNIX INC",
+          "isin": "KR7000660001",
+          "weight_pct": 4.7008
+        },
+        {
+          "name": "TENCENT HOLDINGS LTD",
+          "isin": "KYG875721634",
+          "weight_pct": 2.6562
+        },
+        {
+          "name": "ALIBABA GROUP HOLDING LTD",
+          "isin": "KYG017191142",
+          "weight_pct": 2.0685
+        },
+        {
+          "name": "MEDIATEK INC",
+          "isin": "TW0002454006",
+          "weight_pct": 1.1249
+        },
+        {
+          "name": "DELTA ELECTRONICS INC",
+          "isin": "TW0002308004",
+          "weight_pct": 0.9115
+        },
+        {
+          "name": "CHINA CONSTRUCTION BANK CORP H",
+          "isin": "CNE1000002H1",
+          "weight_pct": 0.7699
+        },
+        {
+          "name": "HON HAI PRECISION INDUSTRY LTD",
+          "isin": "TW0002317005",
+          "weight_pct": 0.71
+        },
+        {
+          "name": "SAMSUNG ELECTRONICS NON VOTING PRE",
+          "isin": "KR7005931001",
+          "weight_pct": 0.698
+        }
+      ]
+    },
+    "ISF": {
+      "top_holdings": [
+        {
+          "name": "HSBC HOLDINGS PLC",
+          "isin": "GB0005405286",
+          "weight_pct": 9.228
+        },
+        {
+          "name": "ASTRAZENECA PLC",
+          "isin": "GB0009895292",
+          "weight_pct": 8.2938
+        },
+        {
+          "name": "SHELL PLC",
+          "isin": "GB00BP6MXD84",
+          "weight_pct": 7.3795
+        },
+        {
+          "name": "BRITISH AMERICAN TOBACCO",
+          "isin": "GB0002875804",
+          "weight_pct": 4.1557
+        },
+        {
+          "name": "ROLLS-ROYCE HOLDINGS PLC",
+          "isin": "GB00B63H8491",
+          "weight_pct": 3.9244
+        },
+        {
+          "name": "UNILEVER PLC",
+          "isin": "GB00BVZK7T90",
+          "weight_pct": 3.6624
+        },
+        {
+          "name": "BP PLC",
+          "isin": "GB0007980591",
+          "weight_pct": 3.5146
+        },
+        {
+          "name": "RIO TINTO PLC",
+          "isin": "GB0007188757",
+          "weight_pct": 3.2587
+        },
+        {
+          "name": "GLAXOSMITHKLINE",
+          "isin": "GB00BN7SWP63",
+          "weight_pct": 3.0207
+        },
+        {
+          "name": "GLENCORE PLC",
+          "isin": "JE00B4T3BW64",
+          "weight_pct": 2.4497
+        }
+      ]
+    }
+  },
+  "sectors": {
+    "SXR8": {
+      "sectors": [
+        {
+          "sector": "IT",
+          "weight_pct": 37.3023
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 11.4371
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 10.8117
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 9.6056
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 8.3909
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 8.232
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 4.843
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 3.3962
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 2.1295
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 1.8494
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 1.8153
+        }
+      ]
+    },
+    "CPXJ": {
+      "sectors": [
+        {
+          "sector": "Financials",
+          "weight_pct": 44.5084
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 15.8633
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 9.2322
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 7.9716
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 5.9871
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 3.5949
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 3.1584
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 2.8455
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 2.7576
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 2.6775
+        },
+        {
+          "sector": "IT",
+          "weight_pct": 0.6728
+        },
+        {
+          "sector": "Money Market",
+          "weight_pct": 0.008
+        }
+      ]
+    },
+    "CSKR": {
+      "sectors": [
+        {
+          "sector": "IT",
+          "weight_pct": 52.9151
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 19.5458
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 8.8527
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 7.7997
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 2.7617
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 2.4462
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 1.8755
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 1.2976
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 0.8964
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 0.302
+        }
+      ]
+    },
+    "IJPA": {
+      "sectors": [
+        {
+          "sector": "Industrie",
+          "weight_pct": 26.0838
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 15.9276
+        },
+        {
+          "sector": "IT",
+          "weight_pct": 15.4744
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 14.6011
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 5.809
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 5.5717
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 5.2904
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 4.5667
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 3.1438
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 1.227
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 0.9951
+        }
+      ]
+    },
+    "WHCS": {
+      "sectors": [
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 99.5112
+        }
+      ]
+    },
+    "AGED": {
+      "sectors": [
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 46.2916
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 44.1913
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 6.2861
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 1.0872
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 1.0241
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 0.2316
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 0.1039
+        },
+        {
+          "sector": "IT",
+          "weight_pct": 0.0786
+        }
+      ]
+    },
+    "EIMI": {
+      "sectors": [
+        {
+          "sector": "IT",
+          "weight_pct": 37.6819
+        },
+        {
+          "sector": "Financials",
+          "weight_pct": 17.8877
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 9.231
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 8.3352
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 6.6245
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 6.0699
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 3.3601
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 3.2775
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 3.2595
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 2.0791
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 1.6221
+        },
+        {
+          "sector": "Money Market",
+          "weight_pct": 0.0107
+        },
+        {
+          "sector": "Sonstige",
+          "weight_pct": 0.0
+        }
+      ]
+    },
+    "ISF": {
+      "sectors": [
+        {
+          "sector": "Financials",
+          "weight_pct": 26.2444
+        },
+        {
+          "sector": "Nichtzyklische Konsumgüter",
+          "weight_pct": 13.9979
+        },
+        {
+          "sector": "Gesundheitsversorgung",
+          "weight_pct": 13.0655
+        },
+        {
+          "sector": "Industrie",
+          "weight_pct": 12.7463
+        },
+        {
+          "sector": "Energie",
+          "weight_pct": 11.1012
+        },
+        {
+          "sector": "Materialien",
+          "weight_pct": 8.7962
+        },
+        {
+          "sector": "Versorger",
+          "weight_pct": 4.5481
+        },
+        {
+          "sector": "Zyklische Konsumgüter",
+          "weight_pct": 4.5081
+        },
+        {
+          "sector": "Kommunikation",
+          "weight_pct": 2.1426
+        },
+        {
+          "sector": "IT",
+          "weight_pct": 1.0086
+        },
+        {
+          "sector": "Immobilien",
+          "weight_pct": 1.0063
+        },
+        {
+          "sector": "Money Market",
+          "weight_pct": 0.0666
+        }
+      ]
+    }
+  }
+}

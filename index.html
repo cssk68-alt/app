@@ -20,7 +20,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v32</title>
+<title>Mein Sparplan - v33</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -617,7 +617,7 @@ html, body, * {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v32</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v33</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
 </div>
 
@@ -1229,35 +1229,47 @@ function _setSlide(idx) {
   }
 }
 
-// ── Slide "Veränderungen": vergleicht den hardcodierten Einstiegsstand
-//    (09. Mai 2026, GROUPS) mit Live-Daten (holdings.json Top-Holdings +
-//    performance.json ticker_returns für Kurse). Quartals-Tabs nach
-//    Kalenderquartalen; das erste Quartal (Q2 2026) ist verkürzt ab Einstieg.
+// ── Slide "Veränderungen": Kurs vs. 09.-Mai-Anker (GROUPS-Preis + live
+//    latest_prices) UND Aufteilung (Holdings/Sektoren) vs. realem 18.-Mai-Anker
+//    (data/baseline_18mai.json, aus Git-Historie geborgen) gegen Live-Daten
+//    (holdings.json + sectors.json). Quartals-Tabs nach Kalenderquartalen;
+//    das erste Quartal (Q2 2026) ist verkürzt ab Einstieg.
 let _changesInitialized = false;
-let _chgHoldings = null;
+let _chgHoldings = null;   // LIVE Holdings (heute) je ETF
 let _chgTickerRet = null;
-let _chgLatest = null;   // aktuelle Kurse je Ticker { native, ccy, eur }
-let _chgFx = null;       // { usd, gbp } = X pro 1 EUR (Fallback-Umrechnung)
+let _chgLatest = null;     // aktuelle Kurse je Ticker { native, ccy, eur }
+let _chgFx = null;         // { usd, gbp } = X pro 1 EUR (Fallback-Umrechnung)
+let _chgLiveSect = null;   // LIVE Sektoren (heute) je ETF
+let _chgBaseHold = null;   // ANKER Holdings (18. Mai) je ETF
+let _chgBaseSect = null;   // ANKER Sektoren (18. Mai) je ETF
 let _chgSelQ = null;
 const CHG_ENTRY = { y: 2026, q: 2 };   // Einstieg 09. Mai 2026 -> Q2 2026
 const CHG_THRESHOLD = 0.5;             // nur Änderungen ab 0,5 % anzeigen
 
 async function initChanges() {
   try {
-    const [h, p] = await Promise.all([
+    const [h, p, s, b] = await Promise.all([
       fetch('./data/holdings.json?t=' + Date.now()).then(r => r.json()).catch(() => null),
-      fetch('./data/performance.json?t=' + Date.now()).then(r => r.json()).catch(() => null)
+      fetch('./data/performance.json?t=' + Date.now()).then(r => r.json()).catch(() => null),
+      fetch('./data/sectors.json?t=' + Date.now()).then(r => r.json()).catch(() => null),
+      fetch('./data/baseline_18mai.json?t=' + Date.now()).then(r => r.json()).catch(() => null)
     ]);
     _chgHoldings  = (h && h.etfs) ? h.etfs : {};
     _chgTickerRet = (p && p.ticker_returns) ? p.ticker_returns : {};
     _chgLatest    = (p && p.latest_prices) ? p.latest_prices : {};
     const fxs = (p && p._meta && p._meta.fx_snapshot) ? p._meta.fx_snapshot : {};
     _chgFx = { usd: fxs.USD_latest || null, gbp: fxs.GBP_latest || null };
+    _chgLiveSect = (s && s.etfs) ? s.etfs : {};
+    _chgBaseHold = (b && b.holdings) ? b.holdings : {};
+    _chgBaseSect = (b && b.sectors)  ? b.sectors  : {};
   } catch (e) {
     _chgHoldings = _chgHoldings || {};
     _chgTickerRet = _chgTickerRet || {};
     _chgLatest = _chgLatest || {};
     _chgFx = _chgFx || { usd: null, gbp: null };
+    _chgLiveSect = _chgLiveSect || {};
+    _chgBaseHold = _chgBaseHold || {};
+    _chgBaseSect = _chgBaseSect || {};
   }
 }
 
@@ -1342,6 +1354,14 @@ function _chgChip(label, delta) {
   return '<span class="chg2-chip neutral">' + label + ' &ndash; 0,0%</span>';
 }
 
+// Cash-/Liquiditäts-/Derivate-Positionen aus dem Vergleich ausblenden (kein
+// echter Holding-/Sektor-Wechsel, nur Rauschen).
+function _chgIsCash(name) {
+  const n = (name || '').toUpperCase();
+  return n.includes('LIQ') || n.includes('CASH') || n.includes('BLK ICS')
+      || n.includes('DERIVAT') || n.includes('LIQUID');
+}
+
 function renderChangesSlide() {
   const tabsEl = document.getElementById('chg-tabs');
   const bodyEl = document.getElementById('chg-body');
@@ -1382,31 +1402,35 @@ function renderChangesSlide() {
         priceMissing = true;
       }
 
-      // 2) Positions-Gewichte: nur ETFs, deren Anker echte Einzeltitel listet
-      if (live && Array.isArray(live.top_holdings) && prod.details && prod.trType === 'etf') {
-        const liveList = live.top_holdings;
-        const matches  = prod.details.map(d => ({ d, m: _chgMatch(d.n, liveList) }));
-        const matchedCount = matches.filter(x => x.m).length;
-        // Nur wenn der Anker mehrheitlich echte Einzeltitel listet; sonst sind es
-        // Sektor-/Länder-Labels (CPXJ, AGED, EIMI) -> keine Holding-Deltas, nur Kurs.
-        if (matchedCount >= 2 && matchedCount * 2 >= prod.details.length) {
-          const usedLive = new Set();
-          matches.forEach(({ d, m }) => {
-            if (m) {
-              usedLive.add(m.name);
-              const delta = m.weight_pct - d.p;
-              if (Math.abs(delta) >= CHG_THRESHOLD) chips.push(_chgChip(d.n, delta));
-            } else {
-              chips.push('<span class="chg2-chip neg">' + d.n + ' &#10134; raus</span>');
-            }
-          });
-          liveList.slice(0, 3).forEach(h => {
-            if (usedLive.has(h.name)) return;
-            const inAnchor = prod.details.some(d => _chgNorm(h.name).includes(_chgNorm(d.n)) || _chgNorm(d.n).includes(_chgNorm(h.name)));
-            if (!inAnchor && h.weight_pct >= CHG_THRESHOLD)
-              chips.push('<span class="chg2-chip pos">' + _chgTitle(h.name) + ' &#10133; neu ' + h.weight_pct.toFixed(1).replace('.', ',') + '%</span>');
-          });
-        }
+      // 2) Positions-Gewichte: Live-Holdings vs. echter 18.-Mai-Anker
+      //    (geborgener Stand). Cash/Liquidität wird ausgeblendet. Nur Titel, die
+      //    in BEIDEN Top-Listen stehen, liefern ein echtes Gewichts-Delta;
+      //    "neu/raus" wäre bei Top-10-Listen nur Listengrenz-Rauschen (Platz
+      //    11 <-> 9) -> bewusst weggelassen.
+      const baseHold = _chgBaseHold ? _chgBaseHold[prod.ticker] : null;
+      if (live && Array.isArray(live.top_holdings) && baseHold && Array.isArray(baseHold.top_holdings)) {
+        const liveList = live.top_holdings.filter(h => !_chgIsCash(h.name));
+        baseHold.top_holdings.filter(h => !_chgIsCash(h.name)).forEach(b => {
+          const m = _chgMatch(b.name, liveList);
+          if (!m) return;
+          const delta = m.weight_pct - b.weight_pct;
+          if (Math.abs(delta) >= CHG_THRESHOLD) chips.push(_chgChip(_chgTitle(b.name), delta));
+        });
+      }
+
+      // 3) Sektor-Gewichte: Live-Sektoren vs. 18.-Mai-Anker (geborgen).
+      const liveSect = _chgLiveSect ? _chgLiveSect[prod.ticker] : null;
+      const baseSect = _chgBaseSect ? _chgBaseSect[prod.ticker] : null;
+      const liveSectArr = liveSect && Array.isArray(liveSect.sectors) ? liveSect.sectors : null;
+      const baseSectArr = baseSect && Array.isArray(baseSect.sectors) ? baseSect.sectors : null;
+      if (liveSectArr && baseSectArr) {
+        baseSectArr.forEach(b => {
+          if (_chgIsCash(b.sector)) return;
+          const m = liveSectArr.find(s => _chgNorm(s.sector) === _chgNorm(b.sector));
+          if (!m) return;
+          const delta = m.weight_pct - b.weight_pct;
+          if (Math.abs(delta) >= CHG_THRESHOLD) chips.push(_chgChip('Sektor ' + b.sector, delta));
+        });
       }
 
       if (!chips.length) return;
@@ -1430,7 +1454,7 @@ function renderChangesSlide() {
                + '</div>';
   });
 
-  let html = '<div class="chg-note">Live-Stand vs. Einstieg 09. Mai 2026 &middot; nur Änderungen ab 0,5&nbsp;%</div>';
+  let html = '<div class="chg-note">Kurs vs. Einstieg 09. Mai &middot; Aufteilung (Holdings/Sektoren) vs. 18. Mai &middot; nur Änderungen ab 0,5&nbsp;%</div>';
   if (cardsHtml) html += '<div class="cards">' + cardsHtml + '</div>';
   if (!anyChange) {
     html += '<div class="chg-empty">Noch keine wesentlichen Veränderungen seit Einstieg.'
