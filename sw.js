@@ -1,9 +1,15 @@
 // Service Worker – Mein Sparplan PWA
 // Bug 4 Fix: Network-First für /data/* (frische ETF-Daten), Cache-First für statische Assets.
-// Zusatz: Truncation-Fix (originale Datei fehlte die letzten 5 schließenden Klammern).
+// B1 Fix: Offline-Lookup ignoriert den ?t=-Cache-Buster und liefert die NEUESTE gecachte
+//         Kopie. Pro Daten-Datei werden rollend max. DATA_CACHE_KEEP Kopien behalten,
+//         ältere werden automatisch gelöscht (kein unbegrenzter Stapel mehr).
 
-const CACHE_NAME = 'sparplan-v29-20260531-overlap-sector-filter';
+const CACHE_NAME = 'sparplan-v30-20260602-data-cache-rolling3';
 const FORCE_RELOAD = true;
+
+// Pro Daten-Datei (z. B. performance.json) maximal so viele Kopien behalten.
+// Sobald eine neuere dazukommt und mehr als KEEP existieren, fliegt die älteste raus.
+const DATA_CACHE_KEEP = 3;
 
 const STATIC_ASSETS = [
   './',
@@ -58,48 +64,89 @@ function isHtmlRequest(request) {
   return accept.includes('text/html');
 }
 
+// --- B1: Daten-Cache mit rollender Begrenzung -------------------------------
+// Alle Cache-Einträge für DENSELBEN Daten-Pfad finden (die ?t=-Uhrzeit wird
+// ignoriert), sortiert nach Zeitstempel – neueste zuerst.
+async function dataEntriesFor(cache, requestUrl) {
+  const targetPath = new URL(requestUrl).pathname;
+  const keys = await cache.keys();
+  return keys
+    .map(req => ({ req, url: new URL(req.url) }))
+    .filter(e => e.url.pathname === targetPath)
+    .map(e => ({ req: e.req, t: Number(e.url.searchParams.get('t')) || 0 }))
+    .sort((a, b) => b.t - a.t); // neueste zuerst
+}
+
+// Nach dem Schreiben aufräumen: nur die neuesten DATA_CACHE_KEEP Kopien behalten.
+async function pruneDataCache(cache, requestUrl) {
+  const entries = await dataEntriesFor(cache, requestUrl);
+  for (const stale of entries.slice(DATA_CACHE_KEEP)) {
+    await cache.delete(stale.req);
+  }
+}
+
+// Offline: die NEUESTE gecachte Kopie für diesen Pfad zurückgeben (Uhrzeit egal).
+async function newestDataMatch(cache, requestUrl) {
+  const entries = await dataEntriesFor(cache, requestUrl);
+  return entries.length ? cache.match(entries[0].req) : undefined;
+}
+
+// Network-First für ETF-Daten: frisch vom Server; offline die neueste Kopie.
+async function networkFirstData(request) {
+  try {
+    const response = await fetch(request);
+    if (response && response.status === 200 && response.type !== 'opaque') {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, response.clone());
+      await pruneDataCache(cache, request.url); // rollend auf max. 3 begrenzen
+    }
+    return response;
+  } catch (e) {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await newestDataMatch(cache, request.url);
+    return cached || Response.error();
+  }
+}
+
+// Network-First für HTML/index.html: neue Builds sofort, offline der Cache.
+async function networkFirstHtml(request) {
+  try {
+    const response = await fetch(request);
+    if (response && response.status === 200 && response.type !== 'opaque') {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch (e) {
+    const cached = await caches.match(request);
+    return cached || caches.match('./index.html');
+  }
+}
+
+// Cache-First für statische Assets (Icons, manifest …).
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response && response.status === 200 && response.type !== 'opaque') {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response.clone());
+  }
+  return response;
+}
+
 // Fetch-Handler:
-//   /data/* + HTML  → Network-First: frisch vom Server, Fallback auf Cache (Offline-Support)
-//   Restliche Assets → Cache-First: schnell aus Cache, Fallback auf Network
+//   /data/*  → Network-First + rollender Cache (max. 3 Kopien/Datei)
+//   HTML     → Network-First (Offline-Fallback auf index.html)
+//   Restliche Assets → Cache-First
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
-  if (isDataRequest(event.request.url) || isHtmlRequest(event.request)) {
-    // Network-First für ETF-Daten und index.html: Updates sofort sichtbar
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (!response || response.status !== 200 || response.type === 'opaque') {
-            return response;
-          }
-          // Frische Antwort in Cache schreiben (als Offline-Fallback)
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          return response;
-        })
-        .catch(async () => {
-          // Netzwerk nicht erreichbar → gecachte Version ausliefern.
-          // Bei Navigationen ggf. auf gecachtes index.html zurückfallen.
-          const cached = await caches.match(event.request);
-          if (cached) return cached;
-          if (isHtmlRequest(event.request)) return caches.match('./index.html');
-          return cached;
-        })
-    );
+  if (isDataRequest(event.request.url)) {
+    event.respondWith(networkFirstData(event.request));
+  } else if (isHtmlRequest(event.request)) {
+    event.respondWith(networkFirstHtml(event.request));
   } else {
-    // Cache-First für statische Assets (index.html, Icons, manifest)
-    event.respondWith(
-      caches.match(event.request).then(cached => {
-        if (cached) return cached;
-        return fetch(event.request).then(response => {
-          if (!response || response.status !== 200 || response.type === 'opaque') {
-            return response;
-          }
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          return response;
-        });
-      })
-    );
+    event.respondWith(cacheFirst(event.request));
   }
 });
