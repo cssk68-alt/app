@@ -20,7 +20,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Mein Sparplan - v30</title>
+<title>Mein Sparplan - v31</title>
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -389,14 +389,14 @@ html, body, * {
   position: fixed;
   inset: 0;
   display: flex;
-  width: 400vw;
+  width: 500vw;
   height: 100vh;
   height: 100svh;
   height: var(--app-h, 100svh);
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
-#slide-sparplan, #slide-geo, #slide-sectors, #slide-performance {
+#slide-sparplan, #slide-geo, #slide-sectors, #slide-performance, #slide-changes {
   width: 100vw;
   max-width: 100vw;
   height: 100vh;
@@ -411,15 +411,32 @@ html, body, * {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-#slide-sparplan::-webkit-scrollbar, #slide-geo::-webkit-scrollbar, #slide-sectors::-webkit-scrollbar, #slide-performance::-webkit-scrollbar {
+#slide-sparplan::-webkit-scrollbar, #slide-geo::-webkit-scrollbar, #slide-sectors::-webkit-scrollbar, #slide-performance::-webkit-scrollbar, #slide-changes::-webkit-scrollbar {
   display: none;
 }
-#slide-geo, #slide-sectors, #slide-performance {
+#slide-geo, #slide-sectors, #slide-performance, #slide-changes {
   padding: 24px 16px 60px;
 }
 #app-slider.show-sectors     { transform: translateX(-100vw); }
 #app-slider.show-geo         { transform: translateX(-200vw); }
 #app-slider.show-performance { transform: translateX(-300vw); }
+#app-slider.show-changes     { transform: translateX(-400vw); }
+
+/* ── Slide "Veränderungen" ── */
+.chg-wrap-outer { max-width: 480px; margin: 0 auto; }
+.chg-tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+.chg-tab { font-size: 13px; font-weight: 700; color: #9ca3af; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 6px 14px; cursor: pointer; font-family: inherit; }
+.chg-tab.active { color: #fff; background: rgba(167,139,250,0.25); border-color: rgba(167,139,250,0.6); }
+.chg-note { text-align: center; font-size: 11px; color: #6b7280; margin-bottom: 14px; line-height: 1.5; }
+.chg-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
+.chg-card-head { font-size: 14px; font-weight: 800; margin-bottom: 8px; }
+.chg-card-sub { font-size: 11px; font-weight: 500; color: #9ca3af; }
+.chg-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; padding: 5px 0; border-top: 1px solid rgba(255,255,255,0.05); }
+.chg-row:first-of-type { border-top: none; }
+.chg-row-l { color: #cbd5e1; }
+.chg-row-r { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chg-empty { text-align: center; color: #6b7280; font-size: 13px; padding: 30px 10px; line-height: 1.6; }
+.chg-empty span { font-size: 11px; opacity: 0.7; }
 
 /* === PERFORMANCE SLIDE (Slide 4) === */
 .perf-wrap-outer { max-width: 480px; margin: 0 auto; }
@@ -589,7 +606,7 @@ html, body, * {
   <div class="pills" id="pills"></div>
 
   <div class="cards" id="cards"></div>
-  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v30</div>
+  <div class="footer">Stand 09. Mai 2026 · Kurse ca. · Angaben ohne Gewähr · <a class="footer-link" href="https://cssk68-alt.github.io/app" target="_blank" rel="noopener">cssk68-alt.github.io/app</a> · v31</div>
   <button id="pwa-install-btn" style="display:none">📲 App installieren</button>
 </div>
 
@@ -684,6 +701,16 @@ html, body, * {
     <div class="perf-status-info-box" id="perf-status-info"></div>
   </div>
 </div><!-- /slide-performance -->
+
+<div id="slide-changes">
+  <div class="chg-wrap-outer">
+    <p class="slide-subtitle">Portfolio-Entwicklung</p>
+    <h1 class="slide-title">Veränderungen</h1>
+    <div class="slide-subtitle" style="text-transform:none;letter-spacing:0;font-size:12px;color:#9ca3af;margin-top:-8px">seit Einstieg 09. Mai 2026</div>
+    <div id="chg-tabs" class="chg-tabs"></div>
+    <div id="chg-body" class="chg-body"><div class="chg-empty">wird geladen…</div></div>
+  </div>
+</div><!-- /slide-changes -->
 </div><!-- /app-slider -->
 <button id="slide-arrow-left" class="slide-arrow-btn" aria-label="Vorherige Seite">&lsaquo;</button>
 <button id="slide-arrow" class="slide-arrow-btn" aria-label="Nächste Seite">&rsaquo;</button>
@@ -1173,9 +1200,9 @@ let _sectorsInitialized = false;
 let _performanceInitialized = false;
 let _geoData = null;
 let _geoRegions = null;
-const _SLIDE_CLASS = ['', 'show-sectors', 'show-geo', 'show-performance'];
+const _SLIDE_CLASS = ['', 'show-sectors', 'show-geo', 'show-performance', 'show-changes'];
 function _setSlide(idx) {
-  _slideIdx = ((idx % 4) + 4) % 4;
+  _slideIdx = ((idx % 5) + 5) % 5;
   _slider.className = _SLIDE_CLASS[_slideIdx];
   if (_slideIdx === 1 && !_sectorsInitialized)     { _sectorsInitialized = true; initSectors(); }
   if (_slideIdx === 2 && !_geoInitialized)         { _geoInitialized = true; initGeo(); }
@@ -1185,7 +1212,149 @@ function _setSlide(idx) {
     if (!_performanceInitialized) { _performanceInitialized = true; initPerformance(); }
     else { refreshPerformance(); }  // erneuter Besuch -> frische Daten + Re-Render
   }
+  if (_slideIdx === 4) {
+    if (!_changesInitialized) { _changesInitialized = true; initChanges().then(renderChangesSlide); }
+    else renderChangesSlide();
+  }
 }
+
+// ── Slide "Veränderungen": vergleicht den hardcodierten Einstiegsstand
+//    (09. Mai 2026, GROUPS) mit Live-Daten (holdings.json Top-Holdings +
+//    performance.json ticker_returns für Kurse). Quartals-Tabs nach
+//    Kalenderquartalen; das erste Quartal (Q2 2026) ist verkürzt ab Einstieg.
+let _changesInitialized = false;
+let _chgHoldings = null;
+let _chgTickerRet = null;
+let _chgSelQ = null;
+const CHG_ENTRY = { y: 2026, q: 2 };   // Einstieg 09. Mai 2026 -> Q2 2026
+const CHG_THRESHOLD = 0.5;             // nur Änderungen ab 0,5 % anzeigen
+
+async function initChanges() {
+  try {
+    const [h, p] = await Promise.all([
+      fetch('./data/holdings.json?t=' + Date.now()).then(r => r.json()).catch(() => null),
+      fetch('./data/performance.json?t=' + Date.now()).then(r => r.json()).catch(() => null)
+    ]);
+    _chgHoldings  = (h && h.etfs) ? h.etfs : {};
+    _chgTickerRet = (p && p.ticker_returns) ? p.ticker_returns : {};
+  } catch (e) {
+    _chgHoldings = _chgHoldings || {};
+    _chgTickerRet = _chgTickerRet || {};
+  }
+}
+
+function _chgQuarters() {
+  // Kalenderquartale vom Einstieg bis heute (erstes evtl. verkürzt).
+  const now = new Date();
+  const curY = now.getFullYear();
+  const curQ = Math.floor(now.getMonth() / 3) + 1;
+  const out = [];
+  let y = CHG_ENTRY.y, q = CHG_ENTRY.q;
+  while (y < curY || (y === curY && q <= curQ)) {
+    out.push({ y, q });
+    q++; if (q > 4) { q = 1; y++; }
+  }
+  return out;
+}
+
+function _chgNorm(s) { return (s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+function _chgTitle(s) { return (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); }
+
+function _chgMatch(name, list) {
+  const n = _chgNorm(name);
+  let best = null;
+  for (const h of list) {
+    const hn = _chgNorm(h.name);
+    if (hn === n || hn.startsWith(n) || n.startsWith(hn) || hn.includes(n) || n.includes(hn)) {
+      if (!best || Math.abs(hn.length - n.length) < Math.abs(_chgNorm(best.name).length - n.length)) best = h;
+    }
+  }
+  return best;
+}
+
+function _chgArrow(d) {
+  const v = Math.abs(d).toFixed(1).replace('.', ',');
+  if (d > 0.05)  return '<span style="color:#34d399">&#9650; +' + v + '%</span>';
+  if (d < -0.05) return '<span style="color:#f87171">&#9660; -' + v + '%</span>';
+  return '<span style="color:#9ca3af">&ndash; 0,0%</span>';
+}
+
+function renderChangesSlide() {
+  const tabsEl = document.getElementById('chg-tabs');
+  const bodyEl = document.getElementById('chg-body');
+  if (!tabsEl || !bodyEl) return;
+
+  const qs = _chgQuarters();
+  if (_chgSelQ == null || _chgSelQ >= qs.length) _chgSelQ = qs.length - 1;
+  tabsEl.innerHTML = qs.map((x, i) =>
+    '<button class="chg-tab' + (i === _chgSelQ ? ' active' : '') + '" onclick="_chgSelQ=' + i + ';renderChangesSlide()">Q' + x.q + ' ' + x.y + '</button>'
+  ).join('');
+
+  const sel = qs[_chgSelQ];
+  const isEntryQ = sel.y === CHG_ENTRY.y && sel.q === CHG_ENTRY.q;
+  if (!isEntryQ) {
+    bodyEl.innerHTML = '<div class="chg-empty">Für dieses Quartal liegen noch keine Vergleichsdaten vor.<br><span>Wird zum Quartalsende automatisch gefüllt.</span></div>';
+    return;
+  }
+
+  const row = (l, r) => '<div class="chg-row"><span class="chg-row-l">' + l + '</span><span class="chg-row-r">' + r + '</span></div>';
+  let html = '<div class="chg-note">Live-Stand vs. Einstieg 09. Mai 2026 &middot; nur Änderungen ab 0,5&nbsp;%</div>';
+  let anyChange = false;
+
+  GROUPS.forEach(g => {
+    g.products.forEach(prod => {
+      const ret  = _chgTickerRet ? _chgTickerRet[prod.ticker] : undefined;
+      const live = _chgHoldings ? _chgHoldings[prod.ticker] : null;
+      const rows = [];
+
+      // 1) Kurs-Veränderung (Proxy: ticker_returns seit Mess-Baseline)
+      let priceLine = '';
+      if (typeof ret === 'number' && Math.abs(ret) >= CHG_THRESHOLD) {
+        priceLine = row('Kurs', _chgArrow(ret));
+        anyChange = true;
+      }
+
+      // 2) Positions-Gewichte: nur ETFs, deren Anker echte Einzeltitel listet
+      if (live && Array.isArray(live.top_holdings) && prod.details && prod.trType === 'etf') {
+        const liveList = live.top_holdings;
+        const matches  = prod.details.map(d => ({ d, m: _chgMatch(d.n, liveList) }));
+        const matchedCount = matches.filter(x => x.m).length;
+        // Nur wenn der Anker mehrheitlich echte Einzeltitel listet; sonst sind es
+        // Sektor-/Länder-Labels (CPXJ, AGED, EIMI) -> keine Holding-Deltas, nur Kurs.
+        if (matchedCount >= 2 && matchedCount * 2 >= prod.details.length) {
+          const usedLive = new Set();
+          matches.forEach(({ d, m }) => {
+            if (m) {
+              usedLive.add(m.name);
+              const delta = m.weight_pct - d.p;
+              if (Math.abs(delta) >= CHG_THRESHOLD) rows.push(row(d.n, _chgArrow(delta)));
+            } else {
+              rows.push(row(d.n, '<span style="color:#f87171">&#10134; raus aus Top</span>'));
+            }
+          });
+          liveList.slice(0, 3).forEach(h => {
+            if (usedLive.has(h.name)) return;
+            const inAnchor = prod.details.some(d => _chgNorm(h.name).includes(_chgNorm(d.n)) || _chgNorm(d.n).includes(_chgNorm(h.name)));
+            if (!inAnchor && h.weight_pct >= CHG_THRESHOLD)
+              rows.push(row(_chgTitle(h.name), '<span style="color:#34d399">&#10133; neu in Top (' + h.weight_pct.toFixed(1).replace('.', ',') + '%)</span>'));
+          });
+        }
+      }
+
+      if (rows.length) anyChange = true;
+      if (!priceLine && !rows.length) return;
+
+      html += '<div class="chg-card" style="border-left:3px solid ' + g.color + '">'
+            + '<div class="chg-card-head">' + g.emoji + ' ' + prod.ticker + ' <span class="chg-card-sub">' + prod.name + '</span></div>'
+            + priceLine + rows.join('')
+            + '</div>';
+    });
+  });
+
+  if (!anyChange) html += '<div class="chg-empty">Noch keine wesentlichen Veränderungen seit Einstieg.</div>';
+  bodyEl.innerHTML = html;
+}
+
 function goToSectorsSlide() { _setSlide(1); }
 _arrowBtn.addEventListener('click',     () => _setSlide(_slideIdx + 1));
 _arrowBtnLeft.addEventListener('click', () => _setSlide(_slideIdx - 1));
@@ -1201,7 +1370,7 @@ window.addEventListener('focus', () => {
   if (_slideIdx === 3 && _performanceInitialized) refreshPerformance();
 });
 
-const _SLIDE_IDS = ['slide-sparplan', 'slide-sectors', 'slide-geo', 'slide-performance'];
+const _SLIDE_IDS = ['slide-sparplan', 'slide-sectors', 'slide-geo', 'slide-performance', 'slide-changes'];
 function _lockScroll() {
   const slide = document.getElementById(_SLIDE_IDS[_slideIdx]);
   if (slide) { slide.dataset.scrollTop = slide.scrollTop; slide.style.overflowY = 'hidden'; }
