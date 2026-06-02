@@ -257,7 +257,10 @@ def fetch_fx_erapi(pair_code, start_d, end_d):
         rate = (data.get("rates") or {}).get(pair_code)
         if not rate:
             return None
-        return {_date_str(BASELINE_DATE): float(rate)}
+        # Spot-Kurs auf HEUTE datieren (nicht auf die Baseline): zusammen mit der
+        # persistierten FX-Historie fuellt forward_fill so nur den neuesten Tag
+        # mit dem Spot, statt die gesamte Vergangenheit zu ueberschreiben.
+        return {_date_str(end_d): float(rate)}
     except (requests.RequestException, ValueError, KeyError):
         return None
 
@@ -392,28 +395,24 @@ def convert_series_to_eur(native_series, currency, fx_usd_series, fx_gbp_series)
     return [to_eur(p, currency, u, g) for p, u, g in zip(native_series, fx_usd_series, fx_gbp_series)]
 
 
-def calc_week_return(monday, friday, dates, returns):
-    sunday = monday - timedelta(days=1)
-    start_pct = None
-    end_pct = None
-    for d_str, r in zip(dates, returns):
-        if r is None:
-            continue
-        d = datetime.strptime(d_str, "%Y-%m-%d").date()
-        if d <= sunday:
-            start_pct = r
-        if d <= friday:
-            end_pct = r
-    if start_pct is None:
-        start_pct = 0.0
-    if end_pct is None:
-        return None
-    return round(end_pct - start_pct, 4)
+def _merge_fx(fresh, history):
+    """Persistierte FX-Tageshistorie mit frischem Abruf zusammenfuehren.
+    Frische Tageskurse erweitern/ueberschreiben die Historie; alte Tage behalten
+    ihren echten historischen Kurs. So kann ein einzelner Spot-Fallback (er-api/
+    Snapshot) nicht mehr rueckwirkend ALLE Tage mit dem heutigen Kurs ueber-
+    schreiben und damit historische EUR-Returns verzerren.
+    Returns dict {date: rate} oder None (wenn weder Historie noch frisch)."""
+    merged = {}
+    if history:
+        merged.update(history)
+    if fresh:
+        merged.update(fresh)
+    return merged or None
 
 
 def write_frozen(existing_obj, failed_tickers, now_utc):
     """Strikt-12/12-Politik: Bei unvollstaendigem Update KEINE neuen Kurse
-    schreiben. Alte Kurs-Arrays (dates/portfolio/msci_world/weekly/ticker_returns)
+    schreiben. Alte Kurs-Arrays (dates/portfolio/msci_world/ticker_returns)
     1:1 behalten, nur _meta.last_updated + failed_tickers + tickers_ok
     aktualisieren; last_all_ok_timestamp + alle Reihen bleiben eingefroren.
     -> Datum zeigt 'heute geprueft', Uhrzeit/Werte frieren auf letztem 12/12-Stand.
@@ -448,6 +447,7 @@ def main():
     existing_obj = None
     existing_last_all_ok_ts = None
     existing_fx_snapshot = {}
+    existing_fx_history = {}
     try:
         if os.path.exists("data/performance.json"):
             with open("data/performance.json", "r", encoding="utf-8") as f:
@@ -455,30 +455,38 @@ def main():
                 _existing_meta = existing_obj.get("_meta", {})
                 existing_last_all_ok_ts = _existing_meta.get("last_all_ok_timestamp")
                 existing_fx_snapshot = _existing_meta.get("fx_snapshot") or {}
+                existing_fx_history = _existing_meta.get("fx_history") or {}
     except Exception:
         pass
     print(f"Baseline: {_date_str(BASELINE_DATE)}  -> heute: {_date_str(today)}", flush=True)
 
     # 1) FX-Kurse holen (kritisch fuer EUR-Normalisierung)
     print("\n--- FX-Kurse (EUR Basis) ---", flush=True)
-    fx_usd = fetch_fx("USD", start, today)
+    fx_usd_fresh = fetch_fx("USD", start, today)
     time.sleep(0.4)
-    fx_gbp = fetch_fx("GBP", start, today)
+    fx_gbp_fresh = fetch_fx("GBP", start, today)
 
-    # FX-Fallback: bewegt sich intraday nur minimal. Statt das ganze Update
-    # abzubrechen, den letzten bekannten Kurs aus der vorhandenen
-    # performance.json (fx_snapshot) wiederverwenden -> Update laeuft weiter.
+    # Mit persistierter FX-Tageshistorie mergen: echte Vergangenheitskurse bleiben
+    # erhalten, nur neue/fehlende Tage werden ergaenzt. Verhindert, dass ein
+    # einzelner Spot-Fallback (er-api/Snapshot) rueckwirkend ALLE Tage mit dem
+    # heutigen Kurs ueberschreibt und so historische EUR-Returns verzerrt.
+    fx_usd = _merge_fx(fx_usd_fresh, existing_fx_history.get("USD"))
+    fx_gbp = _merge_fx(fx_gbp_fresh, existing_fx_history.get("GBP"))
+
+    # Kaltstart-Notnagel: war Live-FX leer UND es gibt keine Historie, aber noch
+    # ein alter Snapshot-Kurs -> als Baseline-Punkt setzen, damit ueberhaupt
+    # umgerechnet werden kann. Betrifft nur den seltenen Fall ohne jede Historie.
     if not fx_usd and existing_fx_snapshot.get("USD_latest"):
         fx_usd = {_date_str(BASELINE_DATE): existing_fx_snapshot["USD_latest"]}
-        print(f"  [FX EURUSD] Fallback: letzter bekannter Kurs "
+        print(f"  [FX EURUSD] Kaltstart-Fallback: Snapshot "
               f"{existing_fx_snapshot['USD_latest']:.5f}", flush=True)
     if not fx_gbp and existing_fx_snapshot.get("GBP_latest"):
         fx_gbp = {_date_str(BASELINE_DATE): existing_fx_snapshot["GBP_latest"]}
-        print(f"  [FX EURGBP] Fallback: letzter bekannter Kurs "
+        print(f"  [FX EURGBP] Kaltstart-Fallback: Snapshot "
               f"{existing_fx_snapshot['GBP_latest']:.5f}", flush=True)
 
     if not fx_usd or not fx_gbp:
-        print("FX-Kurse unvollstaendig und kein Fallback vorhanden -> "
+        print("FX-Kurse unvollstaendig und keine Historie vorhanden -> "
               "EUR-Normalisierung waere ungenau. performance.json bleibt unveraendert.",
               flush=True)
         return
@@ -605,31 +613,21 @@ def main():
     portfolio_out = portfolio_returns[first_valid:]
     msci_out = msci_returns[first_valid:]
 
-    # 9) Wochenstats
-    cur_mon = today - timedelta(days=today.weekday())
-    cur_fri = cur_mon + timedelta(days=4)
-    prev_mon = cur_mon - timedelta(weeks=1)
-    prev_fri = prev_mon + timedelta(days=4)
-
-    weekly = {
-        "current": {
-            "start": _date_str(cur_mon),
-            "portfolio": calc_week_return(cur_mon, cur_fri, dates_out, portfolio_out),
-            "msci": calc_week_return(cur_mon, cur_fri, dates_out, msci_out),
-        },
-        "previous": {
-            "start": _date_str(prev_mon),
-            "portfolio": calc_week_return(prev_mon, prev_fri, dates_out, portfolio_out),
-            "msci": calc_week_return(prev_mon, prev_fri, dates_out, msci_out),
-        },
-    }
-
     # FX Snapshot fuer Debugging/Transparenz
     fx_snap = {
         "USD_baseline": next((v for v in fx_usd_series if v is not None), None),
         "USD_latest":   next((v for v in reversed(fx_usd_series) if v is not None), None),
         "GBP_baseline": next((v for v in fx_gbp_series if v is not None), None),
         "GBP_latest":   next((v for v in reversed(fx_gbp_series) if v is not None), None),
+    }
+
+    # Persistierte FX-Tageshistorie (echte Kurse je Tag, auf die Datums-Achse
+    # beschnitten) fuer kommende Laeufe: haelt historische EUR-Returns stabil,
+    # auch wenn Live-FX mal nur einen Spot-Kurs liefert.
+    _axis = set(all_dates)
+    fx_history_out = {
+        "USD": {d: r for d, r in fx_usd.items() if d in _axis},
+        "GBP": {d: r for d, r in fx_gbp.items() if d in _axis},
     }
 
     all_ok_now = len(ticker_series_eur) == len(PORTFOLIO_TICKERS)
@@ -649,12 +647,12 @@ def main():
             "currency": "EUR",
             "normalization": "Alle Ticker tagesgenau via EURUSD=X / EURGBP=X auf EUR umgerechnet",
             "fx_snapshot": fx_snap,
+            "fx_history": fx_history_out,
             "source": "Yahoo Finance primaer, Stooq Fallback",
         },
         "dates": dates_out,
         "portfolio": portfolio_out,
         "msci_world": msci_out,
-        "weekly": weekly,
         "ticker_returns": ticker_returns,
     }
 

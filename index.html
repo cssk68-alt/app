@@ -2129,7 +2129,8 @@ function initSectors() {
     const row = e.target.closest('[data-sector]');
     if (row) openSectorModal(row.dataset.sector);
   });
-  renderSectorSlide();
+  // Render uebernimmt _setSlide() direkt nach initSectors() -> hier kein
+  // zusaetzlicher renderSectorSlide()-Aufruf (lief beim ersten Besuch sonst doppelt).
 }
 async function renderSectorSlide() {
   const sectorList = document.getElementById('sectorList');
