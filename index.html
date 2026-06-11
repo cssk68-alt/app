@@ -333,8 +333,8 @@
   .modal .m-tr:active { background: rgba(255,255,255,0.09); }
   .modal .m-tr .m-tr-isin { font-size: 10px; color: var(--label-dim); margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* === 4-SLIDE NAVIGATION === */
-/* Bug-Fix Chrome-Mobile (Zoom-out): Der 400vw-breite Slider blaehte als In-Flow-
+/* === 5-SLIDE NAVIGATION === */
+/* Bug-Fix Chrome-Mobile (Zoom-out): Der 500vw-breite Slider blaehte als In-Flow-
    Element den Layout-Viewport (ICB) auf -> Chrome zoomte die ganze Seite raus, um
    die Breite einzupassen. overflow:hidden auf html/body wird von Chrome Mobile dabei
    ignoriert. Loesung: Slider auf position:fixed -> er verlaesst den Layout-Flow und
@@ -1007,7 +1007,12 @@ function openTR(isin) {
         `intent://#Intent;scheme=traderepublic;package=de.traderepublic.app;S.browser_fallback_url=${fallback};end`;
     } else if (isIOS) {
       window.location.href = `traderepublic://`;
-      setTimeout(() => { window.location.href = appStore; }, 800);
+      // App-Store-Fallback nur, wenn die TR-App NICHT geoeffnet hat
+      // (Seite bleibt sichtbar); sonst Timer verwerfen.
+      const t = setTimeout(() => { window.location.href = appStore; }, 800);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) clearTimeout(t);
+      }, { once: true });
     } else {
       window.open('https://app.traderepublic.com/', '_blank');
     }
@@ -1201,7 +1206,7 @@ if ('serviceWorker' in navigator) {
 }
 
 
-// 4-SLIDE NAVIGATION (Sparplan -> Sektoren -> Geo -> Performance -> Sparplan)
+// 5-SLIDE NAVIGATION (Sparplan -> Sektoren -> Geo -> Performance -> Veränderungen)
 const _arrowBtn     = document.getElementById('slide-arrow');
 const _arrowBtnLeft = document.getElementById('slide-arrow-left');
 const _slider       = document.getElementById('app-slider');
@@ -1276,6 +1281,25 @@ function _chgQuarters() {
   return out;
 }
 
+// Quartals-Anker laden & cachen: Q2 2026 (Einstieg) nutzt baseline_18mai
+// (liegt schon in _chgBaseHold/_chgBaseSect), spaetere Quartale
+// data/baseline_qQ_YYYY.json (legt der woechentliche Cron beim ersten Lauf
+// eines neuen Quartals automatisch an).
+const _chgQCache = {};
+function _chgLoadQ(y, q) {
+  if (y === CHG_ENTRY.y && q === CHG_ENTRY.q) {
+    return Promise.resolve({ holdings: _chgBaseHold || {}, sectors: _chgBaseSect || {} });
+  }
+  const key = y + 'q' + q;
+  if (!_chgQCache[key]) {
+    _chgQCache[key] = fetch('./data/baseline_q' + q + '_' + y + '.json?t=' + Date.now())
+      .then(r => r.ok ? r.json() : null)
+      .then(b => b ? { holdings: b.holdings || {}, sectors: b.sectors || {} } : null)
+      .catch(() => null);
+  }
+  return _chgQCache[key];
+}
+
 function _chgNorm(s) { return (s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
 function _chgTitle(s) { return (s || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); }
 
@@ -1307,7 +1331,7 @@ function _chgIsCash(name) {
       || n.includes('DERIVAT') || n.includes('LIQUID');
 }
 
-function renderChangesSlide() {
+async function renderChangesSlide() {
   const tabsEl = document.getElementById('chg-tabs');
   const bodyEl = document.getElementById('chg-body');
   if (!tabsEl || !bodyEl) return;
@@ -1319,9 +1343,17 @@ function renderChangesSlide() {
   ).join('');
 
   const sel = qs[_chgSelQ];
+  const mySel = _chgSelQ;
   const isEntryQ = sel.y === CHG_ENTRY.y && sel.q === CHG_ENTRY.q;
-  if (!isEntryQ) {
-    bodyEl.innerHTML = '<div class="chg-empty">Für dieses Quartal liegen noch keine Vergleichsdaten vor.<br><span>Wird zum Quartalsende automatisch gefüllt.</span></div>';
+  const isCurQ = _chgSelQ === qs.length - 1;
+  // Anker = Stand zum Quartalsbeginn (Q2 2026: 18. Mai). Vergleich = Live-Daten
+  // im laufenden Quartal, sonst der Anker des Folgequartals (~Quartalsende).
+  const nq = sel.q === 4 ? { y: sel.y + 1, q: 1 } : { y: sel.y, q: sel.q + 1 };
+  const base = await _chgLoadQ(sel.y, sel.q);
+  const end = isCurQ ? { holdings: _chgHoldings || {}, sectors: _chgLiveSect || {} } : await _chgLoadQ(nq.y, nq.q);
+  if (mySel !== _chgSelQ) return; // Tab wurde waehrend des Ladens gewechselt
+  if (!base || !end) {
+    bodyEl.innerHTML = '<div class="chg-empty">Für dieses Quartal liegen noch keine Vergleichsdaten vor.<br><span>Der Anker wird zu Quartalsbeginn automatisch angelegt.</span></div>';
     return;
   }
 
@@ -1332,7 +1364,7 @@ function renderChangesSlide() {
     let prodBlocks = '';
 
     g.products.forEach(prod => {
-      const live  = _chgHoldings ? _chgHoldings[prod.ticker] : null;
+      const live  = end.holdings[prod.ticker];
       const chips = [];
 
       // 1) Positions-Gewichte: Live-Holdings vs. echter 18.-Mai-Anker
@@ -1340,7 +1372,7 @@ function renderChangesSlide() {
       //    in BEIDEN Top-Listen stehen, liefern ein echtes Gewichts-Delta;
       //    "neu/raus" wäre bei Top-10-Listen nur Listengrenz-Rauschen (Platz
       //    11 <-> 9) -> bewusst weggelassen.
-      const baseHold = _chgBaseHold ? _chgBaseHold[prod.ticker] : null;
+      const baseHold = base.holdings[prod.ticker];
       if (live && Array.isArray(live.top_holdings) && baseHold && Array.isArray(baseHold.top_holdings)) {
         const liveList = live.top_holdings.filter(h => !_chgIsCash(h.name));
         baseHold.top_holdings.filter(h => !_chgIsCash(h.name)).forEach(b => {
@@ -1352,8 +1384,8 @@ function renderChangesSlide() {
       }
 
       // 2) Sektor-Gewichte: Live-Sektoren vs. 18.-Mai-Anker (geborgen).
-      const liveSect = _chgLiveSect ? _chgLiveSect[prod.ticker] : null;
-      const baseSect = _chgBaseSect ? _chgBaseSect[prod.ticker] : null;
+      const liveSect = end.sectors[prod.ticker];
+      const baseSect = base.sectors[prod.ticker];
       const liveSectArr = liveSect && Array.isArray(liveSect.sectors) ? liveSect.sectors : null;
       const baseSectArr = baseSect && Array.isArray(baseSect.sectors) ? baseSect.sectors : null;
       if (liveSectArr && baseSectArr) {
@@ -1387,10 +1419,11 @@ function renderChangesSlide() {
                + '</div>';
   });
 
-  let html = '<div class="chg-note">Holdings- &amp; Sektor-Verschiebungen seit 18. Mai 2026 &middot; nur Änderungen ab 0,5&nbsp;%</div>';
+  const rangeTxt = isEntryQ ? 'seit 18. Mai 2026' : 'im Q' + sel.q + ' ' + sel.y;
+  let html = '<div class="chg-note">Holdings- &amp; Sektor-Verschiebungen ' + rangeTxt + ' &middot; nur Änderungen ab 0,5&nbsp;%</div>';
   if (cardsHtml) html += '<div class="cards">' + cardsHtml + '</div>';
   if (!anyChange) {
-    html += '<div class="chg-empty">Noch keine wesentlichen Verschiebungen seit 18. Mai 2026.</div>';
+    html += '<div class="chg-empty">Keine wesentlichen Verschiebungen ' + rangeTxt + '.</div>';
   }
   bodyEl.innerHTML = html;
 }
@@ -1701,7 +1734,7 @@ function _formatPctSigned(v) {
 }
 function _formatEurSigned(v) {
   if (v === null || v === undefined || isNaN(v)) return '';
-  const sign = v > 0 ? '+' : v < 0 ? '-' : '';
+  const sign = v > 0 ? '+' : v < 0 ? '−' : '';
   const abs = Math.abs(v);
   const txt = abs >= 10 ? Math.round(abs).toString() : abs.toFixed(2);
   return '≈ ' + sign + txt + ' €';
@@ -1827,7 +1860,7 @@ function renderPerformanceSlide() {
     if (hasFailed) {
       icon.className = 'perf-status-icon warn';
       icon.textContent = '!';
-      icon.title = (total - ok) + ' Position(en) nicht aktualisiert';
+      icon.title = failed.length + ' Datenquelle(n) nicht aktualisiert';
     } else {
       icon.className = 'perf-status-icon ok';
       icon.textContent = '✓';
@@ -1933,7 +1966,7 @@ function renderPerformanceChart(dates, port, msci) {
               const idx = items[0].dataIndex;
               const raw = dates[idx];
               if (!raw) return '';
-              const d = new Date(raw);
+              const d = new Date(raw + 'T12:00:00'); // Mittag: kein Tages-Shift in West-Zeitzonen
               return d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short' });
             },
             label: (ctx) => {
@@ -2006,11 +2039,23 @@ function updatePerformanceEUR() {
       const sign = delta > 0 ? '+' : '';
       deltaPctEl.textContent = sign + delta.toFixed(2) + ' %';
       deltaPctEl.className = 'perf-week-pct ' + _pctClass(delta);
-      const eur = (delta / 100) * currentTotal;
+      // Euro-Effekt ueber ALLE Einzahlungen (currentTotal jeweils am 18. des
+      // Monats): jede Tranche traegt die Differenz der Wertentwicklung
+      // Portfolio vs. MSCI von ihrem Einzahlungstag bis heute.
+      const D = _perfData.dates || [];
+      let eur = 0, paid = 0;
+      for (let i = 0; i < D.length; i++) {
+        if (D[i].slice(8) !== '18') continue;
+        const p = port[i], m = msci[i];
+        if (typeof p !== 'number' || typeof m !== 'number') continue;
+        eur += currentTotal * ((1 + lastP / 100) / (1 + p / 100) - (1 + lastM / 100) / (1 + m / 100));
+        paid += currentTotal;
+      }
+      paid = Math.round(paid * 100) / 100;
       const eurAbs = Math.abs(eur);
       const eurTxt = eurAbs >= 10 ? Math.round(eurAbs).toString() : eurAbs.toFixed(2);
       const eurSigned = (eur > 0 ? '+' : eur < 0 ? '−' : '') + eurTxt;
-      deltaSubEl.textContent = '≈ ' + eurSigned + ' € auf ' + currentTotal + ' €';
+      deltaSubEl.textContent = '≈ ' + eurSigned + ' € auf ' + paid + ' € eingezahlt';
     }
   }
 

@@ -56,16 +56,6 @@ PHYSICAL_ATTRIBUTION = {
     "COPA": [("Chile", 27.0), ("Peru", 14.0)],       # Kupfer: Top 2 Förderländer
 }
 
-EDELMETALL_FALLBACK = {
-    "PHAG": {"Mexiko": 24.0, "Peru": 15.0, "China": 13.0, "Russland": 8.0,
-             "Chile": 5.0, "Australien": 5.0, "Polen": 5.0, "Bolivien": 5.0,
-             "Argentinien": 5.0, "Other": 15.0},
-    "PHPT": {"Südafrika": 73.0, "Russland": 11.0, "Simbabwe": 8.0,
-             "Kanada": 4.0, "USA": 2.0, "Other": 2.0},
-    "COPA": {"Chile": 27.0, "Peru": 10.0, "DRK": 10.0,
-             "China": 8.0, "USA": 6.0, "Australien": 5.0,
-             "Sambia": 4.0, "Indonesien": 4.0, "Mexiko": 3.0, "Other": 23.0},
-}
 EINZELPOSITIONEN_FALLBACK = {"ALV": {"Deutschland": 100.0}}
 
 # Bug 3 Fix: Erweiterte COUNTRY_MAP mit Edge-Cases die iShares liefern kann.

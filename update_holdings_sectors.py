@@ -193,6 +193,20 @@ def main():
         json.dump(holdings_out, f, ensure_ascii=False, indent=2)
     with open("data/sectors.json", "w", encoding="utf-8") as f:
         json.dump(sectors_out, f, ensure_ascii=False, indent=2)
+
+    # Quartals-Anker fuer die "Veraenderungen"-Slide: beim ersten Lauf in einem
+    # neuen Quartal den aktuellen Stand einfrieren. Q2 2026 (Einstiegsquartal)
+    # nutzt weiterhin baseline_18mai.json und wird hier uebersprungen.
+    now = datetime.now()
+    q = (now.month - 1) // 3 + 1
+    qpath = f"data/baseline_q{q}_{now.year}.json"
+    if (now.year, q) != (2026, 2) and not os.path.exists(qpath):
+        with open(qpath, "w", encoding="utf-8") as f:
+            json.dump({"_meta": {"created": today, "note": "Anker zu Quartalsbeginn (erster Cron-Lauf des Quartals)"},
+                       "holdings": holdings_out["etfs"], "sectors": sectors_out["etfs"]},
+                      f, ensure_ascii=False, indent=2)
+        print(f"Quartals-Anker geschrieben: {qpath}", flush=True)
+
     print(f"\n=== Fertig: {len(holdings_out['etfs'])} ETFs ===", flush=True)
 
 

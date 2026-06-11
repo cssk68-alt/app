@@ -14,6 +14,12 @@ on:
       - 'update_holdings_sectors.py'
       - '.github/workflows/update_data.yml'
 
+# Parallele Laeufe serialisieren: verhindert git-push-Konflikte, wenn sich
+# Cron-/Push-Trigger ueberlappen. Nicht abbrechen, sondern warten lassen.
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
@@ -65,7 +71,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data/geo_weights.json data/holdings.json data/sectors.json data/performance.json
+          git add data/
           git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update ETF data $(date +%Y-%m-%d)"
           git push
 
