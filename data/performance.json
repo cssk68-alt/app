@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "last_updated": "2026-08-07T21:18:50Z",
-    "last_all_ok_timestamp": "2026-08-07T21:18:50Z",
+    "last_updated": "2026-08-07T22:08:19Z",
+    "last_all_ok_timestamp": "2026-08-07T22:08:19Z",
     "baseline_date": "2026-05-18",
     "update_success": true,
     "tickers_ok": 12,
@@ -327,7 +327,7 @@
     4.1598,
     4.7001,
     4.7681,
-    5.0161
+    4.9069
   ],
   "msci_world": [
     0.0,
@@ -411,27 +411,27 @@
     6.155,
     6.5371,
     6.4208,
-    6.861
+    6.4208
   ],
   "ticker_returns": {
-    "SXR8": 6.0176,
+    "SXR8": 5.7185,
     "CPXJ": 7.8364,
     "CSKR": -6.2887,
     "IJPA": 7.5844,
-    "WHCS": 11.6059,
+    "WHCS": 10.3093,
     "AGED": 13.3834,
     "PHAG": -16.5564,
     "PHPT": -10.5937,
     "COPA": 5.1914,
     "EIMI": 2.2501,
-    "ALV": 13.6602,
+    "ALV": 15.548,
     "ISF": 6.1121
   },
   "latest_prices": {
     "SXR8": {
-      "native": 723.039978,
+      "native": 721.0,
       "ccy": "EUR",
-      "eur": 723.039978
+      "eur": 721.0
     },
     "CPXJ": {
       "native": 254.75,
@@ -449,9 +449,9 @@
       "eur": 71.925087
     },
     "WHCS": {
-      "native": 8.091,
+      "native": 7.997,
       "ccy": "USD",
-      "eur": 6.997906
+      "eur": 6.916605
     },
     "AGED": {
       "native": 10.975,
@@ -479,9 +479,9 @@
       "eur": 46.522972
     },
     "ALV": {
-      "native": 433.5,
+      "native": 440.700012,
       "ccy": "EUR",
-      "eur": 433.5
+      "eur": 440.700012
     },
     "ISF": {
       "native": 1064.0,
