@@ -1,37 +1,38 @@
 {
   "_meta": {
-    "last_updated": "2026-08-09",
+    "last_updated": "2026-08-16",
     "total_positions": 12,
     "total_countries": 38,
     "source": "iShares-DE AJAX tab=all (Laender aus Holdings aggregiert + COUNTRY_MAP konsolidiert)",
     "note": "pct_gesamt = Anteil am Portfolio. EUR = currentTotal * pct_gesamt / 100. Cash echt gemessen, Reiter nur ab >=1%.",
-    "cash_pct_measured": 0.36
+    "cash_pct_measured": 0.38
   },
   "countries": [
     {
       "land": "USA",
       "iso_numeric": 840,
       "flag": "🇺🇸",
-      "pct_gesamt": 32.34,
+      "pct_gesamt": 32.42,
       "via": [
         "SXR8",
         "IJPA",
         "WHCS",
-        "AGED"
+        "AGED",
+        "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Australien",
       "iso_numeric": 36,
       "flag": "🇦🇺",
-      "pct_gesamt": 9.98,
+      "pct_gesamt": 9.87,
       "via": [
         "CPXJ",
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Deutschland",
@@ -44,77 +45,77 @@
         "EIMI",
         "ALV"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "UK",
       "iso_numeric": 826,
       "flag": "🇬🇧",
-      "pct_gesamt": 5.82,
+      "pct_gesamt": 5.78,
       "via": [
         "WHCS",
         "AGED",
         "ISF"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Südkorea",
       "iso_numeric": 410,
       "flag": "🇰🇷",
-      "pct_gesamt": 5.19,
+      "pct_gesamt": 5.37,
       "via": [
         "CSKR",
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
-    },
-    {
-      "land": "China",
-      "iso_numeric": 156,
-      "flag": "🇨🇳",
-      "pct_gesamt": 5.14,
-      "via": [
-        "AGED",
-        "EIMI",
-        "PHAG"
-      ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Südafrika",
       "iso_numeric": 710,
       "flag": "🇿🇦",
-      "pct_gesamt": 5.12,
+      "pct_gesamt": 5.11,
       "via": [
         "PHPT",
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
+    },
+    {
+      "land": "China",
+      "iso_numeric": 156,
+      "flag": "🇨🇳",
+      "pct_gesamt": 5.04,
+      "via": [
+        "AGED",
+        "EIMI",
+        "PHAG"
+      ],
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Mexiko",
       "iso_numeric": 484,
       "flag": "🇲🇽",
-      "pct_gesamt": 4.03,
+      "pct_gesamt": 4.02,
       "via": [
         "PHAG",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Taiwan",
       "iso_numeric": 158,
       "flag": "🇹🇼",
-      "pct_gesamt": 3.85,
+      "pct_gesamt": 3.92,
       "via": [
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Japan",
@@ -126,7 +127,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Chile",
@@ -137,18 +138,18 @@
         "COPA",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Singapur",
       "iso_numeric": 702,
       "flag": "🇸🇬",
-      "pct_gesamt": 2.56,
+      "pct_gesamt": 2.63,
       "via": [
         "CPXJ",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Hongkong",
@@ -160,51 +161,51 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Schweiz",
       "iso_numeric": 756,
       "flag": "🇨🇭",
-      "pct_gesamt": 2.02,
+      "pct_gesamt": 1.99,
       "via": [
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Indien",
       "iso_numeric": 356,
       "flag": "🇮🇳",
-      "pct_gesamt": 1.85,
+      "pct_gesamt": 1.79,
       "via": [
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Peru",
       "iso_numeric": 604,
       "flag": "🇵🇪",
-      "pct_gesamt": 1.56,
+      "pct_gesamt": 1.55,
       "via": [
         "COPA",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Brasilien",
       "iso_numeric": 76,
       "flag": "🇧🇷",
-      "pct_gesamt": 0.56,
+      "pct_gesamt": 0.51,
       "via": [
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Frankreich",
@@ -215,7 +216,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Dänemark",
@@ -226,29 +227,29 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Saudi-Arabien",
       "iso_numeric": 682,
       "flag": "🇸🇦",
-      "pct_gesamt": 0.33,
+      "pct_gesamt": 0.32,
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Neuseeland",
       "iso_numeric": 554,
       "flag": "🇳🇿",
-      "pct_gesamt": 0.28,
+      "pct_gesamt": 0.27,
       "via": [
         "CPXJ",
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Thailand",
@@ -259,29 +260,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
-    },
-    {
-      "land": "Polen",
-      "iso_numeric": 616,
-      "flag": "🇵🇱",
-      "pct_gesamt": 0.2,
-      "via": [
-        "AGED",
-        "EIMI"
-      ],
-      "last_updated": "2026-08-09"
-    },
-    {
-      "land": "Belgien",
-      "iso_numeric": 56,
-      "flag": "🇧🇪",
-      "pct_gesamt": 0.19,
-      "via": [
-        "WHCS",
-        "AGED"
-      ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Malaysia",
@@ -292,17 +271,39 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
+    },
+    {
+      "land": "Polen",
+      "iso_numeric": 616,
+      "flag": "🇵🇱",
+      "pct_gesamt": 0.19,
+      "via": [
+        "AGED",
+        "EIMI"
+      ],
+      "last_updated": "2026-08-16"
+    },
+    {
+      "land": "Belgien",
+      "iso_numeric": 56,
+      "flag": "🇧🇪",
+      "pct_gesamt": 0.18,
+      "via": [
+        "WHCS",
+        "AGED"
+      ],
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Ver. Arabische Emirate",
       "iso_numeric": 784,
       "flag": "🇦🇪",
-      "pct_gesamt": 0.17,
+      "pct_gesamt": 0.16,
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Kanada",
@@ -312,7 +313,7 @@
       "via": [
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Israel",
@@ -323,7 +324,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Niederlande",
@@ -335,18 +336,7 @@
         "AGED",
         "ISF"
       ],
-      "last_updated": "2026-08-09"
-    },
-    {
-      "land": "Griechenland",
-      "iso_numeric": 300,
-      "flag": "🇬🇷",
-      "pct_gesamt": 0.1,
-      "via": [
-        "EIMI",
-        "ISF"
-      ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Schweden",
@@ -357,7 +347,18 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
+    },
+    {
+      "land": "Griechenland",
+      "iso_numeric": 300,
+      "flag": "🇬🇷",
+      "pct_gesamt": 0.09,
+      "via": [
+        "EIMI",
+        "ISF"
+      ],
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Türkei",
@@ -368,7 +369,7 @@
         "AGED",
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Kuwait",
@@ -378,7 +379,7 @@
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Indonesien",
@@ -388,7 +389,18 @@
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
+    },
+    {
+      "land": "Irland",
+      "iso_numeric": 372,
+      "flag": "🇮🇪",
+      "pct_gesamt": 0.07,
+      "via": [
+        "CPXJ",
+        "EIMI"
+      ],
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Qatar",
@@ -398,7 +410,7 @@
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Italien",
@@ -409,18 +421,7 @@
         "WHCS",
         "AGED"
       ],
-      "last_updated": "2026-08-09"
-    },
-    {
-      "land": "Irland",
-      "iso_numeric": 372,
-      "flag": "🇮🇪",
-      "pct_gesamt": 0.05,
-      "via": [
-        "WHCS",
-        "EIMI"
-      ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     },
     {
       "land": "Philippinen",
@@ -430,13 +431,13 @@
       "via": [
         "EIMI"
       ],
-      "last_updated": "2026-08-09"
+      "last_updated": "2026-08-16"
     }
   ],
   "regions": [
     {
       "region": "Nordamerika",
-      "pct_gesamt": 32.48,
+      "pct_gesamt": 32.56,
       "länder": [
         "USA",
         "Kanada"
@@ -448,7 +449,7 @@
     },
     {
       "region": "Europa",
-      "pct_gesamt": 16.39,
+      "pct_gesamt": 16.31,
       "länder": [
         "Deutschland",
         "UK",
@@ -480,9 +481,8 @@
     },
     {
       "region": "Asien-Pazifik",
-      "pct_gesamt": 23.78,
+      "pct_gesamt": 18.54,
       "länder": [
-        "Südkorea",
         "Japan",
         "Australien",
         "Hongkong",
@@ -492,7 +492,6 @@
       ],
       "aktuelle_länder": [
         "Australien",
-        "Südkorea",
         "Japan",
         "Singapur",
         "Hongkong",
@@ -501,13 +500,14 @@
     },
     {
       "region": "Emerging Mkts",
-      "pct_gesamt": 13.14,
+      "pct_gesamt": 18.35,
       "länder": [
         "Griechenland",
         "Polen",
         "Tschechien",
         "Ungarn",
         "Irland",
+        "Südkorea",
         "Taiwan",
         "China",
         "Indien",
@@ -535,28 +535,29 @@
         "Pakistan"
       ],
       "aktuelle_länder": [
+        "Südkorea",
         "China",
         "Taiwan",
         "Indien",
         "Brasilien",
         "Saudi-Arabien",
         "Thailand",
-        "Polen",
         "Malaysia",
+        "Polen",
         "Ver. Arabische Emirate",
         "Israel",
         "Griechenland",
         "Türkei",
         "Kuwait",
         "Indonesien",
-        "Qatar",
         "Irland",
+        "Qatar",
         "Philippinen"
       ]
     },
     {
       "region": "Physische Rohstoffe",
-      "pct_gesamt": 13.68,
+      "pct_gesamt": 13.65,
       "länder": [
         "Südafrika",
         "Mexiko",
