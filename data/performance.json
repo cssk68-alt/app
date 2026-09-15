@@ -1,12 +1,17 @@
 {
   "_meta": {
-    "last_updated": "2026-09-14T22:42:57Z",
+    "last_updated": "2026-09-15T12:37:05Z",
     "last_all_ok_timestamp": "2026-09-14T22:42:57Z",
     "baseline_date": "2026-05-18",
     "update_success": true,
-    "tickers_ok": 12,
+    "tickers_ok": 11,
     "tickers_total": 12,
-    "failed_tickers": [],
+    "failed_tickers": [
+      {
+        "symbol": "PHPT",
+        "name": "WisdomTree Physical Platinum"
+      }
+    ],
     "currency": "EUR",
     "normalization": "Alle Ticker tagesgenau via EURUSD=X / EURGBP=X auf EUR umgerechnet",
     "fx_snapshot": {
