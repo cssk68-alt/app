@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "last_updated": "2026-09-27",
+    "last_updated": "2026-10-04",
     "total_positions": 12,
     "total_countries": 6,
     "source": "iShares-DE AJAX tab=all (Laender aus Holdings aggregiert + COUNTRY_MAP konsolidiert)",
@@ -16,7 +16,7 @@
       "via": [
         "ALV"
       ],
-      "last_updated": "2026-09-27"
+      "last_updated": "2026-10-04"
     },
     {
       "land": "Südafrika",
@@ -26,7 +26,7 @@
       "via": [
         "PHPT"
       ],
-      "last_updated": "2026-09-27"
+      "last_updated": "2026-10-04"
     },
     {
       "land": "Mexiko",
@@ -36,7 +36,7 @@
       "via": [
         "PHAG"
       ],
-      "last_updated": "2026-09-27"
+      "last_updated": "2026-10-04"
     },
     {
       "land": "Chile",
@@ -46,7 +46,7 @@
       "via": [
         "COPA"
       ],
-      "last_updated": "2026-09-27"
+      "last_updated": "2026-10-04"
     },
     {
       "land": "China",
@@ -56,7 +56,7 @@
       "via": [
         "PHAG"
       ],
-      "last_updated": "2026-09-27"
+      "last_updated": "2026-10-04"
     },
     {
       "land": "Peru",
@@ -66,7 +66,7 @@
       "via": [
         "COPA"
       ],
-      "last_updated": "2026-09-27"
+      "last_updated": "2026-10-04"
     }
   ],
   "regions": [
