@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "last_updated": "2026-10-18",
+    "last_updated": "2026-10-25",
     "source": "iShares-DE AJAX tab=all",
     "endpoint": "https://www.ishares.com/de/privatanleger/de/produkte/{ID}/fund/1478358465952.ajax?fileType=json&tab=all"
   },
